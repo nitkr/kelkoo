@@ -96,8 +96,8 @@
     <string name="thumbnail_corner_radius_desc">Modifier le rayon des coins de la miniature de la pochette de l\'album</string>
     <string name="crop_album_art">Recadrer la pochette d\'album</string>
     <string name="crop_album_art_desc">Forcer un format carré en recadrant les miniatures vidéo</string>
-    <string name="echomusic_canvas">Toile</string>
-    <string name="echomusic_canvas_desc">Afficher les pochettes d\'album animées lorsqu\'elles sont disponibles</string>
+    <string name="album_canvas">Toile</string>
+    <string name="album_canvas_desc">Afficher les pochettes d\'album animées lorsqu\'elles sont disponibles</string>
 	<string name="show_album_canvas">Afficher l\'album toile</string>
     <string name="show_album_canvas_desc">Afficher une toile animée dans l\'album</string>
 
@@ -392,7 +392,7 @@
     <string name="karaoke">Karaoké</string>
     <string name="apple_music_style">Apple Music</string>
     <string name="apple_music_style_letter">Apple Music V2 (Lettre par Lettre)</string>
-    <string name="echomusic_1">Kelkoo (Fluide)</string>
+    <string name="lyrics_fluid">Kelkoo (Fluide)</string>
     <string name="apple_music_lyrics_blur">Paroles d\'Apple Music floues</string>
     <string name="apple_music_lyrics_blur_desc">Appliquez un effet de flou aux lignes de paroles inactives pour créer un effet de mise au point haut de gamme.</string>
     <string name="lyrics_v2_fluid">Paroles V2 (Fluide)</string>

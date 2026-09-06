@@ -237,7 +237,7 @@ private fun EqScreenContent(
                     IconButton(onClick = onNavigateToAxion) {
                         Icon(
                             painter = painterResource(R.drawable.tune),
-                            contentDescription = stringResource(R.string.echo_equalizer)
+                            contentDescription = stringResource(R.string.axion_equalizer)
                         )
                     }
                     IconButton(onClick = onImportCustomEQ) {

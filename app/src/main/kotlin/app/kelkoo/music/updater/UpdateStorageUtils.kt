@@ -1,4 +1,4 @@
-package app.kelkoo.music.echomusic.updater
+package app.kelkoo.music.updater
 
 import android.content.Context
 import android.os.Environment

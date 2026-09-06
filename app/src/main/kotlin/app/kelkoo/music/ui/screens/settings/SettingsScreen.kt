@@ -53,7 +53,7 @@ import app.kelkoo.music.ui.component.Material3SettingsGroup
 import app.kelkoo.music.ui.component.Material3SettingsItem
 import app.kelkoo.music.ui.screens.Screens
 import app.kelkoo.music.ui.utils.backToMain
-import app.kelkoo.music.echomusic.updater.getUpdateAvailableState
+import app.kelkoo.music.updater.getUpdateAvailableState
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +65,7 @@ highlightKey: String? = null) {
     val uriHandler = LocalUriHandler.current
     val context = LocalContext.current
     val isAndroid12OrLater = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-    val isUpdateAvailable = getUpdateAvailableState(context) && app.kelkoo.music.echomusic.updater.getAutoUpdateCheckSetting(context)
+    val isUpdateAvailable = getUpdateAvailableState(context) && app.kelkoo.music.updater.getAutoUpdateCheckSetting(context)
 
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val searchLower = searchQuery.lowercase()
