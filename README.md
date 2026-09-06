@@ -252,7 +252,7 @@ Without the support of this incredible open-source community, none of this would
 
 <!-- readme: contributors -start -->
 <table>
-
+<tr><td align="center"><a href="https://github.com/nithin"><img src="https://avatars.githubusercontent.com/u/268782168?v=4" width="60" height="60" /></a></td></tr>
 </table>
 <!-- readme: contributors -end -->
 
