@@ -436,15 +436,13 @@
     <string name="status_online">متصل</string>
     <string name="status_offline">غير متصل</string>
     <string name="status_checking">جارٍ التحقق...</string>
-    <string name="recognition_notification_channel_name">التعرف على الموسيقى</string>
-    <string name="recognition_notification_channel_desc">يعرض إشعارًا أثناء التعرف على أغنية من الإعدادات السريعة</string>
-    <string name="recognition_notification_listening">جارٍ الاستماع إلى الموسيقى…</string>
-    <string name="recognition_notification_processing">جارٍ التعرف…</string>
-    <string name="recognition_notification_no_match">لم يتم العثور على تطابق</string>
-    <string name="recognition_notification_failed">فشل التعرف</string>
-    <string name="listen_on_echo_music">الاستماع على Kelkoo</string>
-    <string name="qs_tile_music_recognizer">التعرف على الموسيقى</string>
-    <string name="echo_brain_beta">Kelkoo Brain (تجريبي)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">الاستماع على Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (تجريبي)</string>
     <string name="echo_brain_enable">تفعيل Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">إضافة توصيات الذكاء الاصطناعي تلقائيًا استنادًا إلى عادات استماعك</string>
     <string name="echo_brain_profile_statistics">إحصائيات الملف الشخصي</string>

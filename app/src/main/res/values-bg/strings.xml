@@ -396,15 +396,13 @@
     <string name="status_online">На линия</string>
     <string name="status_offline">Извън линия</string>
     <string name="status_checking">Проверяване...</string>
-    <string name="recognition_notification_channel_name">Разпознаване на музика</string>
-    <string name="recognition_notification_channel_desc">Показва известие, докато се разпознава песен от бързите настройки</string>
-    <string name="recognition_notification_listening">Слушане за музика…</string>
-    <string name="recognition_notification_processing">Разпознаване…</string>
-    <string name="recognition_notification_no_match">Не е намерено съвпадение</string>
-    <string name="recognition_notification_failed">Разпознаването е неуспешно</string>
-    <string name="listen_on_echo_music">Слушане в Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Разпознаване на музика</string>
-    <string name="echo_brain_beta">Kelkoo Brain (бета)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Слушане в Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (бета)</string>
     <string name="echo_brain_enable">Активиране на Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Автоматично добавяне на препоръки от ИИ въз основа на навиците ви за слушане</string>
     <string name="echo_brain_profile_statistics">Статистика на профила</string>

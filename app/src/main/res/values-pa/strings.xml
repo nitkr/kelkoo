@@ -397,15 +397,13 @@
     <string name="status_online">ਆਨਲਾਈਨ</string>
     <string name="status_offline">ਆਫਲਾਈਨ</string>
     <string name="status_checking">ਜਾਂਚ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...</string>
-    <string name="recognition_notification_channel_name">ਸੰਗੀਤ ਪਛਾਣ</string>
-    <string name="recognition_notification_channel_desc">ਤੁਰੰਤ ਸੈਟਿੰਗਾਂ ਤੋਂ ਗੀਤ ਦੀ ਪਛਾਣ ਕਰਦੇ ਸਮੇਂ ਸੂਚਨਾ ਦਿਖਾਉਂਦਾ ਹੈ</string>
-    <string name="recognition_notification_listening">ਸੰਗੀਤ ਸੁਣਿਆ ਜਾ ਰਿਹਾ ਹੈ…</string>
-    <string name="recognition_notification_processing">ਪਛਾਣ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ…</string>
-    <string name="recognition_notification_no_match">ਕੋਈ ਮੇਲ ਨਹੀਂ ਮਿਲਿਆ</string>
-    <string name="recognition_notification_failed">ਪਛਾਣ ਅਸਫਲ ਰਹੀ</string>
-    <string name="listen_on_echo_music">Kelkoo ਉੱਤੇ ਸੁਣੋ</string>
-    <string name="qs_tile_music_recognizer">ਸੰਗੀਤ ਪਛਾਣੋ</string>
-    <string name="echo_brain_beta">Kelkoo Brain (ਬੀਟਾ)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo ਉੱਤੇ ਸੁਣੋ</string>
+<string name="echo_brain_beta">Kelkoo Brain (ਬੀਟਾ)</string>
     <string name="echo_brain_enable">Kelkoo Brain ਚਾਲੂ ਕਰੋ</string>
     <string name="echo_brain_enable_desc">ਤੁਹਾਡੀਆਂ ਸੁਣਨ ਦੀਆਂ ਆਦਤਾਂ ਦੇ ਆਧਾਰ ਉੱਤੇ AI ਸਿਫਾਰਸ਼ਾਂ ਆਪਣੇ-ਆਪ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="echo_brain_profile_statistics">ਪ੍ਰੋਫਾਈਲ ਅੰਕੜੇ</string>

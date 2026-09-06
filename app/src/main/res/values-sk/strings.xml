@@ -417,15 +417,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Kontroluje sa...</string>
-    <string name="recognition_notification_channel_name">Rozpoznávanie hudby</string>
-    <string name="recognition_notification_channel_desc">Zobrazuje upozornenie počas rozpoznávania skladby z rýchlych nastavení</string>
-    <string name="recognition_notification_listening">Počúva sa hudba…</string>
-    <string name="recognition_notification_processing">Rozpoznáva sa…</string>
-    <string name="recognition_notification_no_match">Nenašla sa žiadna zhoda</string>
-    <string name="recognition_notification_failed">Rozpoznávanie zlyhalo</string>
-    <string name="listen_on_echo_music">Počúvať v Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Rozpoznať hudbu</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Počúvať v Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Povoliť Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Automaticky pridávať odporúčania umelej inteligencie podľa vašich návykov pri počúvaní</string>
     <string name="echo_brain_profile_statistics">Štatistiky profilu</string>

@@ -396,15 +396,13 @@
     <string name="status_online">ഓൺലൈൻ</string>
     <string name="status_offline">ഓഫ്‌ലൈൻ</string>
     <string name="status_checking">പരിശോധിക്കുന്നു...</string>
-    <string name="recognition_notification_channel_name">സംഗീതം തിരിച്ചറിയൽ</string>
-    <string name="recognition_notification_channel_desc">ദ്രുത ക്രമീകരണങ്ങളിൽ നിന്ന് ഒരു ഗാനം തിരിച്ചറിയുമ്പോൾ അറിയിപ്പ് കാണിക്കുന്നു</string>
-    <string name="recognition_notification_listening">സംഗീതത്തിനായി ശ്രവിക്കുന്നു…</string>
-    <string name="recognition_notification_processing">തിരിച്ചറിയുന്നു…</string>
-    <string name="recognition_notification_no_match">പൊരുത്തമൊന്നും കണ്ടെത്തിയില്ല</string>
-    <string name="recognition_notification_failed">തിരിച്ചറിയൽ പരാജയപ്പെട്ടു</string>
-    <string name="listen_on_echo_music">Kelkoo-ൽ കേൾക്കുക</string>
-    <string name="qs_tile_music_recognizer">സംഗീതം തിരിച്ചറിയുക</string>
-    <string name="echo_brain_beta">Kelkoo Brain (ബീറ്റ)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo-ൽ കേൾക്കുക</string>
+<string name="echo_brain_beta">Kelkoo Brain (ബീറ്റ)</string>
     <string name="echo_brain_enable">Kelkoo Brain പ്രവർത്തനക്ഷമമാക്കുക</string>
     <string name="echo_brain_enable_desc">നിങ്ങളുടെ ശ്രവണ ശീലങ്ങളെ അടിസ്ഥാനമാക്കി AI ശുപാർശകൾ സ്വയമേവ ഉൾപ്പെടുത്തുക</string>
     <string name="echo_brain_profile_statistics">പ്രൊഫൈൽ സ്ഥിതിവിവരക്കണക്കുകൾ</string>

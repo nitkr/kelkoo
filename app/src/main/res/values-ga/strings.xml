@@ -415,15 +415,13 @@
     <string name="status_online">Ar líne</string>
     <string name="status_offline">As líne</string>
     <string name="status_checking">Á sheiceáil...</string>
-    <string name="recognition_notification_channel_name">Aithint ceoil</string>
-    <string name="recognition_notification_channel_desc">Taispeánann fógra agus amhrán á aithint ó na socruithe tapa</string>
-    <string name="recognition_notification_listening">Ag éisteacht le ceol…</string>
-    <string name="recognition_notification_processing">Á aithint…</string>
-    <string name="recognition_notification_no_match">Níor aimsíodh aon mheaitseáil</string>
-    <string name="recognition_notification_failed">Theip ar an aithint</string>
-    <string name="listen_on_echo_music">Éist ar Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Aithin ceol</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Béite)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Éist ar Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Béite)</string>
     <string name="echo_brain_enable">Cumasaigh Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Cuir moltaí AI isteach go huathoibríoch bunaithe ar do nósanna éisteachta</string>
     <string name="echo_brain_profile_statistics">Staitisticí próifíle</string>

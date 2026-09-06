@@ -388,15 +388,13 @@
     <string name="status_online">オンライン</string>
     <string name="status_offline">オフライン</string>
     <string name="status_checking">確認中...</string>
-    <string name="recognition_notification_channel_name">音楽認識</string>
-    <string name="recognition_notification_channel_desc">クイック設定から曲を識別している間、通知を表示します</string>
-    <string name="recognition_notification_listening">音楽を聴き取っています…</string>
-    <string name="recognition_notification_processing">識別中…</string>
-    <string name="recognition_notification_no_match">一致する曲が見つかりませんでした</string>
-    <string name="recognition_notification_failed">認識に失敗しました</string>
-    <string name="listen_on_echo_music">Kelkooで聴く</string>
-    <string name="qs_tile_music_recognizer">音楽を認識</string>
-    <string name="echo_brain_beta">Kelkoo Brain（ベータ版）</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkooで聴く</string>
+<string name="echo_brain_beta">Kelkoo Brain（ベータ版）</string>
     <string name="echo_brain_enable">Kelkoo Brainを有効にする</string>
     <string name="echo_brain_enable_desc">再生傾向に基づくAIのおすすめを自動的に追加します</string>
     <string name="echo_brain_profile_statistics">プロフィール統計</string>

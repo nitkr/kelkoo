@@ -428,15 +428,13 @@
     <string name="status_online">ऑनलाइन</string>
     <string name="status_offline">ऑफ़लाइन</string>
     <string name="status_checking">जाँच हो रही है..।</string>
-    <string name="recognition_notification_channel_name">संगीत पहचान</string>
-    <string name="recognition_notification_channel_desc">त्वरित सेटिंग्स से गाने की पहचान करते समय सूचना दिखाता है</string>
-    <string name="recognition_notification_listening">संगीत सुन रहा है…</string>
-    <string name="recognition_notification_processing">पहचान हो रही है…</string>
-    <string name="recognition_notification_no_match">कोई मिलान नहीं मिला</string>
-    <string name="recognition_notification_failed">पहचान विफल</string>
-    <string name="listen_on_echo_music">Kelkoo पर सुनें</string>
-    <string name="qs_tile_music_recognizer">संगीत पहचानें</string>
-    <string name="listenbrainz_scrobbling">ListenBrainz स्क्रोब्लिंग</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo पर सुनें</string>
+<string name="listenbrainz_scrobbling">ListenBrainz स्क्रोब्लिंग</string>
     <string name="listenbrainz_scrobbling_description">अपने सुने गए ट्रैक स्वचालित रूप से ListenBrainz पर सबमिट करें</string>
     <string name="export_directory_unavailable">इस डिवाइस पर निर्यात निर्देशिका तक पहुँचने में असमर्थ। कृपया मैन्युअल रूप से एक सेट करें।</string>
     <string name="set_listenbrainz_token">ListenBrainz टोकन सेट करें</string>

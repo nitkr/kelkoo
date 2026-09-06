@@ -248,8 +248,6 @@ class MainActivity : ComponentActivity() {
     companion object {
         const val ACTION_SEARCH = "app.kelkoo.music.action.SEARCH"
         const val ACTION_LIBRARY = "app.kelkoo.music.action.LIBRARY"
-        const val ACTION_RECOGNITION = "app.kelkoo.music.action.RECOGNITION"
-        const val EXTRA_AUTO_START_RECOGNITION = "auto_start_recognition"
     }
 
     @Inject
@@ -343,7 +341,6 @@ class MainActivity : ComponentActivity() {
         super.onNewIntent(intent)
         if (::navController.isInitialized) {
             handleDeepLinkIntent(intent, navController)
-            handleRecognitionIntent(intent, navController)
             handleAssistantSearchIntent(intent, navController)
         } else {
             pendingIntent = intent
@@ -739,17 +736,6 @@ class MainActivity : ComponentActivity() {
                 }
                 val shuffleEnabled by playerConnection?.shuffleModeEnabled?.collectAsState() ?: remember { mutableStateOf(false) }
 
-                val onMusicRecognitionClick: (() -> Unit) = remember(navController, playerBottomSheetState) {
-                    {
-                        if (playerBottomSheetState.isExpanded) {
-                            playerBottomSheetState.collapseSoft()
-                        }
-                        navController.navigate("recognition") {
-                            launchSingleTop = true
-                        }
-                    }
-                }
-
                 val playerMediaMetadata = playerConnection?.player?.currentMediaItem?.mediaMetadata
                 val hasDockedPlayerAccessory =
                     useFloatingNavBar && playerMediaMetadata != null && !showRail && shouldShowNavigationBar
@@ -786,20 +772,25 @@ class MainActivity : ComponentActivity() {
                 
                 LaunchedEffect(navBackStackEntry) {
                     if (inSearchScreen) {
-                        val searchQuery = withContext(Dispatchers.IO) {
-                            val rawQuery = navBackStackEntry?.arguments?.getString("query")!!
-                            try {
-                                URLDecoder.decode(rawQuery, "UTF-8")
-                            } catch (e: IllegalArgumentException) {
-                                rawQuery
+                        val rawQuery = navBackStackEntry?.arguments?.getString("query")
+                        if (rawQuery != null) {
+                            val searchQuery = withContext(Dispatchers.IO) {
+                                try {
+                                    URLDecoder.decode(rawQuery, "UTF-8")
+                                } catch (e: IllegalArgumentException) {
+                                    rawQuery
+                                }
                             }
-                        }
-                        onQueryChange(
-                            TextFieldValue(
-                                searchQuery,
-                                TextRange(searchQuery.length)
+                            onQueryChange(
+                                TextFieldValue(
+                                    searchQuery,
+                                    TextRange(searchQuery.length)
+                                )
                             )
-                        )
+                        } else {
+                            // Search tab (no query arg) — keep empty / typed query; do not NPE
+                            onQueryChange(TextFieldValue())
+                        }
                     } else if (navigationItems.fastAny { it.route == navBackStackEntry?.destination?.route }) {
                         onQueryChange(TextFieldValue())
                     }
@@ -884,13 +875,10 @@ class MainActivity : ComponentActivity() {
                 LaunchedEffect(Unit) {
                     if (pendingIntent != null) {
                         handleDeepLinkIntent(pendingIntent!!, navController)
-                        handleRecognitionIntent(pendingIntent!!, navController)
                         handleAssistantSearchIntent(pendingIntent!!, navController)
                         pendingIntent = null
                     } else if (intent != null && (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND)) {
                         handleDeepLinkIntent(intent, navController)
-                    } else if (intent != null && intent.action == ACTION_RECOGNITION) {
-                        handleRecognitionIntent(intent, navController)
                     } else if (intent != null && intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
                         handleAssistantSearchIntent(intent, navController)
                     }
@@ -900,8 +888,6 @@ class MainActivity : ComponentActivity() {
                     val listener = Consumer<Intent> { intent ->
                         if (intent.action == Intent.ACTION_VIEW || intent.action == Intent.ACTION_SEND) {
                             handleDeepLinkIntent(intent, navController)
-                        } else if (intent.action == ACTION_RECOGNITION) {
-                            handleRecognitionIntent(intent, navController)
                         } else if (intent.action == android.provider.MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH) {
                             handleAssistantSearchIntent(intent, navController)
                         }
@@ -1156,8 +1142,6 @@ class MainActivity : ComponentActivity() {
                                                 shuffleEnabled = shuffleEnabled,
                                                 shuffleIconRes = R.drawable.shuffle,
                                                 shuffleContentDescription = stringResource(R.string.shuffle),
-                                                onMusicRecognitionClick = onMusicRecognitionClick,
-                                                musicRecognitionContentDescription = stringResource(R.string.recognition),
                                                 onAiHubClick = { 
                                                     navController.navigate("settings/ai") {
                                                         launchSingleTop = true
@@ -1252,21 +1236,12 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
 
-                            val onRailSearchLongClick: () -> Unit = remember(navController) {
-                                {
-                                    navController.navigate("recognition") {
-                                        launchSingleTop = true
-                                    }
-                                }
-                            }
-
                             if (showRail && currentRoute != "update") {
                                 AppNavigationRail(
                                     navigationItems = navigationItems,
                                     currentRoute = currentRoute,
                                     onItemClick = onRailItemClick,
                                     pureBlack = pureBlack,
-                                    onSearchLongClick = onRailSearchLongClick
                                 )
                             }
                             Box(Modifier.weight(1f)) {
@@ -1552,18 +1527,6 @@ class MainActivity : ComponentActivity() {
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             window.navigationBarColor = (if (isDark) Color.Transparent else Color.Black.copy(alpha = 0.2f)).toArgb()
-        }
-    }
-    private fun handleRecognitionIntent(
-        intent: Intent,
-        navController: NavHostController,
-    ) {
-        if (intent.action != ACTION_RECOGNITION) return
-        val autoStart = intent.getBooleanExtra(EXTRA_AUTO_START_RECOGNITION, false)
-
-        intent.removeExtra(EXTRA_AUTO_START_RECOGNITION)
-        navController.navigate(if (autoStart) "recognition?autoStart=true" else "recognition") {
-            launchSingleTop = true
         }
     }
 

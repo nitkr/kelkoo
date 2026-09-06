@@ -409,15 +409,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Sinusuri...</string>
-    <string name="recognition_notification_channel_name">Pagkilala sa musika</string>
-    <string name="recognition_notification_channel_desc">Nagpapakita ng notification habang kinikilala ang isang kanta mula sa mga quick setting</string>
-    <string name="recognition_notification_listening">Nakikinig para sa musika…</string>
-    <string name="recognition_notification_processing">Kinikilala…</string>
-    <string name="recognition_notification_no_match">Walang nakitang katugma</string>
-    <string name="recognition_notification_failed">Nabigo ang pagkilala</string>
-    <string name="listen_on_echo_music">Pakinggan sa Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Kilalanin ang musika</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Pakinggan sa Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Paganahin ang Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Awtomatikong magdagdag ng mga rekomendasyon ng AI batay sa iyong mga nakagawian sa pakikinig</string>
     <string name="echo_brain_profile_statistics">Mga Estadistika ng Profile</string>
