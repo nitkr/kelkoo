@@ -43,6 +43,6 @@ sealed class Screens(
     )
 
     companion object {
-        val MainScreens = listOf(Home, Search, ListenTogether, Library)
+        val MainScreens = listOf(Home, Search, Library) // Drive Night: primary nav only
     }
 }

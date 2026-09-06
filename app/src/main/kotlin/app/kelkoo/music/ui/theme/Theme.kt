@@ -24,7 +24,7 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.score.Score
 
-val DefaultThemeColor = Color(0xFFED5564)
+val DefaultThemeColor = Color(0xFFE8A838) // Drive Night amber
 
 @Composable
 fun echomusicTheme(
@@ -53,10 +53,24 @@ fun echomusicTheme(
 
     
     val colorScheme = remember(baseColorScheme, pureBlack, darkTheme) {
-        if (darkTheme && pureBlack) {
+        val scheme = if (darkTheme && pureBlack) {
             baseColorScheme.pureBlack(true)
         } else {
             baseColorScheme
+        }
+        // Drive Night: deep charcoal surfaces in dark mode
+        if (darkTheme) {
+            scheme.copy(
+                background = Color(0xFF121212),
+                surface = Color(0xFF1A1A1A),
+                surfaceContainer = Color(0xFF242424),
+                surfaceContainerHigh = Color(0xFF2A2A2A),
+                surfaceContainerHighest = Color(0xFF303030),
+                surfaceContainerLow = Color(0xFF1E1E1E),
+                surfaceContainerLowest = Color(0xFF161616),
+            )
+        } else {
+            scheme
         }
     }
 

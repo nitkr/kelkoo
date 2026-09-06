@@ -455,37 +455,9 @@ class MainActivity : ComponentActivity() {
         var availableUpdateChangelog by remember { androidx.compose.runtime.mutableStateOf<List<app.kelkoo.music.echomusic.updater.ChangelogSection>>(emptyList()) }
         var availableUpdateDescription by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
+        // Drive Night: no Echo/upstream update popup on cold start
         LaunchedEffect(Unit) {
-            val prefs = context.dataStore.data.first()
-
-            if (getAutoUpdateCheckSetting(context)) {
-                
-                delay(2000L)
-                checkForUpdate(
-                    context = context,
-                    onSuccess = { latestVersion, isAvailable, changelog, _, _, description, _, _ ->
-                        val currentVersion = BuildConfig.VERSION_NAME
-                        Log.d("UpdateCheck", "Startup check success. Latest: $latestVersion, Current: $currentVersion, isAvailable: $isAvailable")
-                        saveUpdateAvailableState(context, isAvailable)
-                        
-                        if (isAvailable) {
-                            availableUpdateVersion = latestVersion
-                            availableUpdateChangelog = changelog
-                            availableUpdateDescription = description
-                            showUpdateDialog = true
-                        }
-
-                        if (isAvailable && getUpdateNotificationsSetting(context)) {
-                            Log.d("UpdateCheck", "Posting update notification for $latestVersion")
-                            UpdateNotificationHelper.showUpdateNotification(context, latestVersion)
-                        }
-                    },
-                    onError = {
-                        Log.e("UpdateCheck", "Startup check failed")
-                        
-                    }
-                )
-            }
+            // Update checks remain available from Settings; do not block launch.
         }
 
         LaunchedEffect(enableHighRefreshRate) {
@@ -635,12 +607,8 @@ class MainActivity : ComponentActivity() {
                 val (previousTab, setPreviousTab) = rememberSaveable { mutableStateOf("home") }
 
                 val (listenTogetherInTopBar) = rememberPreference(ListenTogetherInTopBarKey, defaultValue = true)
-                val navigationItems = remember(listenTogetherInTopBar) { 
-                    if (listenTogetherInTopBar) {
-                        Screens.MainScreens.filter { it != Screens.ListenTogether }
-                    } else {
-                        Screens.MainScreens
-                    }
+                val navigationItems = remember {
+                    Screens.MainScreens // Home / Search / Library only (Drive Night)
                 }
                 val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                 val defaultOpenTab = remember {
@@ -884,9 +852,10 @@ class MainActivity : ComponentActivity() {
                 val (lastOpenedVersionCode, setLastOpenedVersionCode) = rememberPreference(app.kelkoo.music.constants.LastOpenedVersionCodeKey, -1)
                 var showWelcomeDialog by remember { mutableStateOf(false) }
 
+                // Drive Night: no Welcome/About popup on cold start or version bump
                 LaunchedEffect(lastOpenedVersionCode) {
                     if (lastOpenedVersionCode < BuildConfig.VERSION_CODE) {
-                        showWelcomeDialog = true
+                        setLastOpenedVersionCode(BuildConfig.VERSION_CODE)
                     }
                 }
 
