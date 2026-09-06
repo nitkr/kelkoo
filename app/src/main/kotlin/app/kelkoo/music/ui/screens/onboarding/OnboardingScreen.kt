@@ -56,33 +56,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import app.kelkoo.music.R
 import app.kelkoo.music.constants.ContentCountryKey
 import app.kelkoo.music.constants.ContentLanguageKey
 import app.kelkoo.music.constants.ContentLanguagesKey
+import app.kelkoo.music.constants.CountryCodeToName
 import app.kelkoo.music.constants.OnboardingCompleteKey
-import app.kelkoo.music.constants.SYSTEM_DEFAULT
 import app.kelkoo.music.ui.theme.DefaultThemeColor
+import app.kelkoo.music.utils.ContentLanguageSupport
 import app.kelkoo.music.utils.dataStore
+import com.music.innertube.YouTube
+import com.music.innertube.models.YouTubeLocale
 import kotlinx.coroutines.launch
-
-private data class MusicLanguage(val code: String, val label: String)
-
-private val OnboardingLanguages = listOf(
-    MusicLanguage("en", "English"),
-    MusicLanguage("hi", "Hindi"),
-    MusicLanguage("ml", "Malayalam"),
-    MusicLanguage("ta", "Tamil"),
-    MusicLanguage("te", "Telugu"),
-    MusicLanguage("kn", "Kannada"),
-    MusicLanguage("bn", "Bengali"),
-    MusicLanguage("mr", "Marathi"),
-    MusicLanguage("gu", "Gujarati"),
-    MusicLanguage("pa", "Punjabi"),
-)
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -92,7 +79,12 @@ fun OnboardingScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var page by remember { mutableIntStateOf(0) }
-    var selectedLanguages by remember { mutableStateOf(setOf("en")) }
+    var selectedCountry by remember { mutableStateOf(ContentLanguageSupport.DEFAULT_COUNTRY) }
+    var selectedLanguages by remember {
+        mutableStateOf(ContentLanguageSupport.defaultLanguagesForCountry(ContentLanguageSupport.DEFAULT_COUNTRY))
+    }
+    var showAllCountries by remember { mutableStateOf(false) }
+    var showAllLanguages by remember { mutableStateOf(false) }
 
     val notificationsGranted = remember {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) true
@@ -123,16 +115,17 @@ fun OnboardingScreen(
 
     fun completeOnboarding() {
         scope.launch {
+            val langs = selectedLanguages.ifEmpty {
+                ContentLanguageSupport.defaultLanguagesForCountry(selectedCountry)
+            }
+            val primary = ContentLanguageSupport.primaryLanguage(langs, selectedCountry)
             context.dataStore.edit { prefs ->
-                val langs = selectedLanguages.ifEmpty { setOf("en") }
+                prefs[ContentCountryKey] = selectedCountry
                 prefs[ContentLanguagesKey] = langs
-                prefs[ContentLanguageKey] = langs.firstOrNull() ?: "en"
-                val country = prefs[ContentCountryKey]
-                if (country.isNullOrBlank() || country == SYSTEM_DEFAULT || country == "system") {
-                    prefs[ContentCountryKey] = "IN"
-                }
+                prefs[ContentLanguageKey] = primary
                 prefs[OnboardingCompleteKey] = true
             }
+            YouTube.locale = YouTubeLocale(gl = selectedCountry, hl = primary)
             onFinished()
         }
     }
@@ -171,8 +164,23 @@ fun OnboardingScreen(
                         onSkip = { page = 2 },
                         onNext = { page = 2 },
                     )
+                    2 -> CountryPage(
+                        selected = selectedCountry,
+                        showAll = showAllCountries,
+                        onShowAllChange = { showAllCountries = it },
+                        onSelect = { code ->
+                            selectedCountry = code
+                            selectedLanguages =
+                                ContentLanguageSupport.defaultLanguagesForCountry(code)
+                            showAllLanguages = false
+                        },
+                        onNext = { page = 3 },
+                    )
                     else -> LanguagesPage(
+                        country = selectedCountry,
                         selected = selectedLanguages,
+                        showAll = showAllLanguages,
+                        onShowAllChange = { showAllLanguages = it },
                         onToggle = { code ->
                             selectedLanguages = selectedLanguages.toMutableSet().also { set ->
                                 if (!set.add(code)) {
@@ -191,7 +199,7 @@ fun OnboardingScreen(
                     .padding(top = 12.dp),
                 horizontalArrangement = Arrangement.Center,
             ) {
-                repeat(3) { index ->
+                repeat(4) { index ->
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 4.dp)
@@ -369,13 +377,100 @@ private fun PermissionCard(
     }
 }
 
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CountryPage(
+    selected: String,
+    showAll: Boolean,
+    onShowAllChange: (Boolean) -> Unit,
+    onSelect: (String) -> Unit,
+    onNext: () -> Unit,
+) {
+    val countries = if (showAll) {
+        CountryCodeToName.keys.sortedBy { ContentLanguageSupport.countryName(it) }
+    } else {
+        ContentLanguageSupport.popularCountries
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = stringResource(R.string.onboarding_country_title),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = stringResource(R.string.onboarding_country_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.7f),
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            countries.forEach { code ->
+                val isSelected = code == selected
+                FilterChip(
+                    selected = isSelected,
+                    onClick = { onSelect(code) },
+                    label = { Text(ContentLanguageSupport.countryName(code)) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = DefaultThemeColor,
+                        selectedLabelColor = Color.Black,
+                        containerColor = Color(0xFF242424),
+                        labelColor = Color.White,
+                    ),
+                )
+            }
+        }
+        TextButton(onClick = { onShowAllChange(!showAll) }) {
+            Text(
+                text = stringResource(
+                    if (showAll) R.string.onboarding_popular_countries
+                    else R.string.onboarding_more_countries
+                ),
+                color = DefaultThemeColor,
+            )
+        }
+        Spacer(modifier.height(16.dp))
+        Button(
+            onClick = onNext,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = DefaultThemeColor,
+                contentColor = Color.Black,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Text(stringResource(R.string.onboarding_next), fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LanguagesPage(
+    country: String,
     selected: Set<String>,
+    showAll: Boolean,
+    onShowAllChange: (Boolean) -> Unit,
     onToggle: (String) -> Unit,
     onFinish: () -> Unit,
 ) {
+    val codes = if (showAll) {
+        ContentLanguageSupport.allLanguageCodes()
+    } else {
+        ContentLanguageSupport.suggestedLanguages(country)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -393,16 +488,21 @@ private fun LanguagesPage(
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f),
         )
+        Text(
+            text = ContentLanguageSupport.countryName(country),
+            style = MaterialTheme.typography.labelLarge,
+            color = DefaultThemeColor,
+        )
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            OnboardingLanguages.forEach { lang ->
-                val isSelected = lang.code in selected
+            codes.forEach { code ->
+                val isSelected = code in selected
                 FilterChip(
                     selected = isSelected,
-                    onClick = { onToggle(lang.code) },
-                    label = { Text(lang.label) },
+                    onClick = { onToggle(code) },
+                    label = { Text(ContentLanguageSupport.languageLabel(code)) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = DefaultThemeColor,
                         selectedLabelColor = Color.Black,
@@ -411,6 +511,15 @@ private fun LanguagesPage(
                     ),
                 )
             }
+        }
+        TextButton(onClick = { onShowAllChange(!showAll) }) {
+            Text(
+                text = stringResource(
+                    if (showAll) R.string.onboarding_show_suggested_languages
+                    else R.string.onboarding_show_all_languages
+                ),
+                color = DefaultThemeColor,
+            )
         }
         Spacer(Modifier.height(24.dp))
         Button(
