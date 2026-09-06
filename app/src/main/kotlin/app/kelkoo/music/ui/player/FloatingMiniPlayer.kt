@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -212,7 +211,7 @@ fun FloatingMiniPlayer(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(artSize)
-                    .clip(CircleShape), // Highway Halo continuity
+                    .clip(RoundedCornerShape(8.dp)), // full-art NP continuity (non-circular)
             )
 
             Spacer(Modifier.width(if (isInline) 8.dp else 12.dp))
