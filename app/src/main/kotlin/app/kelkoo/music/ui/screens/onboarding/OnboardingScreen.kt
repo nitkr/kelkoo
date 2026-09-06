@@ -56,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import app.kelkoo.music.R
@@ -438,7 +439,7 @@ private fun CountryPage(
                 color = DefaultThemeColor,
             )
         }
-        Spacer(modifier.height(16.dp))
+        Spacer(Modifier.height(16.dp))
         Button(
             onClick = onNext,
             colors = ButtonDefaults.buttonColors(
