@@ -70,6 +70,11 @@ constructor(
     var toggleStartRadio: () -> Unit = {}
     var toggleLibrary: () -> Unit = {}
 
+    @Volatile
+    private var lastSearchQuery: String = ""
+    @Volatile
+    private var lastSearchResults: List<MediaItem> = emptyList()
+
     /**
      * Whether [controller] is a surface allowed to mutate playback state via the toggle
      * custom commands (like/library/shuffle/repeat/radio): a trusted controller (the app
@@ -261,7 +266,16 @@ constructor(
         return scope.future(Dispatchers.IO) {
             val children =
                 when (parentId) {
-                    MusicService.ROOT -> rootChildren()
+                    MusicService.ROOT ->
+                        if (params?.isRecent == true) {
+                            recentChildren()
+                        } else {
+                            rootChildren()
+                        }
+
+                    MusicService.LIBRARY -> libraryChildren()
+
+                    MusicService.RECENT -> recentChildren()
 
                     MusicService.SONG -> database.songsByCreateDateAsc().first()
                         .map { it.toMediaItem(parentId) }
@@ -426,8 +440,13 @@ constructor(
         query: String,
         params: MediaLibraryService.LibraryParams?
     ): ListenableFuture<LibraryResult<Void>> {
-        session.notifySearchResultChanged(browser, query, 1, params)
-        return Futures.immediateFuture(LibraryResult.ofVoid())
+        return scope.future(Dispatchers.IO) {
+            val results = if (query.isEmpty()) emptyList() else buildSearchResults(query)
+            lastSearchQuery = query
+            lastSearchResults = results
+            session.notifySearchResultChanged(browser, query, results.size, params)
+            LibraryResult.ofVoid()
+        }
     }
 
     /**
@@ -458,72 +477,17 @@ constructor(
             if (query.isEmpty()) {
                 return@future LibraryResult.ofItemList(emptyList(), params.withContentStyleHints(isAutomotive))
             }
-
             try {
-                val searchResults = mutableListOf<MediaItem>()
-
-                val localSongs = database.allSongs().first().filter { song ->
-                    song.song.title.contains(query, ignoreCase = true) ||
-                    song.artists.any { it.name.contains(query, ignoreCase = true) } ||
-                    song.album?.title?.contains(query, ignoreCase = true) == true
-                }
-                
-                val artistSongs = database.searchArtists(query).first().flatMap { artist ->
-                    database.artistSongsByCreateDateAsc(artist.id).first()
-                }
-                
-                val albumSongs = database.searchAlbums(query).first().flatMap { album ->
-                    database.albumSongs(album.id).first()
-                }
-                
-                val playlistSongs = database.searchPlaylists(query).first().flatMap { playlist ->
-                    database.playlistSongs(playlist.id).first().map { it.song }
-                }
-
-                val allLocalSongs = (localSongs + artistSongs + albumSongs + playlistSongs)
-                    .distinctBy { it.id }
-                
-                allLocalSongs.forEach { song ->
-                    searchResults.add(song.toMediaItem(
-                        path = "${MusicService.SEARCH}/$query",
-                        isPlayable = true,
-                        isBrowsable = false
-                    ))
-                }
-
-                try {
-                    val onlineResults = YouTube.search(query, YouTube.SearchFilter.FILTER_SONG)
-                        .getOrNull()
-                        ?.items
-                        ?.filterIsInstance<SongItem>()
-                        ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
-                        ?.filterVideoSongs(context.dataStore.get(HideVideoSongsKey, false) || context.dataStore.get(app.kelkoo.music.constants.DataSaverEnabledKey, false))
-                        ?.filter { onlineSong ->
-                            !allLocalSongs.any { localSong ->
-                                localSong.id == onlineSong.id ||
-                                (localSong.song.title.equals(onlineSong.title, ignoreCase = true) &&
-                                 localSong.artists.any { artist ->
-                                     onlineSong.artists.any {
-                                         it.name.equals(artist.name, ignoreCase = true)
-                                     }
-                                 })
-                            }
-                        } ?: emptyList()
-
-                    onlineResults.forEach { songItem ->
-                        try {
-                            database.query { insert(songItem.toMediaMetadata()) }
-                        } catch (e: Exception) {
+                val searchResults =
+                    if (query == lastSearchQuery && lastSearchResults.isNotEmpty()) {
+                        lastSearchResults
+                    } else {
+                        buildSearchResults(query).also {
+                            lastSearchQuery = query
+                            lastSearchResults = it
                         }
-                        
-                        searchResults.add(songItem.toMediaItem("${MusicService.SEARCH}/$query"))
                     }
-                } catch (e: Exception) {
-                    reportException(e)
-                }
-                
                 LibraryResult.ofItemList(searchResults.paginate(page, pageSize), params.withContentStyleHints(isAutomotive))
-                
             } catch (e: Exception) {
                 reportException(e)
                 LibraryResult.ofItemList(emptyList(), params.withContentStyleHints(isAutomotive))
@@ -553,6 +517,24 @@ constructor(
                     MediaItemsWithStartPosition(
                         allSongs.subList(start, end).map { it.toMediaItem() },
                         index - start,
+                        startPositionMs
+                    )
+                }
+
+                MusicService.RECENT -> {
+                    val songId = path.getOrNull(1) ?: return@future defaultResult
+                    val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+                    val recentSongs = database.events().first()
+                        .asSequence()
+                        .filter { !hideVideoSongs || !it.song.song.isVideo }
+                        .map { it.song }
+                        .distinctBy { it.id }
+                        .take(50)
+                        .toList()
+                    val index = recentSongs.indexOfFirst { it.id == songId }.takeIf { it != -1 } ?: 0
+                    MediaItemsWithStartPosition(
+                        recentSongs.map { it.toMediaItem() },
+                        index,
                         startPositionMs
                     )
                 }
@@ -760,6 +742,34 @@ constructor(
 
     private fun rootChildren() = listOf(
         browsableMediaItem(
+            MusicService.LIBRARY,
+            context.getString(R.string.filter_library),
+            null,
+            drawableUri(R.drawable.library_music),
+            MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+            singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        ),
+        browsableMediaItem(
+            MusicService.PLAYLIST,
+            context.getString(R.string.playlists),
+            null,
+            drawableUri(R.drawable.queue_music),
+            MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS,
+            singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        ),
+        browsableMediaItem(
+            MusicService.RECENT,
+            context.getString(R.string.auto_recents),
+            null,
+            drawableUri(R.drawable.history),
+            MediaMetadata.MEDIA_TYPE_FOLDER_MIXED,
+            singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
+        ),
+    )
+
+    /** Songs / Artists / Albums under the Library browse root (Android Auto MVP). */
+    private fun libraryChildren() = listOf(
+        browsableMediaItem(
             MusicService.SONG,
             context.getString(R.string.songs),
             null,
@@ -783,15 +793,92 @@ constructor(
             MediaMetadata.MEDIA_TYPE_FOLDER_ALBUMS,
             singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
         ),
-        browsableMediaItem(
-            MusicService.PLAYLIST,
-            context.getString(R.string.playlists),
-            null,
-            drawableUri(R.drawable.queue_music),
-            MediaMetadata.MEDIA_TYPE_FOLDER_PLAYLISTS,
-            singleItemStyle = MediaConstants.EXTRAS_VALUE_CONTENT_STYLE_CATEGORY_GRID_ITEM,
-        ),
     )
+
+    /** Recently played songs from local listen history (distinct, newest first). */
+    private suspend fun recentChildren(limit: Int = 50): List<MediaItem> {
+        val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
+        return database.events().first()
+            .asSequence()
+            .filter { !hideVideoSongs || !it.song.song.isVideo }
+            .map { it.song }
+            .distinctBy { it.id }
+            .take(limit)
+            .map { it.toMediaItem(MusicService.RECENT) }
+            .toList()
+    }
+
+    private suspend fun buildSearchResults(query: String): List<MediaItem> {
+        val searchResults = mutableListOf<MediaItem>()
+
+        val localSongs = database.allSongs().first().filter { song ->
+            song.song.title.contains(query, ignoreCase = true) ||
+                song.artists.any { it.name.contains(query, ignoreCase = true) } ||
+                song.album?.title?.contains(query, ignoreCase = true) == true
+        }
+
+        val artistSongs = database.searchArtists(query).first().flatMap { artist ->
+            database.artistSongsByCreateDateAsc(artist.id).first()
+        }
+
+        val albumSongs = database.searchAlbums(query).first().flatMap { album ->
+            database.albumSongs(album.id).first()
+        }
+
+        val playlistSongs = database.searchPlaylists(query).first().flatMap { playlist ->
+            database.playlistSongs(playlist.id).first().map { it.song }
+        }
+
+        val allLocalSongs = (localSongs + artistSongs + albumSongs + playlistSongs)
+            .distinctBy { it.id }
+
+        allLocalSongs.forEach { song ->
+            searchResults.add(
+                song.toMediaItem(
+                    path = "${MusicService.SEARCH}/$query",
+                    isPlayable = true,
+                    isBrowsable = false,
+                ),
+            )
+        }
+
+        try {
+            val onlineResults = YouTube.search(query, YouTube.SearchFilter.FILTER_SONG)
+                .getOrNull()
+                ?.items
+                ?.filterIsInstance<SongItem>()
+                ?.filterExplicit(context.dataStore.get(HideExplicitKey, false))
+                ?.filterVideoSongs(
+                    context.dataStore.get(HideVideoSongsKey, false) ||
+                        context.dataStore.get(app.kelkoo.music.constants.DataSaverEnabledKey, false),
+                )
+                ?.filter { onlineSong ->
+                    !allLocalSongs.any { localSong ->
+                        localSong.id == onlineSong.id ||
+                            (
+                                localSong.song.title.equals(onlineSong.title, ignoreCase = true) &&
+                                    localSong.artists.any { artist ->
+                                        onlineSong.artists.any {
+                                            it.name.equals(artist.name, ignoreCase = true)
+                                        }
+                                    }
+                                )
+                    }
+                } ?: emptyList()
+
+            onlineResults.forEach { songItem ->
+                try {
+                    database.query { insert(songItem.toMediaMetadata()) }
+                } catch (_: Exception) {
+                }
+                searchResults.add(songItem.toMediaItem("${MusicService.SEARCH}/$query"))
+            }
+        } catch (e: Exception) {
+            reportException(e)
+        }
+
+        return searchResults
+    }
 
     private suspend fun getMediaItem(mediaId: String): MediaItem? {
         val path = mediaId.split("/")
@@ -800,9 +887,25 @@ constructor(
         return when (type) {
             MusicService.ROOT -> rootMediaItem()
 
+            MusicService.LIBRARY -> {
+                if (path.size == 1) {
+                    rootChildren().first { it.mediaId == MusicService.LIBRARY }
+                } else {
+                    null
+                }
+            }
+
+            MusicService.RECENT -> {
+                if (path.size == 1) {
+                    rootChildren().first { it.mediaId == MusicService.RECENT }
+                } else {
+                    database.song(path[1]).first()?.toMediaItem(MusicService.RECENT)
+                }
+            }
+
             MusicService.SONG -> {
                 if (path.size == 1) {
-                    rootChildren().first { it.mediaId == MusicService.SONG }
+                    libraryChildren().first { it.mediaId == MusicService.SONG }
                 } else {
                     database.song(path[1]).first()?.toMediaItem(MusicService.SONG)
                 }

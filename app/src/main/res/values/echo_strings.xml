@@ -6,6 +6,7 @@
     <string name="tab_album">Album</string>
 
     <string name="local_history">Local</string>
+    <string name="auto_recents">Recents</string>
     <string name="remote_history">Remote</string>
 
     <string name="charts">Charts</string>
