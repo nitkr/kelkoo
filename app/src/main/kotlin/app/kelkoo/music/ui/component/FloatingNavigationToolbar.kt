@@ -507,10 +507,11 @@ private fun FloatingNavigationToolbarItem(
 
 @Composable
 private fun floatingToolbarContainerColor(pureBlack: Boolean): Color {
+    // Unified Wave Sheet chassis — Drive Night charcoal continuous with collapsed mini
     return if (pureBlack) {
         Color.Black
     } else {
-        MaterialTheme.colorScheme.surfaceContainer
+        Color(0xFF1A1A1A)
     }
 }
 
@@ -526,18 +527,18 @@ private fun floatingToolbarFabContentColor(pureBlack: Boolean): Color {
 
 @Composable
 private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.secondaryContainer
+    return Color(0xFFE8A838).copy(alpha = 0.22f)
 }
 
 @Composable
 private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSecondaryContainer
+    return Color(0xFFE8A838)
 }
 
 
 @Composable
 private fun floatingToolbarItemContentColor(pureBlack: Boolean): Color {
-    return MaterialTheme.colorScheme.onSurfaceVariant
+    return Color.White.copy(alpha = 0.72f)
 }
 
 @Composable
