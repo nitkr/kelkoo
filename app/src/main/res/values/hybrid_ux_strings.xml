@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="welcome_to_kelkoo">Welcome to Kelkoo</string>
-    <string name="onboarding_welcome_subtitle">Drive Night — charcoal, amber, and your music.</string>
+    <string name="onboarding_welcome_subtitle">Your personal music player for phone and car.</string>
     <string name="onboarding_permissions_title">Permissions</string>
     <string name="onboarding_permissions_subtitle">Notifications keep media controls handy. Music access is optional for local files.</string>
     <string name="permission_notifications_title">Notifications</string>
