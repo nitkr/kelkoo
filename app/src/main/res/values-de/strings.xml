@@ -396,15 +396,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Wird überprüft...</string>
-    <string name="recognition_notification_channel_name">Musikerkennung</string>
-    <string name="recognition_notification_channel_desc">Zeigt eine Benachrichtigung an, während ein Song über die Schnelleinstellungen erkannt wird</string>
-    <string name="recognition_notification_listening">Musik wird erfasst…</string>
-    <string name="recognition_notification_processing">Wird erkannt…</string>
-    <string name="recognition_notification_no_match">Keine Übereinstimmung gefunden</string>
-    <string name="recognition_notification_failed">Erkennung fehlgeschlagen</string>
-    <string name="listen_on_echo_music">Auf Kelkoo anhören</string>
-    <string name="qs_tile_music_recognizer">Musik erkennen</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Auf Kelkoo anhören</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Kelkoo Brain aktivieren</string>
     <string name="echo_brain_enable_desc">Automatisch KI-Empfehlungen anhand deiner Hörgewohnheiten einfügen</string>
     <string name="echo_brain_profile_statistics">Profilstatistiken</string>

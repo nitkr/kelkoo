@@ -386,15 +386,13 @@
     <string name="status_online">An-lign</string>
     <string name="status_offline">Dezor-lign</string>
     <string name="status_checking">Pe verifie...</string>
-    <string name="recognition_notification_channel_name">Rekonesans mizik</string>
-    <string name="recognition_notification_channel_desc">Afis enn notifikasion pandan idantifikasion enn sante depi paramet rapid</string>
-    <string name="recognition_notification_listening">Pe ekout mizik…</string>
-    <string name="recognition_notification_processing">Pe idantifie…</string>
-    <string name="recognition_notification_no_match">Okenn korespondans pa finn trouve</string>
-    <string name="recognition_notification_failed">Rekonesans finn fel</string>
-    <string name="listen_on_echo_music">Ekoute lor Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Rekonet mizik</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Ekoute lor Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Aktiv Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Azout rekomandasion IA otomatikman dapre ou bann labitid lekout</string>
     <string name="echo_brain_profile_statistics">Statistik profil</string>

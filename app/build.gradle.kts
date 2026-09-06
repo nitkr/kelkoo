@@ -33,8 +33,8 @@ android {
         applicationId = "app.kelkoo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -331,7 +331,6 @@ dependencies {
     implementation(project(":simpmusic"))
     implementation(project(":youlyplus"))
     implementation(project(":canvas"))
-    implementation(project(":shazamkit"))
     implementation(project(":artistvideo"))
     implementation(project(":applecanvas"))
     implementation(project(":echomusiccanvas"))

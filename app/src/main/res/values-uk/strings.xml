@@ -389,8 +389,7 @@
     <string name="export_directory_unavailable">Не вдалося отримати доступ до папки експорту на цьому пристрої. Будь ласка, вкажіть її вручну.</string>
     <string name="loading">Завантаження</string>
     <string name="listen_on_echo_music">Слухати на Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Розпізнати музику</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Бета)</string>
+<string name="echo_brain_beta">Kelkoo Brain (Бета)</string>
     <string name="echo_brain_enable">Увімкнути Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Автоматично додавати пропозиції на основі ШІ, враховуючи ваші музичні вподобання</string>
     <string name="echo_brain_profile_statistics">Статистика профілю</string>
@@ -446,13 +445,12 @@
     <string name="status_online">Працює</string>
     <string name="status_offline">Не працює</string>
     <string name="status_checking">Перевірка...</string>
-    <string name="recognition_notification_channel_name">Розпізнавання музики</string>
-    <string name="recognition_notification_channel_desc">Показує сповіщення під час розпізнавання пісні зі швидких налаштувань</string>
-    <string name="recognition_notification_listening">Слухаю музику…</string>
-    <string name="recognition_notification_processing">Визначення…</string>
-    <string name="recognition_notification_no_match">Нічого не знайдено</string>
-    <string name="recognition_notification_failed">Помилка розпізнавання</string>
-    <string name="youtube_decryption_settings">Налаштування Kelkoo Extractor</string>
+
+
+
+
+
+<string name="youtube_decryption_settings">Налаштування Kelkoo Extractor</string>
     <string name="youtube_decryption_desc">Налаштуйте параметри екстрактора</string>
     <string name="youtube_decryption_support">Kelkoo Extractor</string>
     <string name="youtube_decryption_support_desc">Автоматично витягує конфігурації відтворення YouTube. Заблоковано в режимі «Активно».</string>

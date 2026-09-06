@@ -407,15 +407,13 @@
     <string name="status_online">Prisijungta</string>
     <string name="status_offline">Neprisijungta</string>
     <string name="status_checking">Tikrinama...</string>
-    <string name="recognition_notification_channel_name">Muzikos atpažinimas</string>
-    <string name="recognition_notification_channel_desc">Rodo pranešimą, kol daina atpažįstama iš sparčiųjų nustatymų</string>
-    <string name="recognition_notification_listening">Klausomasi muzikos…</string>
-    <string name="recognition_notification_processing">Atpažįstama…</string>
-    <string name="recognition_notification_no_match">Atitikmenų nerasta</string>
-    <string name="recognition_notification_failed">Atpažinti nepavyko</string>
-    <string name="listen_on_echo_music">Klausytis per „Kelkoo“</string>
-    <string name="qs_tile_music_recognizer">Atpažinti muziką</string>
-    <string name="echo_brain_beta">„Kelkoo Brain“ (beta versija)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Klausytis per „Kelkoo“</string>
+<string name="echo_brain_beta">„Kelkoo Brain“ (beta versija)</string>
     <string name="echo_brain_enable">Įjungti „Kelkoo Brain“</string>
     <string name="echo_brain_enable_desc">Automatiškai įtraukti DI rekomendacijas pagal jūsų klausymosi įpročius</string>
     <string name="echo_brain_profile_statistics">Profilio statistika</string>

@@ -396,15 +396,13 @@
     <string name="status_online">இணைப்பில் உள்ளது</string>
     <string name="status_offline">இணைப்பில் இல்லை</string>
     <string name="status_checking">சரிபார்க்கிறது...</string>
-    <string name="recognition_notification_channel_name">இசை அடையாளம் காணல்</string>
-    <string name="recognition_notification_channel_desc">விரைவு அமைப்புகளிலிருந்து பாடலை அடையாளம் காணும்போது அறிவிப்பைக் காட்டும்</string>
-    <string name="recognition_notification_listening">இசையைக் கேட்கிறது…</string>
-    <string name="recognition_notification_processing">அடையாளம் காண்கிறது…</string>
-    <string name="recognition_notification_no_match">பொருத்தம் எதுவும் கிடைக்கவில்லை</string>
-    <string name="recognition_notification_failed">அடையாளம் காண முடியவில்லை</string>
-    <string name="listen_on_echo_music">Kelkoo இல் கேளுங்கள்</string>
-    <string name="qs_tile_music_recognizer">இசையை அடையாளம் காண்</string>
-    <string name="echo_brain_beta">Kelkoo Brain (பீட்டா)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo இல் கேளுங்கள்</string>
+<string name="echo_brain_beta">Kelkoo Brain (பீட்டா)</string>
     <string name="echo_brain_enable">Kelkoo Brain ஐ இயக்கு</string>
     <string name="echo_brain_enable_desc">உங்கள் கேட்புப் பழக்கங்களின் அடிப்படையில் AI பரிந்துரைகளைத் தானாகச் சேர்க்கும்</string>
     <string name="echo_brain_profile_statistics">சுயவிவரப் புள்ளிவிவரங்கள்</string>

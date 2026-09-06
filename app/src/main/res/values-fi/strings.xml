@@ -396,15 +396,13 @@
     <string name="status_online">Verkossa</string>
     <string name="status_offline">Ei verkossa</string>
     <string name="status_checking">Tarkistetaan...</string>
-    <string name="recognition_notification_channel_name">Musiikin tunnistus</string>
-    <string name="recognition_notification_channel_desc">Näyttää ilmoituksen, kun kappaletta tunnistetaan pika-asetuksista</string>
-    <string name="recognition_notification_listening">Kuunnellaan musiikkia…</string>
-    <string name="recognition_notification_processing">Tunnistetaan…</string>
-    <string name="recognition_notification_no_match">Vastaavuutta ei löytynyt</string>
-    <string name="recognition_notification_failed">Tunnistus epäonnistui</string>
-    <string name="listen_on_echo_music">Kuuntele Kelkooissa</string>
-    <string name="qs_tile_music_recognizer">Tunnista musiikki</string>
-    <string name="echo_brain_beta">Kelkoo Brain (beeta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kuuntele Kelkooissa</string>
+<string name="echo_brain_beta">Kelkoo Brain (beeta)</string>
     <string name="echo_brain_enable">Ota Kelkoo Brain käyttöön</string>
     <string name="echo_brain_enable_desc">Lisää automaattisesti tekoälysuosituksia kuuntelutottumustesi perusteella</string>
     <string name="echo_brain_profile_statistics">Profiilin tilastot</string>

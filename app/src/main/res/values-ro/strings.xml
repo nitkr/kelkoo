@@ -407,15 +407,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Se verifică...</string>
-    <string name="recognition_notification_channel_name">Recunoașterea muzicii</string>
-    <string name="recognition_notification_channel_desc">Afișează o notificare în timpul identificării unei melodii din setările rapide</string>
-    <string name="recognition_notification_listening">Se ascultă muzica…</string>
-    <string name="recognition_notification_processing">Se identifică…</string>
-    <string name="recognition_notification_no_match">Nu s-a găsit nicio potrivire</string>
-    <string name="recognition_notification_failed">Recunoașterea a eșuat</string>
-    <string name="listen_on_echo_music">Ascultă în Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Recunoaște muzica</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Ascultă în Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Activează Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Inserează automat recomandări generate de IA pe baza obiceiurilor tale de ascultare</string>
     <string name="echo_brain_profile_statistics">Statisticile profilului</string>

@@ -396,15 +396,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Controleren...</string>
-    <string name="recognition_notification_channel_name">Muziekherkenning</string>
-    <string name="recognition_notification_channel_desc">Toont een melding tijdens het herkennen van een nummer via de snelle instellingen</string>
-    <string name="recognition_notification_listening">Luisteren naar muziek…</string>
-    <string name="recognition_notification_processing">Herkennen…</string>
-    <string name="recognition_notification_no_match">Geen overeenkomst gevonden</string>
-    <string name="recognition_notification_failed">Herkenning mislukt</string>
-    <string name="listen_on_echo_music">Luisteren op Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Muziek herkennen</string>
-    <string name="echo_brain_beta">Kelkoo Brain (bèta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Luisteren op Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (bèta)</string>
     <string name="echo_brain_enable">Kelkoo Brain inschakelen</string>
     <string name="echo_brain_enable_desc">Voeg automatisch AI-aanbevelingen toe op basis van je luistergewoonten</string>
     <string name="echo_brain_profile_statistics">Profielstatistieken</string>

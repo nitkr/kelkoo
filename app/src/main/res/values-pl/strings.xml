@@ -417,15 +417,13 @@
     <string name="status_online">Dostępny</string>
     <string name="status_offline">Niedostępny</string>
     <string name="status_checking">Sprawdzanie...</string>
-    <string name="recognition_notification_channel_name">Rozpoznawanie muzyki</string>
-    <string name="recognition_notification_channel_desc">Wyświetla powiadomienie podczas rozpoznawania utworu z poziomu szybkich ustawień</string>
-    <string name="recognition_notification_listening">Nasłuchiwanie muzyki…</string>
-    <string name="recognition_notification_processing">Rozpoznawanie…</string>
-    <string name="recognition_notification_no_match">Nie znaleziono dopasowania</string>
-    <string name="recognition_notification_failed">Rozpoznawanie nie powiodło się</string>
-    <string name="listen_on_echo_music">Posłuchaj w Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Rozpoznaj muzykę</string>
-    <string name="echo_brain_beta">Kelkoo Brain (wersja beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Posłuchaj w Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (wersja beta)</string>
     <string name="echo_brain_enable">Włącz Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Automatycznie dodawaj rekomendacje AI na podstawie Twoich nawyków słuchania</string>
     <string name="echo_brain_profile_statistics">Statystyki profilu</string>

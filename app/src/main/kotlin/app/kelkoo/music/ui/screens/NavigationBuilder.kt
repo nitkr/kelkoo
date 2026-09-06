@@ -53,8 +53,6 @@ import app.kelkoo.music.ui.screens.settings.ThemeScreen
 import app.kelkoo.music.ui.screens.settings.AiSettings
 
 import app.kelkoo.music.ui.screens.settings.integrations.ListenTogetherSettings
-import app.kelkoo.music.ui.screens.recognition.RecognitionScreen
-import app.kelkoo.music.ui.screens.recognition.RecognitionHistoryScreen
 import app.kelkoo.music.ui.screens.settings.UpdateSettings
 import app.kelkoo.music.echomusic.updater.UpdateScreen
 import app.kelkoo.music.utils.rememberEnumPreference
@@ -466,13 +464,6 @@ fun NavGraphBuilder.navigationBuilder(
         EqScreen(navController = navController)
     }
 
-    composable("recognition") {
-        RecognitionScreen(navController)
-    }
-
-    composable("recognition_history") {
-        RecognitionHistoryScreen(navController)
-    }
     composable("settings/changelog") {
         ChangelogScreen(navController,scrollBehavior)
     }

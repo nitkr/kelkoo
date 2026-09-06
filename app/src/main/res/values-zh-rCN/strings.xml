@@ -386,15 +386,13 @@
     <string name="status_online">在线</string>
     <string name="status_offline">离线</string>
     <string name="status_checking">正在检查...</string>
-    <string name="recognition_notification_channel_name">音乐识别</string>
-    <string name="recognition_notification_channel_desc">通过快捷设置识别歌曲时显示通知</string>
-    <string name="recognition_notification_listening">正在聆听音乐…</string>
-    <string name="recognition_notification_processing">正在识别…</string>
-    <string name="recognition_notification_no_match">未找到匹配项</string>
-    <string name="recognition_notification_failed">识别失败</string>
-    <string name="listen_on_echo_music">在 Kelkoo 中收听</string>
-    <string name="qs_tile_music_recognizer">识别音乐</string>
-    <string name="echo_brain_beta">Kelkoo Brain（测试版）</string>
+
+
+
+
+
+<string name="listen_on_echo_music">在 Kelkoo 中收听</string>
+<string name="echo_brain_beta">Kelkoo Brain（测试版）</string>
     <string name="echo_brain_enable">启用 Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">根据你的收听习惯自动加入 AI 推荐</string>
     <string name="echo_brain_profile_statistics">配置文件统计</string>

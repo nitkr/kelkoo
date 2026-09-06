@@ -415,15 +415,13 @@
     <string name="status_online">Çevrimiçi</string>
     <string name="status_offline">Çevrimdışı</string>
     <string name="status_checking">Kontrol ediliyor...</string>
-    <string name="recognition_notification_channel_name">Müzik tanıma</string>
-    <string name="recognition_notification_channel_desc">Hızlı ayarlardan bir şarkı tanımlanırken bildirim gösterir</string>
-    <string name="recognition_notification_listening">Müzik dinleniyor…</string>
-    <string name="recognition_notification_processing">Tanımlanıyor…</string>
-    <string name="recognition_notification_no_match">Eşleşme bulunamadı</string>
-    <string name="recognition_notification_failed">Tanıma başarısız oldu</string>
-    <string name="listen_on_echo_music">Kelkoo\'te dinle</string>
-    <string name="qs_tile_music_recognizer">Müziği tanı</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo\'te dinle</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Kelkoo Brain\'i etkinleştir</string>
     <string name="echo_brain_enable_desc">Dinleme alışkanlıklarınıza göre yapay zekâ önerilerini otomatik olarak ekle</string>
     <string name="echo_brain_profile_statistics">Profil İstatistikleri</string>
