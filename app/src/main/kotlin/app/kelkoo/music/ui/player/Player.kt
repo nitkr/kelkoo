@@ -2,6 +2,8 @@
 
 package app.kelkoo.music.ui.player
 
+import app.kelkoo.music.ui.theme.DefaultThemeColor
+
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -313,6 +315,30 @@ fun BottomSheetPlayer(
     val cropAlbumArt by rememberPreference(CropAlbumArtKey, false)
     val showLyricsOnPlayer by rememberPreference(ShowLyricsOnPlayerKey, true)
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
+    // Hybrid UX: empty Now Playing (sheet expanded, nothing queued)
+    if (mediaMetadata == null && state.isExpanded) {
+        Box(
+            modifier = modifier
+                .fillMaxSize()
+                .background(Color(0xFF121212)),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(R.string.nothing_playing_pick),
+                    color = Color.White.copy(alpha = 0.75f),
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 32.dp),
+                )
+                Spacer(Modifier.height(20.dp))
+                TextButton(onClick = { state.collapseSoft() }) {
+                    Text(stringResource(R.string.dismiss), color = DefaultThemeColor)
+                }
+            }
+        }
+        return
+    }
     val isLocalMedia = mediaMetadata?.id?.isLocalMediaId() == true
 
     val playerBackgroundPref by rememberEnumPreference(
