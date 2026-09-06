@@ -537,7 +537,7 @@
     <string name="eq_preset_dirac_game">Dirac Game</string>
     <string name="eq_enable_title">Equalizer</string>
     <string name="eq_enable_summary">Toggle professional audio processing</string>
-    <string name="eq_label_echo">Echo Signature</string>
+    <string name="eq_label_echo">Kelkoo Signature</string>
     <string name="eq_label_dolby">Dolby Atmos</string>
     <string name="eq_label_dirac">Dirac Audio</string>
     <string name="eq_reset">Reset</string>
@@ -703,7 +703,7 @@
     <string name="ai_lyrics_translation">AI Hub</string>
     <string name="contribute_to_lossless">Contribute to Lossless Music</string>
     <string name="lossless_music_hub">Lossless Music Hub</string>
-    <string name="lossless_desc">Add high-fidelity lossless .flac audio to the Echo Music ecosystem. Max file size: 99MB.</string>
+    <string name="lossless_desc">Add high-fidelity lossless .flac audio to the Kelkoo ecosystem. Max file size: 99MB.</string>
     <string name="login_with_github">Log in with GitHub</string>
     <string name="lossless_audio_file">Lossless Audio File</string>
     <string name="choose_file">Choose .flac file (Max 99MB)</string>
@@ -811,7 +811,7 @@
     <string name="delete_from_history">Delete from history</string>
     <string name="re_listen">Re-listen</string>
     <string name="hold_to_recognize">Hold search icon to recognize music</string>
-    <string name="play_on_app">Play on Echo Music</string>
+    <string name="play_on_app">Play on Kelkoo</string>
     <string name="recognized_track">Recognized Track</string>
 
     <!-- CSV Import Strings -->

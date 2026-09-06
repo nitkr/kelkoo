@@ -118,65 +118,19 @@ highlightKey: String? = null) {
 
             item {
                 Material3SettingsGroup(
-                    title = "Developer",
+                    title = "Project",
                     items = listOf(
+                        Material3SettingsItem(
+                            icon = painterResource(R.drawable.github),
+                            title = { Text("GitHub") },
+                            description = { Text("nitkr/kelkoo") },
+                            onClick = { uriHandler.openUri("https://github.com/nitkr/kelkoo") }
+                        ),
                         Material3SettingsItem(
                             icon = painterResource(R.drawable.website),
-                            title = { Text("Website") },
-                            description = { Text("iad1tya.cyou") },
-                            onClick = { uriHandler.openUri("https://iad1tya.cyou") }
-                        ),
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.ic_instagram_new),
-                            title = { Text("Instagram") },
-                            description = { Text("@iad1tya") },
-                            onClick = { uriHandler.openUri("https://instagram.com/iad1tya") }
-                        ),
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.ic_x_new),
-                            title = { Text("X (Twitter)") },
-                            description = { Text("@xad1tya") },
-                            onClick = { uriHandler.openUri("https://x.com/xad1tya") }
-                        )
-                    )
-                )
-            }
-
-            item {
-                Material3SettingsGroup(
-                    title = "Support",
-                    items = listOf(
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.coffee),
-                            title = { Text("Buy Me a Coffee") },
-                            description = { Text("buymeacoffee.com/iad1tya") },
-                            onClick = { uriHandler.openUri("https://buymeacoffee.com/iad1tya") }
-                        ),
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.ic_patreon_new),
-                            title = { Text("Patreon") },
-                            description = { Text("patreon.com/cw/iad1tya") },
-                            onClick = { uriHandler.openUri("https://www.patreon.com/cw/iad1tya") }
-                        ),
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.upi_new),
-                            title = { Text("UPI") },
-                            description = { Text("iad1tya@upi") },
-                            onClick = { uriHandler.openUri("https://intradeus.github.io/http-protocol-redirector/?r=upi://pay?pa=iad1tya@upi&pn=Aditya%20Yadav&am=&tn=Thank%20You%20so%20much%20for%20this%20support") }
-                        )
-                    )
-                )
-            }
-
-            item {
-                Material3SettingsGroup(
-                    title = "Community",
-                    items = listOf(
-                        Material3SettingsItem(
-                            icon = painterResource(R.drawable.ic_discord_new),
-                            title = { Text("Discord") },
-                            description = { Text("discord.gg/Xt5hgsJJuA") },
-                            onClick = { uriHandler.openUri("https://discord.gg/Xt5hgsJJuA") }
+                            title = { Text("Package") },
+                            description = { Text("app.kelkoo.music") },
+                            onClick = { }
                         )
                     )
                 )
@@ -187,8 +141,8 @@ highlightKey: String? = null) {
                     AboutActionRow(
                         icon = painterResource(R.drawable.github),
                         title = "GitHub",
-                        subtitle = "EchoMusicApp/Echo-Music",
-                        onClick = { uriHandler.openUri("https://github.com/EchoMusicApp/Echo-Music") },
+                        subtitle = "nitkr/kelkoo",
+                        onClick = { uriHandler.openUri("https://github.com/nitkr/kelkoo") },
                     )
                     AboutDivider()
                     AboutActionRow(
@@ -201,8 +155,8 @@ highlightKey: String? = null) {
                     AboutActionRow(
                         icon = painterResource(R.drawable.ic_telegram_new),
                         title = "Telegram",
-                        subtitle = "t.me/EchoMusicApp",
-                        onClick = { uriHandler.openUri("https://t.me/EchoMusicApp") },
+                        subtitle = "github.com/nitkr/kelkoo",
+                        onClick = { uriHandler.openUri("https://github.com/nitkr/kelkoo") },
                     )
                 }
             } */
@@ -271,29 +225,18 @@ private fun AboutAppCard() {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                if (rotation <= 90f) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_nobg),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFEA3829)),
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    coil3.compose.AsyncImage(
-                        model = "https://avatars.githubusercontent.com/u/147871321?v=4",
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer { rotationY = 180f }, // Un-flip the backside image
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                    )
-                }
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_nobg),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFE8A838)),
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             
             Spacer(Modifier.height(4.dp))
             
             Text(
-                text = if (rotation <= 90f) "Echo Music" else "Developed by Aditya",
+                text = "Kelkoo",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
