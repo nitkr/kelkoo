@@ -24,6 +24,8 @@ import com.music.innertube.pages.ExplorePage
 import com.music.innertube.pages.HomePage
 import com.music.innertube.utils.completed
 import app.kelkoo.music.constants.HideExplicitKey
+import app.kelkoo.music.utils.ContentLanguageSupport
+import app.kelkoo.music.constants.ContentLanguagesKey
 import app.kelkoo.music.constants.HideVideoSongsKey
 import app.kelkoo.music.constants.HideYoutubeShortsKey
 import app.kelkoo.music.constants.InnerTubeCookieKey
@@ -526,25 +528,79 @@ class HomeViewModel @Inject constructor(
     }
 
     
+
+    private suspend fun languageDiscoverSections(
+        hideExplicit: Boolean,
+        hideVideoSongs: Boolean,
+        hideYoutubeShorts: Boolean,
+    ): List<HomePage.Section> {
+        val prefs = context.dataStore.data.first()
+        val selected = prefs[ContentLanguagesKey].orEmpty().ifEmpty {
+            setOf(YouTube.locale.hl)
+        }
+        val langs = ContentLanguageSupport.orderedLanguages(selected)
+        val sections = mutableListOf<HomePage.Section>()
+        val previousHl = YouTube.locale.hl
+        val previousGl = YouTube.locale.gl
+        try {
+            for (lang in langs) {
+                YouTube.locale = YouTube.locale.copy(hl = lang)
+                YouTube.search(
+                    ContentLanguageSupport.searchQuery(lang),
+                    YouTube.SearchFilter.FILTER_SONG,
+                ).onSuccess { result ->
+                    val items = result.items
+                        .filterExplicit(hideExplicit)
+                        .filterVideoSongs(hideVideoSongs)
+                        .filterYoutubeShorts(hideYoutubeShorts)
+                        .take(20)
+                    if (items.isNotEmpty()) {
+                        sections.add(
+                            HomePage.Section(
+                                title = ContentLanguageSupport.shelfTitle(lang),
+                                label = ContentLanguageSupport.labels[lang],
+                                thumbnail = null,
+                                endpoint = null,
+                                items = items,
+                            )
+                        )
+                    }
+                }.onFailure { reportException(it) }
+            }
+        } finally {
+            YouTube.locale = YouTube.locale.copy(hl = previousHl, gl = previousGl)
+        }
+        return sections
+    }
+
     private suspend fun loadNetworkDataPhase() {
         val hideExplicit = context.dataStore.get(HideExplicitKey, false)
         val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
         val hideYoutubeShorts = context.dataStore.get(HideYoutubeShortsKey, false)
+
+        // Honor onboarding music languages before any Discover/Home fetch.
+        ContentLanguageSupport.applyToYouTube(context.dataStore)
 
         coroutineScope {
             launch(Dispatchers.IO) { getDailyDiscover() }
             launch(Dispatchers.IO) { getCommunityPlaylists() }
             launch(Dispatchers.IO) { loadSimilarRecommendations() }
             launch(Dispatchers.IO) {
+                val languageSections = languageDiscoverSections(
+                    hideExplicit = hideExplicit,
+                    hideVideoSongs = hideVideoSongs,
+                    hideYoutubeShorts = hideYoutubeShorts,
+                )
                 YouTube.home().onSuccess { page ->
+                    val filteredHome = page.sections.mapNotNull { section ->
+                        val filteredItems = section.items
+                            .filterExplicit(hideExplicit)
+                            .filterVideoSongs(hideVideoSongs)
+                            .filterYoutubeShorts(hideYoutubeShorts)
+                        if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
+                    }
                     homePage.value = page.copy(
-                        sections = page.sections.mapNotNull { section ->
-                            val filteredItems = section.items
-                                .filterExplicit(hideExplicit)
-                                .filterVideoSongs(hideVideoSongs)
-                                .filterYoutubeShorts(hideYoutubeShorts)
-                            if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
-                        }
+                        sections = languageSections + filteredHome
                     )
                 }.onFailure { reportException(it) }
             }

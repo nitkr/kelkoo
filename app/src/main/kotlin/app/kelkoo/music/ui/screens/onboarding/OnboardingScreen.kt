@@ -67,6 +67,7 @@ import app.kelkoo.music.constants.OnboardingCompleteKey
 import app.kelkoo.music.constants.SYSTEM_DEFAULT
 import app.kelkoo.music.ui.theme.DefaultThemeColor
 import app.kelkoo.music.utils.dataStore
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private data class MusicLanguage(val code: String, val label: String)
@@ -123,16 +124,23 @@ fun OnboardingScreen(
 
     fun completeOnboarding() {
         scope.launch {
+            val langs = selectedLanguages.ifEmpty { setOf("en") }
+            val primary = app.kelkoo.music.utils.ContentLanguageSupport.primaryLanguage(langs)
+            val country = app.kelkoo.music.utils.ContentLanguageSupport.contentCountry(
+                langs,
+                context.dataStore.data.first()[ContentCountryKey]
+            )
             context.dataStore.edit { prefs ->
-                val langs = selectedLanguages.ifEmpty { setOf("en") }
                 prefs[ContentLanguagesKey] = langs
-                prefs[ContentLanguageKey] = langs.firstOrNull() ?: "en"
-                val country = prefs[ContentCountryKey]
-                if (country.isNullOrBlank() || country == SYSTEM_DEFAULT || country == "system") {
-                    prefs[ContentCountryKey] = "IN"
-                }
+                prefs[ContentLanguageKey] = primary
+                prefs[ContentCountryKey] = country
                 prefs[OnboardingCompleteKey] = true
             }
+            // Apply before Home loads so Discover uses the chosen languages.
+            com.music.innertube.YouTube.locale = com.music.innertube.models.YouTubeLocale(
+                gl = country,
+                hl = primary,
+            )
             onFinished()
         }
     }
