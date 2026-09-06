@@ -59,8 +59,20 @@ jobs:
         chmod +x gradlew
         ./gradlew assembleUniversalFossDebug
 
+    - name: Stage sideload APK
+      run: |
+        mkdir -p dist
+        APK=$(find app/build/outputs/apk -name '*.apk' | head -n 1)
+        if [ -z "$APK" ]; then
+          echo "No APK found under app/build/outputs/apk" >&2
+          exit 1
+        fi
+        # Sideload name — no "debug" in the filename/URL
+        cp "$APK" dist/kelkoo-universal.apk
+        ls -lh dist/kelkoo-universal.apk
+
     - name: Upload Universal APK
       uses: actions/upload-artifact@v5
       with:
         name: Kelkoo-Universal-APK
-        path: app/build/outputs/apk/**/*.apk
+        path: dist/kelkoo-universal.apk
