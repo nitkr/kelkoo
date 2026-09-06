@@ -167,53 +167,79 @@ fun ResumeHomeScreen(
                 }
             }
 
-            item(key = "continue_hero") {
-                ContinueHero(
-                    song = continueSong,
-                    isPlaying = isPlaying && continueSong?.id == mediaMetadata?.id,
-                    onPlay = { song ->
-                        if (song.id == mediaMetadata?.id) {
-                            playerConnection.togglePlayPause()
-                        } else {
-                            playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
-                        }
-                    },
-                    onOpenPlayer = {
-                        // Full NP is the player bottom sheet; expand via playing/resume.
-                        continueSong?.let { song ->
-                            if (song.id != mediaMetadata?.id) {
+            // First-launch / empty resume: hide Continue / Recents / Pinned entirely.
+            // One tip pointing at Explore — no empty headers, no fake recents.
+            val hasContinue = continueSong != null
+            val hasRecents = recentSongs.isNotEmpty()
+            val hasPinned = pinnedPlaylists.isNotEmpty()
+            val isResumeEmpty = !hasContinue && !hasRecents && !hasPinned
+
+            if (isResumeEmpty) {
+                item(key = "empty_explore_tip") {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 24.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .combinedClickable(
+                                onClick = { navController.navigate(Screens.Explore.route) },
+                            )
+                            .padding(horizontal = 20.dp, vertical = 28.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_empty_explore_tip),
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                    }
+                }
+            }
+
+            if (hasContinue) {
+                item(key = "continue_hero") {
+                    ContinueHero(
+                        song = continueSong,
+                        isPlaying = isPlaying && continueSong?.id == mediaMetadata?.id,
+                        onPlay = { song ->
+                            if (song.id == mediaMetadata?.id) {
+                                playerConnection.togglePlayPause()
+                            } else {
                                 playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
                             }
-                        }
-                    },
-                    onLongPress = { song ->
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        menuState.show {
-                            SongMenu(
-                                originalSong = song,
-                                navController = navController,
-                                onDismiss = menuState::dismiss,
-                            )
-                        }
-                    },
-                )
-            }
-
-            item(key = "recents_title") {
-                NavigationTitle(
-                    title = stringResource(R.string.recents),
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            item(key = "recents_row") {
-                if (recentSongs.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.quick_picks_empty),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        },
+                        onOpenPlayer = {
+                            continueSong?.let { song ->
+                                if (song.id != mediaMetadata?.id) {
+                                    playerConnection.playQueue(YouTubeQueue.radio(song.toMediaMetadata()))
+                                }
+                            }
+                        },
+                        onLongPress = { song ->
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            menuState.show {
+                                SongMenu(
+                                    originalSong = song,
+                                    navController = navController,
+                                    onDismiss = menuState::dismiss,
+                                )
+                            }
+                        },
                     )
-                } else {
+                }
+            }
+
+            if (hasRecents) {
+                item(key = "recents_title") {
+                    NavigationTitle(
+                        title = stringResource(R.string.recents),
+                        modifier = Modifier.padding(top = 8.dp),
+                    )
+                }
+
+                item(key = "recents_row") {
                     LazyRow(
                         contentPadding = WindowInsets.systemBars
                             .only(WindowInsetsSides.Horizontal)
@@ -258,21 +284,15 @@ fun ResumeHomeScreen(
                 }
             }
 
-            item(key = "pinned_title") {
-                NavigationTitle(
-                    title = stringResource(R.string.pinned),
-                    modifier = Modifier.padding(top = 8.dp),
-                )
-            }
-
-            item(key = "pinned_row") {
-                if (pinnedPlaylists.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.pin_from_library),
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.55f),
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            if (hasPinned) {
+                item(key = "pinned_title") {
+                    NavigationTitle(
+                        title = stringResource(R.string.pinned),
+                        modifier = Modifier.padding(top = 8.dp),
                     )
-                } else {
+                }
+
+                item(key = "pinned_row") {
                     LazyRow(
                         contentPadding = PaddingValues(horizontal = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
