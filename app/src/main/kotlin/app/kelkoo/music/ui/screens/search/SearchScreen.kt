@@ -370,7 +370,7 @@ fun SearchScreen(
                                 onClick = { selectedTabIndex = 1 },
                                 selectedContentColor = MaterialTheme.colorScheme.primary,
                                 unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                                text = { Text("Kelkoo Chart") }
+                                text = { Text("${stringResource(R.string.app_name)} Chart") }
                             )
                             Tab(
                                 selected = selectedTabIndex == 2,
