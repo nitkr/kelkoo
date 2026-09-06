@@ -26,6 +26,17 @@ Debug package id: `app.kelkoo.music.debug`
 
 See `SETUP.md` only if you need SDK path notes; treat product naming in this README as authoritative (Kelkoo).
 
+
+## Contributors
+
+<!-- readme: contributors -start -->
+<table>
+<tr><td align="center"><a href="https://github.com/nitkr"><img src="https://github.com/nitkr.png" width="60" height="60" alt="nitkr" /><br/>nitkr</a></td></tr>
+</table>
+<!-- readme: contributors -end -->
+
+Owner: [nitkr](https://github.com/nitkr). Automation commits may appear as `github-actions[bot]`.
+
 ## Credits
 
 Kelkoo is derived from [Echo Music](https://github.com/EchoMusicApp/Echo-Music) (GPL-3.0). See `LICENSE` and `NOTICE` for full licensing and attribution. Upstream Echo branding, screenshots, Discord, and donation links are not part of Kelkoo.
