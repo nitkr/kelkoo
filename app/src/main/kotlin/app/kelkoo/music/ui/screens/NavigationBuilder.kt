@@ -72,6 +72,10 @@ fun NavGraphBuilder.navigationBuilder(
     snackbarHostState: SnackbarHostState
 ) {
     composable(Screens.Home.route) {
+        ResumeHomeScreen(navController = navController)
+    }
+
+    composable(Screens.Explore.route) {
         HomeScreen(navController = navController, snackbarHostState = snackbarHostState)
     }
 

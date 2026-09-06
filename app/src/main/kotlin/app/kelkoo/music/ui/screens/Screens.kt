@@ -21,6 +21,13 @@ sealed class Screens(
         route = "home"
     )
 
+    object Explore : Screens(
+        titleId = R.string.explore,
+        iconIdInactive = R.drawable.explore_outlined,
+        iconIdActive = R.drawable.explore_filled,
+        route = "explore"
+    )
+
     object Search : Screens(
         titleId = R.string.search,
         iconIdInactive = R.drawable.search,
@@ -43,6 +50,6 @@ sealed class Screens(
     )
 
     companion object {
-        val MainScreens = listOf(Home, Search, Library) // Drive Night: primary nav only
+        val MainScreens = listOf(Home, Explore, Search, Library) // Hybrid UX: Home | Explore | Search | Library
     }
 }
