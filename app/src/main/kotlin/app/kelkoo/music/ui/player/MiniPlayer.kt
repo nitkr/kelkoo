@@ -529,13 +529,14 @@ private fun NewMiniPlayerThumbnail(
     @Suppress("UNUSED_PARAMETER") primaryColor: Color,
     outlineColor: Color,
 ) {
-    // Highway Halo continuity: circular thumb (progress lives as underline under the bar)
+    // Full-art NP continuity: square rounded-rect thumb (not circular disc)
+    val thumbShape = RoundedCornerShape(ThumbnailCornerRadius)
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .size(44.dp)
-            .clip(CircleShape)
-            .border(1.dp, outlineColor.copy(alpha = 0.28f), CircleShape)
+            .clip(thumbShape)
+            .border(1.dp, outlineColor.copy(alpha = 0.28f), thumbShape)
             .background(Color(0xFF1A1A1A))
     ) {
         mediaMetadata?.let { metadata ->
@@ -545,7 +546,7 @@ private fun NewMiniPlayerThumbnail(
                     .build(),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().clip(CircleShape)
+                modifier = Modifier.fillMaxSize().clip(thumbShape)
             )
         }
     }
