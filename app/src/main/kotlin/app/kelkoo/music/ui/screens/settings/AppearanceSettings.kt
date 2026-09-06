@@ -236,7 +236,7 @@ highlightKey: String? = null) {
     )
     val (lyricsAnimationStyle, onLyricsAnimationStyleChange) = rememberEnumPreference(
         LyricsAnimationStyleKey,
-        defaultValue = LyricsAnimationStyle.echomusic_1
+        defaultValue = LyricsAnimationStyle.FLUID
     )
     val (lyricsTextSize, onLyricsTextSizeChange) = rememberPreference(LyricsTextSizeKey, defaultValue = 24f)
     val (lyricsLineSpacing, onLyricsLineSpacingChange) = rememberPreference(LyricsLineSpacingKey, defaultValue = 1.3f)
@@ -423,7 +423,7 @@ highlightKey: String? = null) {
                     LyricsAnimationStyle.KARAOKE -> stringResource(R.string.karaoke)
                     LyricsAnimationStyle.APPLE -> stringResource(R.string.apple_music_style)
                     LyricsAnimationStyle.APPLE_V2 -> stringResource(R.string.apple_music_style_letter)
-                    LyricsAnimationStyle.echomusic_1 -> stringResource(R.string.echomusic_1)
+                    LyricsAnimationStyle.FLUID -> stringResource(R.string.lyrics_fluid)
                     LyricsAnimationStyle.LYRICS_V2 -> stringResource(R.string.lyrics_v2_fluid)
                     LyricsAnimationStyle.METRO_LYRICS -> stringResource(R.string.lyrics_animation_metro)
                 }
@@ -1363,10 +1363,10 @@ highlightKey: String? = null) {
                     onClick = { onSwipeThumbnailChange(!swipeThumbnail) }
                 ),
                 Material3SettingsItem(
-    isHighlighted = (highlightKey == stringResource(R.string.echomusic_canvas)),
+    isHighlighted = (highlightKey == stringResource(R.string.album_canvas)),
                     icon = painterResource(R.drawable.ic_canvas),
-                    title = { Text(stringResource(R.string.echomusic_canvas)) },
-                    description = { Text(stringResource(R.string.echomusic_canvas_desc)) },
+                    title = { Text(stringResource(R.string.album_canvas)) },
+                    description = { Text(stringResource(R.string.album_canvas_desc)) },
                     trailingContent = {
                         Switch(
                             checked = canvasThumbnailAnimation,
@@ -1579,7 +1579,7 @@ highlightKey: String? = null) {
                                 LyricsAnimationStyle.GLOW -> stringResource(R.string.glow)
                                 LyricsAnimationStyle.SLIDE -> stringResource(R.string.slide)
                                 LyricsAnimationStyle.KARAOKE -> stringResource(R.string.karaoke)
-                                LyricsAnimationStyle.echomusic_1 -> stringResource(R.string.echomusic_1)
+                                LyricsAnimationStyle.FLUID -> stringResource(R.string.lyrics_fluid)
                                 LyricsAnimationStyle.APPLE -> stringResource(R.string.apple_music_style)
                                 LyricsAnimationStyle.APPLE_V2 -> stringResource(R.string.apple_music_style_letter)
                                 LyricsAnimationStyle.LYRICS_V2 -> stringResource(R.string.lyrics_v2_fluid)
@@ -1611,7 +1611,7 @@ highlightKey: String? = null) {
                     },
                     onClick = { onLyricsGlowEffectChange(!lyricsGlowEffect) }
                 ),
-                if (lyricsAnimationStyle == LyricsAnimationStyle.echomusic_1) {
+                if (lyricsAnimationStyle == LyricsAnimationStyle.FLUID) {
                     Material3SettingsItem(
     isHighlighted = (highlightKey == stringResource(R.string.apple_music_lyrics_blur)),
                         icon = painterResource(R.drawable.lyrics),

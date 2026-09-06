@@ -50,7 +50,7 @@ fun AxionEqScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.echo_equalizer)) },
+                title = { Text(stringResource(R.string.axion_equalizer)) },
                 navigationIcon = {
                     app.kelkoo.music.ui.component.IconButton(
                         onClick = onBackClick,

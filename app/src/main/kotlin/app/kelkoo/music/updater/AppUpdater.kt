@@ -1,6 +1,6 @@
 
 
-package app.kelkoo.music.echomusic.updater
+package app.kelkoo.music.updater
 
 
 import android.content.Context
@@ -64,8 +64,8 @@ import app.kelkoo.music.R
 import coil3.compose.AsyncImage
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
-import app.kelkoo.music.echomusic.updater.downloadmanager.UpdateDownloadWorker
-import app.kelkoo.music.echomusic.updater.downloadmanager.DownloadNotificationManager
+import app.kelkoo.music.updater.downloadmanager.UpdateDownloadWorker
+import app.kelkoo.music.updater.downloadmanager.DownloadNotificationManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

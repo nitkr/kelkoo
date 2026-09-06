@@ -433,7 +433,7 @@
 
 
 
-<string name="listen_on_echo_music">Kelkoo पर सुनें</string>
+<string name="listen_on_kelkoo">Kelkoo पर सुनें</string>
 <string name="listenbrainz_scrobbling">ListenBrainz स्क्रोब्लिंग</string>
     <string name="listenbrainz_scrobbling_description">अपने सुने गए ट्रैक स्वचालित रूप से ListenBrainz पर सबमिट करें</string>
     <string name="export_directory_unavailable">इस डिवाइस पर निर्यात निर्देशिका तक पहुँचने में असमर्थ। कृपया मैन्युअल रूप से एक सेट करें।</string>

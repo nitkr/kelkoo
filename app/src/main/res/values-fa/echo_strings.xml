@@ -103,8 +103,8 @@
     <string name="thumbnail_corner_radius_desc">تغییر میزان گردی گوشه‌های تصویر کاور آلبوم</string>
     <string name="crop_album_art">برش کاور آلبوم</string>
     <string name="crop_album_art_desc">اجبار به استفاده از نسبت ابعاد مربعی با برش دادن کاورهای ویدیویی</string>
-    <string name="echomusic_canvas">کاور متحرک (Canvas)</string>
-    <string name="echomusic_canvas_desc">نمایش کاورهای انیمیشنی آلبوم در صورت موجود بودن</string>
+    <string name="album_canvas">کاور متحرک (Canvas)</string>
+    <string name="album_canvas_desc">نمایش کاورهای انیمیشنی آلبوم در صورت موجود بودن</string>
     <string name="show_album_canvas">نمایش کاور متحرک در آلبوم</string>
     <string name="show_album_canvas_desc">نمایش کاور متحرک در بخش آلبوم</string>
     <string name="rotating_thumbnail">کاور چرخان</string>
@@ -425,7 +425,7 @@
     <string name="karaoke">کارائوکه</string>
     <string name="apple_music_style">اپل موزیک</string>
     <string name="apple_music_style_letter">اپل موزیک نسخه ۲ (حرف به حرف)</string>
-    <string name="echomusic_1">Kelkoo (روان)</string>
+    <string name="lyrics_fluid">Kelkoo (روان)</string>
     <string name="apple_music_lyrics_blur">تاری متن به سبک اپل موزیک</string>
     <string name="apple_music_lyrics_blur_desc">اعمال افکت تاری روی خطوط غیرفعال متن برای تمرکز عالی روی لاین در حال پخش</string>
     <string name="lyrics_v2_fluid">متن آهنگ نسخه ۲ (روان)</string>
@@ -496,8 +496,8 @@
     <string name="error_eq_apply_failed">خطا در اعمال پروفایل اکولایزر: %1$s</string>
 
     <!-- Equalizer Strings -->
-    <string name="echo_equalizer">اکولایزر</string>
-    <string name="echo_equalizer_desc">تنظیم آکوستیک و افکت‌های حرفه‌ای صدا</string>
+    <string name="axion_equalizer">اکولایزر</string>
+    <string name="axion_equalizer_desc">تنظیم آکوستیک و افکت‌های حرفه‌ای صدا</string>
     <string name="eq_simple">ساده</string>
     <string name="eq_advanced">پیشرفته</string>
     <string name="eq_label_bass">بیس (Bass)</string>
