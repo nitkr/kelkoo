@@ -4132,10 +4132,12 @@ class MusicService :
 
     companion object {
         const val ROOT = "root"
+        const val LIBRARY = "library"
         const val SONG = "song"
         const val ARTIST = "artist"
         const val ALBUM = "album"
         const val PLAYLIST = "playlist"
+        const val RECENT = "recent"
         const val YOUTUBE_PLAYLIST = "youtube_playlist"
         const val SEARCH = "search"
         const val SHUFFLE_ACTION = "__shuffle__"
