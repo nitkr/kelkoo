@@ -1,8 +1,8 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import java.util.Properties
-import java.net.URL
-
-val localProperties = Properties()
+sha adbf3bd8f35d3d79c743af438eaa46b26cce00a3
+preview:
+36:        versionCode = 3
+37:        versionName = "0.1.3"
+ies = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
@@ -33,8 +33,8 @@ android {
         applicationId = "app.kelkoo.music"
         minSdk = 26
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.1.2"
+        versionCode = 3
+        versionName = "0.1.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
