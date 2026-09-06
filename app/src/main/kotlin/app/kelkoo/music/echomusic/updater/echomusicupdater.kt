@@ -335,7 +335,7 @@ fun UpdateScreen(navController: NavHostController) {
                                                 ContextCompat.startActivity(context, installIntent, null)
                                             }
                                         } else {
-                                            val urlToDownload = currentStatus.apkUrl ?: "https://github.com/EchoMusicApp/Echo-Music/releases/download/${currentStatus.version}/echomusic.apk"
+                                            val urlToDownload = currentStatus.apkUrl ?: "https://github.com/nitkr/kelkoo/releases/download/${currentStatus.version}/kelkoo-universal.apk"
                                             
                                             val constraints = Constraints.Builder()
                                                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -627,8 +627,8 @@ private fun formatGitHubDate(githubDate: String): String = try {
 
 
 fun isNewerVersion(latestVersion: String, currentVersion: String): Boolean {
-    val latestVersionClean = latestVersion.removePrefix("b").removePrefix("v")
-    val currentVersionClean = currentVersion.removePrefix("b").removePrefix("v")
+    val latestVersionClean = latestVersion.removePrefix("b").removePrefix("v").removePrefix("kelkoo-")
+    val currentVersionClean = currentVersion.removePrefix("b").removePrefix("v").removePrefix("kelkoo-")
 
     val latestParts = latestVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
     val currentParts = currentVersionClean.split(".").map { it.toIntOrNull() ?: 0 }
@@ -662,14 +662,14 @@ suspend fun checkForUpdate(
 ) {
     withContext(Dispatchers.IO) {
         try {
-            val url = URL("https://api.github.com/repos/EchoMusicApp/Echo-Music/releases/latest")
+            val url = URL("https://api.github.com/repos/nitkr/kelkoo/releases/latest")
             val json = url.openStream().bufferedReader().use { it.readText() }
             val targetRelease = JSONObject(json)
             
             val currentVersion = BuildConfig.VERSION_NAME
             val targetTagName = targetRelease.getString("tag_name")
-            val currentClean = currentVersion.removePrefix("b").removePrefix("v").trim()
-            val targetClean = targetTagName.removePrefix("b").removePrefix("v").trim()
+            val currentClean = currentVersion.removePrefix("b").removePrefix("v").removePrefix("kelkoo-").trim()
+            val targetClean = targetTagName.removePrefix("b").removePrefix("v").removePrefix("kelkoo-").trim()
             val shouldShow = currentClean != targetClean
 
             if (shouldShow) {
@@ -682,7 +682,7 @@ suspend fun checkForUpdate(
                 var imageUrl: String? = null
                 try {
                     val changelogUrl =
-                        URL("https://github.com/EchoMusicApp/Echo-Music/releases/download/$tagWithPrefix/changelog.json")
+                        URL("https://github.com/nitkr/kelkoo/releases/download/$tagWithPrefix/changelog.json")
                     val changelogJson = changelogUrl.openStream().bufferedReader().use { it.readText() }
                     val changelogData = JSONObject(changelogJson)
 
