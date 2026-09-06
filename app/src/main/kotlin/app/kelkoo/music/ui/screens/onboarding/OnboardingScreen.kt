@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.datastore.preferences.core.edit
 import app.kelkoo.music.R
+import app.kelkoo.music.constants.AppLanguageKey
 import app.kelkoo.music.constants.ContentCountryKey
 import app.kelkoo.music.constants.ContentLanguageKey
 import app.kelkoo.music.constants.ContentLanguagesKey
@@ -67,9 +68,11 @@ import app.kelkoo.music.constants.CountryCodeToName
 import app.kelkoo.music.constants.OnboardingCompleteKey
 import app.kelkoo.music.ui.theme.DefaultThemeColor
 import app.kelkoo.music.utils.ContentLanguageSupport
+import app.kelkoo.music.utils.setAppLocale
 import app.kelkoo.music.utils.dataStore
 import com.music.innertube.YouTube
 import com.music.innertube.models.YouTubeLocale
+import java.util.Locale
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -124,9 +127,12 @@ fun OnboardingScreen(
                 prefs[ContentCountryKey] = selectedCountry
                 prefs[ContentLanguagesKey] = langs
                 prefs[ContentLanguageKey] = primary
+                // Keep app UI English for now; song-language prefs must not flip UI locale.
+                prefs[AppLanguageKey] = "en"
                 prefs[OnboardingCompleteKey] = true
             }
             YouTube.locale = YouTubeLocale(gl = selectedCountry, hl = primary)
+            setAppLocale(context, Locale.forLanguageTag("en"))
             onFinished()
         }
     }

@@ -28,6 +28,7 @@ import app.kelkoo.music.constants.*
 import app.kelkoo.music.di.ApplicationScope
 import app.kelkoo.music.extensions.toEnum
 import app.kelkoo.music.extensions.toInetSocketAddress
+import app.kelkoo.music.utils.ContentLanguageSupport
 import app.kelkoo.music.utils.CrashHandler
 import app.kelkoo.music.utils.AppContextHolder
 import app.kelkoo.music.utils.dataStore
@@ -236,24 +237,35 @@ class App : Application(), SingletonImageLoader.Factory {
 
         applicationScope.launch(Dispatchers.IO) {
             dataStore.data
-                .map { Triple((try { it[ContentCountryKey] } catch(e: Exception) { null }), (try { it[ContentLanguageKey] } catch(e: Exception) { null }), (try { it[AppLanguageKey] } catch(e: Exception) { null })) }
+                .map { prefs ->
+                    Triple(
+                        (try { prefs[ContentCountryKey] } catch(e: Exception) { null }),
+                        (try { prefs[ContentLanguagesKey] } catch(e: Exception) { null }).orEmpty(),
+                        (try { prefs[AppLanguageKey] } catch(e: Exception) { null }),
+                    ) to (try { prefs[ContentLanguageKey] } catch(e: Exception) { null })
+                }
                 .distinctUntilChanged()
-                .collect { (contentCountry, contentLanguage, appLanguage) ->
+                .collect { (triple, contentLanguage) ->
+                    val (contentCountry, contentLanguages, appLanguage) = triple
                     val systemLocale = Locale.getDefault()
                     val effectiveAppLocale = appLanguage
                         ?.takeUnless { it == SYSTEM_DEFAULT }
                         ?.let { Locale.forLanguageTag(it) }
                         ?: systemLocale
 
+                    val country = ContentLanguageSupport.resolveCountry(contentCountry)
+                    val selected = contentLanguages.ifEmpty {
+                        contentLanguage
+                            ?.takeIf { it != SYSTEM_DEFAULT && it != "system" }
+                            ?.let { setOf(it) }
+                            .orEmpty()
+                    }.ifEmpty {
+                        ContentLanguageSupport.defaultLanguagesForCountry(country)
+                    }
+
                     YouTube.locale = YouTubeLocale(
-                        gl = contentCountry?.takeIf { it != SYSTEM_DEFAULT }
-                            ?: effectiveAppLocale.country.takeIf { it in CountryCodeToName }
-                            ?: systemLocale.country.takeIf { it in CountryCodeToName }
-                            ?: "US",
-                        hl = contentLanguage?.takeIf { it != SYSTEM_DEFAULT }
-                            ?: effectiveAppLocale.toLanguageTag().takeIf { it in LanguageCodeToName }
-                            ?: effectiveAppLocale.language.takeIf { it in LanguageCodeToName }
-                            ?: "en"
+                        gl = country,
+                        hl = ContentLanguageSupport.primaryLanguage(selected, country)
                     )
                 }
         }
