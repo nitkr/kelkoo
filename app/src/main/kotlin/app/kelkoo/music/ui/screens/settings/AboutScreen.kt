@@ -225,29 +225,18 @@ private fun AboutAppCard() {
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                if (rotation <= 90f) {
-                    Image(
-                        painter = painterResource(R.drawable.ic_launcher_nobg),
-                        contentDescription = null,
-                        colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFEA3829)),
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    coil3.compose.AsyncImage(
-                        model = "https://avatars.githubusercontent.com/u/147871321?v=4",
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer { rotationY = 180f }, // Un-flip the backside image
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop
-                    )
-                }
+                Image(
+                    painter = painterResource(R.drawable.ic_launcher_nobg),
+                    contentDescription = null,
+                    colorFilter = ColorFilter.tint(if (isDark) Color.White else Color(0xFFE8A838)),
+                    modifier = Modifier.fillMaxSize()
+                )
             }
             
             Spacer(Modifier.height(4.dp))
             
             Text(
-                text = if (rotation <= 90f) "Kelkoo" else "Personal build",
+                text = "Kelkoo",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,

@@ -242,7 +242,7 @@ highlightKey: String? = null) {
                                     if (!isDynamic) {
                                         handleColorSelection(DefaultThemeColor)
                                     } else {
-                                        handleColorSelection(Color(0xFF1E88E5))
+                                        handleColorSelection(Color(0xFFE8A838))
                                     }
                                 }
                                 .padding(8.dp),
@@ -280,7 +280,7 @@ highlightKey: String? = null) {
                                     if (checked) {
                                         handleColorSelection(DefaultThemeColor)
                                     } else {
-                                        handleColorSelection(Color(0xFF1E88E5))
+                                        handleColorSelection(Color(0xFFE8A838))
                                     }
                                 }
                             )
@@ -288,7 +288,7 @@ highlightKey: String? = null) {
 
                         AnimatedVisibility(visible = !isDynamic) {
                             HsvColorPicker(
-                                initialColor = if (selectedThemeColor == DefaultThemeColor) Color(0xFF1E88E5) else selectedThemeColor,
+                                initialColor = if (selectedThemeColor == DefaultThemeColor) Color(0xFFE8A838) else selectedThemeColor,
                                 onColorCommit = { handleColorSelection(it) }
                             )
                         }
