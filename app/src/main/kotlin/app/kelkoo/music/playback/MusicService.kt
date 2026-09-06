@@ -612,7 +612,16 @@ class MusicService :
                 .setContentIntent(pending)
                 .setOngoing(true)
                 .build()
-            startForeground(NOTIFICATION_ID, notification)
+            // API 34+ requires an explicit FGS type matching the manifest (mediaPlayback).
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    NOTIFICATION_ID,
+                    notification,
+                    android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK,
+                )
+            } else {
+                startForeground(NOTIFICATION_ID, notification)
+            }
         } catch (e: Exception) {
             Timber.tag(TAG).e(e, "Failed to create foreground notification")
             reportException(e)
