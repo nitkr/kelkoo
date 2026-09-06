@@ -1448,7 +1448,15 @@ fun BottomSheetPlayer(
             MiniPlayer(
                 positionState = positionState,
                 durationState = durationState,
-                onClick = { state.expandSoft() }
+                onClick = { state.expandSoft() },
+                onDismiss = {
+                    // Horizontal swipe dismiss — same cleanup as vertical sheet dismiss
+                    state.dismiss()
+                    playerConnection.service.clearAutomix()
+                    playerConnection.player.stop()
+                    playerConnection.player.clearMediaItems()
+                    playerConnection.service.clearPersistedQueueFiles()
+                },
             )
         },
     ) {
