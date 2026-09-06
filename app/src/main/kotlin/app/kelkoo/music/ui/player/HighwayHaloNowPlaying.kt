@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,15 +44,17 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import app.kelkoo.music.R
 import app.kelkoo.music.models.MediaMetadata
+import app.kelkoo.music.utils.makeTimeString
 
 private val HaloCharcoal = Color(0xFF121212)
 private val HaloCharcoalElevated = Color(0xFF1A1A1A)
 private val HaloGhost = Color.White.copy(alpha = 0.55f)
+private val HeroCorner = RoundedCornerShape(16.dp)
 
 /**
  * Highway Halo fullscreen Now Playing — Drive Night charcoal field,
- * circular hero art with amber orbital seek ring, sparse meta + transport.
- * MediaSession / Android Auto NP remain system; this is phone UI only.
+ * full square/rounded-rect album art hero, classic horizontal wave seek bar.
+ * Orbital ring retired. MediaSession / Android Auto NP remain system; phone UI only.
  */
 @Composable
 fun HighwayHaloNowPlaying(
@@ -88,38 +92,23 @@ fun HighwayHaloNowPlaying(
             .padding(horizontal = 24.dp),
     ) {
         Spacer(Modifier.height(12.dp))
-        Spacer(Modifier.weight(0.35f))
+        Spacer(Modifier.weight(0.2f))
 
-        OrbitProgressRing(
-            progress = progress,
-            isPlaying = isPlaying,
-            artSize = 268.dp,
-            strokeWidth = 4.dp,
-            onSeekFraction = { fraction ->
-                if (safeDuration > 0L) {
-                    onSeekPreview((fraction * safeDuration).toLong())
-                }
-            },
-            onSeekFinished = { fraction ->
-                if (safeDuration > 0L) {
-                    onSeekCommit((fraction * safeDuration).toLong())
-                }
-            },
-        ) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(mediaMetadata.thumbnailUrl)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .clip(CircleShape)
-                    .background(HaloCharcoalElevated),
-            )
-        }
+        // Full album art hero — square rounded-rect, fills hero (not a disc)
+        AsyncImage(
+            model = ImageRequest.Builder(context)
+                .data(mediaMetadata.thumbnailUrl)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(1f)
+                .clip(HeroCorner)
+                .background(HaloCharcoalElevated),
+        )
 
-        Spacer(Modifier.height(36.dp))
+        Spacer(Modifier.height(28.dp))
 
         Text(
             text = mediaMetadata.title,
@@ -151,7 +140,47 @@ fun HighwayHaloNowPlaying(
                 .padding(horizontal = 16.dp),
         )
 
-        Spacer(Modifier.height(40.dp))
+        Spacer(Modifier.height(20.dp))
+
+        // Classic horizontal seek + wave while playing
+        WaveSeekBar(
+            progress = progress,
+            isPlaying = isPlaying,
+            onSeekFraction = { fraction ->
+                if (safeDuration > 0L) {
+                    onSeekPreview((fraction * safeDuration).toLong())
+                }
+            },
+            onSeekFinished = { fraction ->
+                if (safeDuration > 0L) {
+                    onSeekCommit((fraction * safeDuration).toLong())
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp),
+        ) {
+            Text(
+                text = makeTimeString(positionMs.coerceAtLeast(0L)),
+                color = HaloGhost,
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+            )
+            Text(
+                text = if (safeDuration > 0L) makeTimeString(safeDuration) else "",
+                color = HaloGhost,
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+            )
+        }
+
+        Spacer(Modifier.height(24.dp))
 
         // Transport — generous spacing, ≥48dp hit targets
         Row(
@@ -265,7 +294,7 @@ fun HighwayHaloNowPlaying(
             }
         }
 
-        Spacer(Modifier.weight(0.55f))
+        Spacer(Modifier.weight(0.45f))
         Spacer(Modifier.height(8.dp))
     }
 }
