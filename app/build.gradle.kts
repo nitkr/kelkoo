@@ -1,8 +1,8 @@
-sha adbf3bd8f35d3d79c743af438eaa46b26cce00a3
-preview:
-36:        versionCode = 3
-37:        versionName = "0.1.3"
-ies = Properties()
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+import java.net.URL
+
+val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(localPropertiesFile.inputStream())
