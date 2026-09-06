@@ -292,7 +292,7 @@ fun OnlineSearchResult(
                 Text(
                     text = stringResource(R.string.search_yt_music),
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.White.copy(alpha = 0.55f)
                 )
             },
             leadingIcon = {
@@ -302,7 +302,7 @@ fun OnlineSearchResult(
                     Icon(
                         painter = painterResource(R.drawable.arrow_back),
                         contentDescription = stringResource(R.string.dismiss),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = Color.White
                     )
                 }
             },
@@ -316,7 +316,7 @@ fun OnlineSearchResult(
                         Icon(
                             painter = painterResource(R.drawable.close),
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = Color.White.copy(alpha = 0.8f)
                         )
                     }
                 }
@@ -332,22 +332,25 @@ fun OnlineSearchResult(
             singleLine = true,
             shape = RoundedCornerShape(28.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                cursorColor = MaterialTheme.colorScheme.primary,
-                focusedContainerColor = if (pureBlack) 
-                    MaterialTheme.colorScheme.surfaceContainerHigh 
-                else 
-                    MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedContainerColor = if (pureBlack) 
-                    MaterialTheme.colorScheme.surfaceContainerHigh 
-                else 
-                    MaterialTheme.colorScheme.surfaceContainerHigh,
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                disabledTextColor = Color.White.copy(alpha = 0.5f),
+                cursorColor = Color(0xFFE8A838),
+                focusedContainerColor = Color(0xFF2A2A2A),
+                unfocusedContainerColor = Color(0xFF2A2A2A),
+                disabledContainerColor = Color(0xFF2A2A2A),
                 focusedBorderColor = Color.Transparent,
-                unfocusedBorderColor = Color.Transparent
+                unfocusedBorderColor = Color.Transparent,
+                disabledBorderColor = Color.Transparent,
+                focusedPlaceholderColor = Color.White.copy(alpha = 0.55f),
+                unfocusedPlaceholderColor = Color.White.copy(alpha = 0.55f),
+                focusedLeadingIconColor = Color.White,
+                unfocusedLeadingIconColor = Color.White,
+                focusedTrailingIconColor = Color.White.copy(alpha = 0.8f),
+                unfocusedTrailingIconColor = Color.White.copy(alpha = 0.8f),
             ),
             textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
+                color = Color.White
             ),
             modifier = Modifier
                 .fillMaxWidth()
