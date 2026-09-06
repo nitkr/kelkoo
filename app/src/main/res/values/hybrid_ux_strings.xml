@@ -15,6 +15,7 @@
     <string name="pinned">Pinned</string>
     <string name="pin_from_library">Pin from Library</string>
     <string name="nothing_playing_pick">Nothing playing — pick from Home or Search</string>
+    <string name="home_empty_explore_tip">Nothing here yet — open Explore to find music</string>
     <string name="good_morning">Good morning</string>
     <string name="good_afternoon">Good afternoon</string>
     <string name="good_evening">Good evening</string>

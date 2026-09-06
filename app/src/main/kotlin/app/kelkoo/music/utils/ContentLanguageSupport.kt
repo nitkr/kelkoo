@@ -220,6 +220,10 @@ object ContentLanguageSupport {
         // Always derive hl from the multi-lang set so a stale ContentLanguageKey
         // (e.g. Hindi from older onboarding) cannot force Hindi-only discovery.
         val hl = primaryLanguage(selected, country)
-        YouTube.locale = YouTubeLocale(gl = country, hl = hl)
+        val next = YouTubeLocale(gl = country, hl = hl)
+        // Avoid redundant writes when App/onboarding already applied the same locale.
+        if (YouTube.locale != next) {
+            YouTube.locale = next
+        }
     }
 }
