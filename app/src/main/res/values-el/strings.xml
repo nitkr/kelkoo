@@ -396,15 +396,13 @@
     <string name="status_online">Σε σύνδεση</string>
     <string name="status_offline">Εκτός σύνδεσης</string>
     <string name="status_checking">Έλεγχος...</string>
-    <string name="recognition_notification_channel_name">Αναγνώριση μουσικής</string>
-    <string name="recognition_notification_channel_desc">Εμφανίζει μια ειδοποίηση κατά την αναγνώριση τραγουδιού από τις γρήγορες ρυθμίσεις</string>
-    <string name="recognition_notification_listening">Ακρόαση μουσικής…</string>
-    <string name="recognition_notification_processing">Αναγνώριση…</string>
-    <string name="recognition_notification_no_match">Δεν βρέθηκε αντιστοιχία</string>
-    <string name="recognition_notification_failed">Η αναγνώριση απέτυχε</string>
-    <string name="listen_on_echo_music">Ακρόαση στο Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Αναγνώριση μουσικής</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Ακρόαση στο Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Ενεργοποίηση Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Αυτόματη προσθήκη προτάσεων τεχνητής νοημοσύνης βάσει των συνηθειών ακρόασής σας</string>
     <string name="echo_brain_profile_statistics">Στατιστικά προφίλ</string>

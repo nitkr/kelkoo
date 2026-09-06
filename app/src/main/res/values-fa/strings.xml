@@ -409,15 +409,13 @@
     <string name="status_online">برخط</string>
     <string name="status_offline">برون‌خط</string>
     <string name="status_checking">در حال بررسی...</string>
-    <string name="recognition_notification_channel_name">تشخیص موسیقی</string>
-    <string name="recognition_notification_channel_desc">هنگام شناسایی ترانه از تنظیمات سریع، یک اعلان نمایش می‌دهد</string>
-    <string name="recognition_notification_listening">در حال گوش دادن به موسیقی…</string>
-    <string name="recognition_notification_processing">در حال شناسایی…</string>
-    <string name="recognition_notification_no_match">هیچ مورد منطبقی یافت نشد</string>
-    <string name="recognition_notification_failed">تشخیص ناموفق بود</string>
-    <string name="listen_on_echo_music">در Kelkoo گوش دهید</string>
-    <string name="qs_tile_music_recognizer">تشخیص موسیقی</string>
-    <string name="echo_brain_beta">Kelkoo Brain (بتا)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">در Kelkoo گوش دهید</string>
+<string name="echo_brain_beta">Kelkoo Brain (بتا)</string>
     <string name="echo_brain_enable">فعال‌سازی Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">پیشنهادهای هوش مصنوعی را بر اساس عادت‌های شنیداری شما به‌طور خودکار اضافه می‌کند</string>
     <string name="echo_brain_profile_statistics">آمار نمایه</string>

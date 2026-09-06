@@ -10,7 +10,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
@@ -21,9 +20,6 @@
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
     <!-- Optional: If you also need to scan for Bluetooth devices -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
-
-    <!-- Microphone feature for music recognition (not required) -->
-    <uses-feature android:name="android.hardware.microphone" android:required="false" />
 
 <!--    install permission-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
@@ -347,7 +343,7 @@
             android:name="com.google.android.gms.cast.framework.ReconnectionService"
             android:exported="false"
             android:process=":reconnection_service" />
-        <!-- Music Widget --><!-- Playlist Widget -->
+        <!-- Playlist Widget -->
         <receiver
             android:name=".widget.PlaylistWidgetReceiver"
             android:exported="true"
@@ -360,7 +356,7 @@
                 android:resource="@xml/playlist_widget_info" />
         </receiver>
 
-        <!-- Turntable Widget --><activity
+        <activity
             android:name="app.kelkoo.music.discord.DiscordOAuthCallbackActivity"
             android:exported="true"
             android:launchMode="singleTop"
@@ -372,53 +368,6 @@
                 <data android:scheme="${discordRedirectScheme}" />
             </intent-filter>
         </activity>
-
-        <activity
-            android:name=".recognition.RecognitionLaunchActivity"
-            android:excludeFromRecents="true"
-            android:exported="false"
-            android:launchMode="singleTask"
-            android:noHistory="true"
-            android:theme="@style/Theme.Metrolist.Transparent" />
-
-        <!-- Music Recognizer Widget -->
-        <receiver
-            android:name=".widget.MusicRecognizerWidgetReceiver"
-            android:exported="true"
-            android:label="@string/widget_recognizer_name">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="app.kelkoo.music.widget.recognizer.TAP_MIC" />
-                <action android:name="app.kelkoo.music.widget.recognizer.UPDATE" />
-                <action android:name="app.kelkoo.music.widget.recognizer.RESET" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/recognizer_widget_info" />
-        </receiver>
-
-        <service
-            android:name=".widget.MusicRecognizerWidgetService"
-            android:exported="false"
-            android:foregroundServiceType="microphone" />
-
-        <service
-            android:name=".recognition.RecognitionForegroundService"
-            android:exported="false"
-            android:foregroundServiceType="microphone" />
-
-        <!-- Music Recognizer Quick Settings Tile -->
-        <service
-            android:name=".quicksettings.MusicRecognizerTileService"
-            android:label="@string/qs_tile_music_recognizer"
-            android:icon="@drawable/ic_qs_echo_logo"
-            android:exported="true"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE" />
-            </intent-filter>
-        </service>
 
     </application>
 

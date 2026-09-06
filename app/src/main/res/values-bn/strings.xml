@@ -396,15 +396,13 @@
     <string name="status_online">অনলাইন</string>
     <string name="status_offline">অফলাইন</string>
     <string name="status_checking">পরীক্ষা করা হচ্ছে..।</string>
-    <string name="recognition_notification_channel_name">সঙ্গীত শনাক্তকরণ</string>
-    <string name="recognition_notification_channel_desc">দ্রুত সেটিংস থেকে গান শনাক্ত করার সময় একটি বিজ্ঞপ্তি দেখায়</string>
-    <string name="recognition_notification_listening">সঙ্গীত শোনা হচ্ছে…</string>
-    <string name="recognition_notification_processing">শনাক্ত করা হচ্ছে…</string>
-    <string name="recognition_notification_no_match">কোনো মিল পাওয়া যায়নি</string>
-    <string name="recognition_notification_failed">শনাক্তকরণ ব্যর্থ হয়েছে</string>
-    <string name="listen_on_echo_music">Kelkoo-এ শুনুন</string>
-    <string name="qs_tile_music_recognizer">সঙ্গীত শনাক্ত করুন</string>
-    <string name="echo_brain_beta">Kelkoo Brain (বিটা)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo-এ শুনুন</string>
+<string name="echo_brain_beta">Kelkoo Brain (বিটা)</string>
     <string name="echo_brain_enable">Kelkoo Brain চালু করুন</string>
     <string name="echo_brain_enable_desc">আপনার শোনার অভ্যাসের ভিত্তিতে স্বয়ংক্রিয়ভাবে AI সুপারিশ যোগ করুন</string>
     <string name="echo_brain_profile_statistics">প্রোফাইলের পরিসংখ্যান</string>

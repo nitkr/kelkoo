@@ -762,25 +762,18 @@
     <string name="enable_high_refresh_rate">فعال‌سازی نرخ نوسازی بالا</string>
     <string name="enable_high_refresh_rate_desc">اجبار صفحه نمایش به اجرا در بالاترین نرخ نوسازی پشتیبانی‌شده (مانند ۱۲۰ هرتز)</string>
 
-    <!-- Music Recognition -->
-    <string name="recognition">تشخیص موسیقی</string>
-    <string name="recognize_music">تشخیص آهنگ</string>
-    <string name="tap_to_recognize">برای تشخیص ضربه بزنید</string>
-    <string name="listening">در حال گوش دادن…</string>
+
+
+<string name="listening">در حال گوش دادن…</string>
     <string name="processing">در حال پردازش…</string>
     <string name="no_match_found">آهنگی یافت نشد</string>
-    <string name="recognition_error">خطا در تشخیص آهنگ</string>
-    <string name="try_again">تلاش مجدد</string>
-    <string name="recognition_history">تاریخچه تشخیص آهنگ</string>
-    <string name="clear_recognition_history">پاک‌سازی تاریخچه تشخیص آهنگ</string>
-    <string name="clear_recognition_history_confirm">آیا مطمئن هستید که می‌خواهید تمام تاریخچه تشخیص آهنگ را پاک کنید؟</string>
-    <string name="delete_from_history">حذف از تاریخچه</string>
-    <string name="re_listen">گوش دادن مجدد</string>
-    <string name="hold_to_recognize">برای تشخیص موسیقی، آیکون جستجو را نگه دارید</string>
-    <string name="play_on_app">پخش در Kelkoo</string>
-    <string name="recognized_track">آهنگ شناسایی شده</string>
+<string name="try_again">تلاش مجدد</string>
 
-    <!-- CSV Import Strings -->
+
+<string name="delete_from_history">حذف از تاریخچه</string>
+    <string name="re_listen">گوش دادن مجدد</string>
+<string name="play_on_app">پخش در Kelkoo</string>
+<!-- CSV Import Strings -->
     <string name="map_csv_columns">انطباق ستون‌های CSV</string>
     <string name="first_row_is_header">ردیف اول سربرگ (Header) است</string>
     <string name="artist_name_column">ستون نام هنرمند</string>
@@ -965,22 +958,21 @@
     <string name="local_songs_no_matches_title">آهنگ محلی مطابقی یافت نشد</string>
     <string name="local_songs_empty_desc">تنظیمات را از نوار بالایی باز کرده و یک اسکن دستگاه اجرا کنید تا فایل‌های صوتی آفلاین در این دستگاه پیدا شوند.</string>
     <string name="local_songs_no_matches_desc">نام آهنگ، هنرمند یا آلبوم دیگری را امتحان کنید.</string>
-    <!-- Music Recognizer Widget strings -->
-    <string name="widget_recognizer_name">تشخیص‌دهنده موسیقی</string>
-    <string name="widget_recognizer_description">آهنگ‌های در حال پخش اطراف خود را مستقیماً از صفحه اصلی شناسایی کنید</string>
-    <string name="widget_recognizer_tap_to_search">برای شناسایی آهنگ ضربه بزنید</string>
-    <string name="widget_recognizer_listening">در حال گوش دادن…</string>
-    <string name="widget_recognizer_processing">در حال شناسایی…</string>
-    <string name="widget_recognizer_no_match">آهنگی یافت نشد. دوباره امتحان کنید</string>
-    <string name="widget_recognizer_error">تشخیص با خطا مواجه شد</string>
-    <string name="widget_recognizer_error_generic">خطایی رخ داد. لطفاً دوباره تلاش کنید</string>
-    <string name="widget_recognizer_unknown_song">آهنگ ناشناخته</string>
-    <string name="widget_recognizer_unknown_artist">هنرمند ناشناس</string>
-    <string name="widget_recognizer_mic_desc">شناسایی یک آهنگ</string>
-    <string name="widget_recognizer_channel_name">تشخیص موسیقی</string>
-    <string name="widget_recognizer_channel_desc">نمایش یک اعلان هنگام شناسایی آهنگ از طریق ویجت</string>
-    <string name="widget_recognizer_notification_text">در حال ضبط صدا برای شناسایی آهنگ…</string>
-    <string name="widget_playlists">لیست‌های پخش</string>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<string name="widget_playlists">لیست‌های پخش</string>
     <string name="widget_playlists_description">میانبرهای لیست پخش به همراه کنترل‌های مینی‌پلیر</string>
 
     <string name="choose_something_below">یک گزینه را در زیر انتخاب کنید</string>

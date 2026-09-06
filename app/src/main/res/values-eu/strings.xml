@@ -387,15 +387,13 @@
     <string name="status_online">Linean</string>
     <string name="status_offline">Lineaz kanpo</string>
     <string name="status_checking">Egiaztatzen...</string>
-    <string name="recognition_notification_channel_name">Musika-ezagutza</string>
-    <string name="recognition_notification_channel_desc">Jakinarazpen bat erakusten du ezarpen azkarretatik abesti bat identifikatzen den bitartean</string>
-    <string name="recognition_notification_listening">Musika entzuten…</string>
-    <string name="recognition_notification_processing">Identifikatzen…</string>
-    <string name="recognition_notification_no_match">Ez da bat datorrenik aurkitu</string>
-    <string name="recognition_notification_failed">Ezin izan da ezagutu</string>
-    <string name="listen_on_echo_music">Entzun Kelkoo-en</string>
-    <string name="qs_tile_music_recognizer">Ezagutu musika</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Entzun Kelkoo-en</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Gaitu Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Txertatu automatikoki AAren gomendioak zure entzute-ohituretan oinarrituta</string>
     <string name="echo_brain_profile_statistics">Profilaren estatistikak</string>

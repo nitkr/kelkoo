@@ -396,15 +396,13 @@
     <string name="status_online">Tilkoblet</string>
     <string name="status_offline">Frakoblet</string>
     <string name="status_checking">Sjekker...</string>
-    <string name="recognition_notification_channel_name">Musikkgjenkjenning</string>
-    <string name="recognition_notification_channel_desc">Viser et varsel mens en sang identifiseres fra hurtiginnstillingene</string>
-    <string name="recognition_notification_listening">Lytter etter musikk…</string>
-    <string name="recognition_notification_processing">Identifiserer…</string>
-    <string name="recognition_notification_no_match">Fant ingen treff</string>
-    <string name="recognition_notification_failed">Gjenkjenningen mislyktes</string>
-    <string name="listen_on_echo_music">Lytt på Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Gjenkjenn musikk</string>
-    <string name="echo_brain_beta">Kelkoo Brain (beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Lytt på Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (beta)</string>
     <string name="echo_brain_enable">Aktiver Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Legg automatisk til KI-anbefalinger basert på lyttevanene dine</string>
     <string name="echo_brain_profile_statistics">Profilstatistikk</string>

@@ -406,15 +406,13 @@
     <string name="status_online">מקוון</string>
     <string name="status_offline">לא מקוון</string>
     <string name="status_checking">מתבצעת בדיקה...</string>
-    <string name="recognition_notification_channel_name">זיהוי מוזיקה</string>
-    <string name="recognition_notification_channel_desc">הצגת התראה במהלך זיהוי שיר מההגדרות המהירות</string>
-    <string name="recognition_notification_listening">מאזין למוזיקה…</string>
-    <string name="recognition_notification_processing">מתבצע זיהוי…</string>
-    <string name="recognition_notification_no_match">לא נמצאה התאמה</string>
-    <string name="recognition_notification_failed">הזיהוי נכשל</string>
-    <string name="listen_on_echo_music">האזנה ב-Kelkoo</string>
-    <string name="qs_tile_music_recognizer">זיהוי מוזיקה</string>
-    <string name="echo_brain_beta">Kelkoo Brain (בטא)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">האזנה ב-Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (בטא)</string>
     <string name="echo_brain_enable">הפעלת Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">הוספה אוטומטית של המלצות בינה מלאכותית לפי הרגלי ההאזנה שלך</string>
     <string name="echo_brain_profile_statistics">סטטיסטיקות הפרופיל</string>

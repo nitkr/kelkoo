@@ -96,8 +96,6 @@ fun FloatingNavigationToolbar(
     shuffleEnabled: Boolean = false,
     shuffleIconRes: Int? = null,
     shuffleContentDescription: String = "",
-    onMusicRecognitionClick: (() -> Unit)? = null,
-    musicRecognitionContentDescription: String = "",
     onAiHubClick: (() -> Unit)? = null,
     aiHubIconRes: Int? = null,
     aiHubContentDescription: String = "",
@@ -109,7 +107,7 @@ fun FloatingNavigationToolbar(
     val toolbarColors = FloatingToolbarDefaults.standardFloatingToolbarColors(
         toolbarContainerColor = toolbarContainerColor,
     )
-    val hasOverflowMenu = (onShuffleClick != null && shuffleIconRes != null) || onMusicRecognitionClick != null
+    val hasOverflowMenu = onShuffleClick != null && shuffleIconRes != null
     val hasFabAction = onFabClick != null && fabIconRes != null
 
     Box(
@@ -141,8 +139,6 @@ fun FloatingNavigationToolbar(
                     items = items,
                     pureBlack = pureBlack,
                     showSelectedLabels = showSelectedLabels,
-                    onMusicRecognitionClick = onMusicRecognitionClick,
-                    musicRecognitionContentDescription = musicRecognitionContentDescription,
                     isSelected = isSelected,
                     onItemClick = onItemClick
                 )
@@ -167,8 +163,6 @@ fun FloatingNavigationToolbar(
                     items = items,
                     pureBlack = pureBlack,
                     showSelectedLabels = showSelectedLabels,
-                    onMusicRecognitionClick = onMusicRecognitionClick,
-                    musicRecognitionContentDescription = musicRecognitionContentDescription,
                     isSelected = isSelected,
                     onItemClick = onItemClick
                 )
@@ -184,8 +178,6 @@ fun FloatingNavigationToolbar(
                     items = items,
                     pureBlack = pureBlack,
                     showSelectedLabels = showSelectedLabels,
-                    onMusicRecognitionClick = onMusicRecognitionClick,
-                    musicRecognitionContentDescription = musicRecognitionContentDescription,
                     isSelected = isSelected,
                     onItemClick = onItemClick
                 )
@@ -199,8 +191,6 @@ private fun ToolbarItemsContainer(
     items: List<Screens>,
     pureBlack: Boolean,
     showSelectedLabels: Boolean,
-    onMusicRecognitionClick: (() -> Unit)?,
-    musicRecognitionContentDescription: String,
     isSelected: (Screens) -> Boolean,
     onItemClick: (Screens, Boolean) -> Unit
 ) {
@@ -248,15 +238,6 @@ private fun ToolbarItemsContainer(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             items.forEach { screen ->
-                if (screen == Screens.Library && onMusicRecognitionClick != null) {
-                    FloatingNavigationToolbarActionItem(
-                        iconRes = R.drawable.mic,
-                        contentDescription = musicRecognitionContentDescription,
-                        pureBlack = pureBlack,
-                        onClick = onMusicRecognitionClick
-                    )
-                }
-
                 val selected = isSelected(screen)
                 FloatingNavigationToolbarItem(
                     screen = screen,

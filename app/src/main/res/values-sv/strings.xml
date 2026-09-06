@@ -387,15 +387,13 @@
     <string name="status_online">Online</string>
     <string name="status_offline">Offline</string>
     <string name="status_checking">Kontrollerar...</string>
-    <string name="recognition_notification_channel_name">Musikigenkänning</string>
-    <string name="recognition_notification_channel_desc">Visar en avisering när en låt identifieras från snabbinställningarna</string>
-    <string name="recognition_notification_listening">Lyssnar efter musik…</string>
-    <string name="recognition_notification_processing">Identifierar…</string>
-    <string name="recognition_notification_no_match">Ingen matchning hittades</string>
-    <string name="recognition_notification_failed">Igenkänningen misslyckades</string>
-    <string name="listen_on_echo_music">Lyssna i Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Identifiera musik</string>
-    <string name="echo_brain_beta">Kelkoo Brain (beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Lyssna i Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (beta)</string>
     <string name="echo_brain_enable">Aktivera Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Lägg automatiskt till AI-rekommendationer utifrån dina lyssningsvanor</string>
     <string name="echo_brain_profile_statistics">Profilstatistik</string>

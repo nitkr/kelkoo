@@ -396,15 +396,13 @@
     <string name="status_online">Võrgus</string>
     <string name="status_offline">Võrguühenduseta</string>
     <string name="status_checking">Kontrollimine...</string>
-    <string name="recognition_notification_channel_name">Muusika tuvastamine</string>
-    <string name="recognition_notification_channel_desc">Näitab teavitust laulu tuvastamisel kiirseadetest</string>
-    <string name="recognition_notification_listening">Kuulan muusikat…</string>
-    <string name="recognition_notification_processing">Tuvastamine…</string>
-    <string name="recognition_notification_no_match">Vastet ei leitud</string>
-    <string name="recognition_notification_failed">Tuvastamine ebaõnnestus</string>
-    <string name="listen_on_echo_music">Kuula Kelkoous</string>
-    <string name="qs_tile_music_recognizer">Tuvasta muusika</string>
-    <string name="echo_brain_beta">Kelkoo Brain (beeta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kuula Kelkoous</string>
+<string name="echo_brain_beta">Kelkoo Brain (beeta)</string>
     <string name="echo_brain_enable">Luba Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Lisa automaatselt tehisintellekti soovitusi, lähtudes sinu kuulamisharjumustest</string>
     <string name="echo_brain_profile_statistics">Profiili statistika</string>
