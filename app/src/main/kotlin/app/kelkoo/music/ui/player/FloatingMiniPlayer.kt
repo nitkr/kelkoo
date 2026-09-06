@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -102,7 +103,6 @@ fun FloatingMiniPlayer(
     }
 
     val artSize = if (isInline) 32.dp else 44.dp
-    val artCornerRadius = if (isInline) 8.dp else 10.dp
     val controlSize = if (isInline) 32.dp else 40.dp
 
     // iOS 26 style press response: the whole glass pill grows slightly while touched.
@@ -212,7 +212,7 @@ fun FloatingMiniPlayer(
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .size(artSize)
-                    .clip(RoundedCornerShape(artCornerRadius)),
+                    .clip(CircleShape), // Highway Halo continuity
             )
 
             Spacer(Modifier.width(if (isInline) 8.dp else 12.dp))
@@ -252,7 +252,8 @@ fun FloatingMiniPlayer(
                 Icon(
                     painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
                     contentDescription = null,
-                    tint = contentColor,
+                    // Highway Halo: amber glyph while playing
+                    tint = if (isPlaying) Color(0xFFE8A838) else contentColor,
                 )
             }
 

@@ -309,6 +309,8 @@ fun BottomSheetPlayer(
         UseNewPlayerDesignKey,
         defaultValue = true
     )
+    // Highway Halo: Drive Night NP aesthetic (phone). MediaSession/Auto stay system.
+    val useHighwayHalo = true
     val showCodecOnPlayer by rememberPreference(app.kelkoo.music.constants.ShowCodecOnPlayerKey, false)
     val hidePlayerSlider by rememberPreference(app.kelkoo.music.constants.HidePlayerSliderKey, false)
     val (hidePlayerThumbnail, onHidePlayerThumbnailChange) = rememberPreference(HidePlayerThumbnailKey, false)
@@ -957,6 +959,7 @@ fun BottomSheetPlayer(
     )
 
     val bottomSheetBackgroundColor = when {
+        useHighwayHalo -> Color(0xFF121212) // Drive Night charcoal — strip rainbow NP chrome
         isLocalMedia -> Color.Black
         playerBackground in listOf(PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED, PlayerBackgroundStyle.APPLE_MUSIC) ->
             MaterialTheme.colorScheme.surfaceContainer
@@ -978,7 +981,7 @@ fun BottomSheetPlayer(
                     .fillMaxSize()
                     .background(bottomSheetBackgroundColor)
             ) {
-                when (playerBackground) {
+                when (if (useHighwayHalo) PlayerBackgroundStyle.DEFAULT else playerBackground) {
                     PlayerBackgroundStyle.BLUR -> {
                         AnimatedContent(
                             targetState = backgroundThumbnailUrl,
@@ -2798,53 +2801,89 @@ fun BottomSheetPlayer(
                         val currentSliderPosition by rememberUpdatedState(sliderPosition)
                         val sliderPositionProvider = remember { { currentSliderPosition } }
                         val isExpandedProvider = remember(state) { { state.isExpanded } }
-                        AnimatedContent(
-                            targetState = showInlineLyrics,
-                            label = "Lyrics",
-                            transitionSpec = { fadeIn() togetherWith fadeOut() }
-                        ) { showLyrics ->
-                            if (showLyrics) {
-                                InlineLyricsView(
-                                    mediaMetadata = mediaMetadata,
-                                    showLyrics = showLyrics,
-                                    positionProvider = { effectivePosition }
+                        if (useHighwayHalo && !showInlineLyrics) {
+                            mediaMetadata?.let { meta ->
+                                HighwayHaloNowPlaying(
+                                    mediaMetadata = meta,
+                                    positionMs = sliderPosition ?: effectivePosition,
+                                    durationMs = if (isCasting) castDuration else duration,
+                                    isPlaying = effectiveIsPlaying,
+                                    playbackState = playbackState,
+                                    isLiked = currentSong?.song?.liked == true,
+                                    canSkipPrevious = canSkipPrevious,
+                                    canSkipNext = canSkipNext,
+                                    onSeekPreview = { pos -> sliderPosition = pos },
+                                    onSeekCommit = { pos ->
+                                        sliderPosition = pos
+                                        playerConnection.seekTo(pos)
+                                        sliderPosition = null
+                                    },
+                                    onTogglePlayPause = {
+                                        if (playbackState == Player.STATE_ENDED) {
+                                            playerConnection.player.seekTo(0, 0)
+                                            playerConnection.player.playWhenReady = true
+                                        } else {
+                                            playerConnection.togglePlayPause()
+                                        }
+                                    },
+                                    onSkipPrevious = { playerConnection.seekToPrevious() },
+                                    onSkipNext = { playerConnection.seekToNext() },
+                                    onToggleLike = playerConnection::toggleLike,
+                                    onOpenQueue = { queueSheetState.expandSoft() },
+                                    modifier = Modifier.fillMaxSize(),
                                 )
-                            } else {
-                                Thumbnail(
-                                    sliderPositionProvider = sliderPositionProvider,
-                                    modifier = Modifier.animateContentSize(),
-                                    isPlayerExpanded = isExpandedProvider,
-                                    isLandscape = true,
-                                    isListenTogetherGuest = isListenTogetherGuest
-                                )
+                            }
+                        } else {
+                            AnimatedContent(
+                                targetState = showInlineLyrics,
+                                label = "Lyrics",
+                                transitionSpec = { fadeIn() togetherWith fadeOut() }
+                            ) { showLyrics ->
+                                if (showLyrics) {
+                                    InlineLyricsView(
+                                        mediaMetadata = mediaMetadata,
+                                        showLyrics = showLyrics,
+                                        positionProvider = { effectivePosition }
+                                    )
+                                } else {
+                                    Thumbnail(
+                                        sliderPositionProvider = sliderPositionProvider,
+                                        modifier = Modifier.animateContentSize(),
+                                        isPlayerExpanded = isExpandedProvider,
+                                        isLandscape = true,
+                                        isListenTogetherGuest = isListenTogetherGuest
+                                    )
+                                }
                             }
                         }
                     }
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .weight(if (showInlineLyrics) 0.65f else 1f, false)
-                            .animateContentSize()
-                            .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
-                    ) {
-                        Spacer(Modifier.weight(1f))
+                    if (!(useHighwayHalo && !showInlineLyrics)) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier
+                                .weight(if (showInlineLyrics) 0.65f else 1f, false)
+                                .animateContentSize()
+                                .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Top))
+                        ) {
+                            Spacer(Modifier.weight(1f))
 
-                        if (showLyricsOnPlayer && !showInlineLyrics) {
-                            PlayerSyncedLyricsView(
-                                mediaMetadata = mediaMetadata,
-                                positionProvider = { effectivePosition },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 12.dp)
-                            )
+                            if (showLyricsOnPlayer && !showInlineLyrics) {
+                                PlayerSyncedLyricsView(
+                                    mediaMetadata = mediaMetadata,
+                                    positionProvider = { effectivePosition },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 12.dp)
+                                )
+                            }
+
+                            mediaMetadata?.let {
+                                controlsContent(it)
+                            }
+
+                            Spacer(Modifier.weight(1f))
                         }
-
-                        mediaMetadata?.let {
-                            controlsContent(it)
-                        }
-
-                        Spacer(Modifier.weight(1f))
                     }
                 }
             }
@@ -2870,29 +2909,67 @@ fun BottomSheetPlayer(
                         val currentSliderPosition by rememberUpdatedState(sliderPosition)
                         val sliderPositionProvider = remember { { currentSliderPosition } }
                         val isExpandedProvider = remember(state) { { state.isExpanded } }
-                        AnimatedContent(
-                            targetState = showInlineLyrics,
-                            label = "Lyrics",
-                            transitionSpec = { fadeIn() togetherWith fadeOut() }
-                        ) { showLyrics ->
-                            if (showLyrics) {
-                                InlineLyricsView(
-                                    mediaMetadata = mediaMetadata,
-                                    showLyrics = showLyrics,
-                                    positionProvider = { effectivePosition }
+                        if (useHighwayHalo && !showInlineLyrics) {
+                            mediaMetadata?.let { meta ->
+                                HighwayHaloNowPlaying(
+                                    mediaMetadata = meta,
+                                    positionMs = sliderPosition ?: effectivePosition,
+                                    durationMs = if (isCasting) castDuration else duration,
+                                    isPlaying = effectiveIsPlaying,
+                                    playbackState = playbackState,
+                                    isLiked = currentSong?.song?.liked == true,
+                                    canSkipPrevious = canSkipPrevious,
+                                    canSkipNext = canSkipNext,
+                                    onSeekPreview = { pos ->
+                                        sliderPosition = pos
+                                    },
+                                    onSeekCommit = { pos ->
+                                        sliderPosition = pos
+                                        playerConnection.seekTo(pos)
+                                        sliderPosition = null
+                                    },
+                                    onTogglePlayPause = {
+                                        if (playbackState == Player.STATE_ENDED) {
+                                            playerConnection.player.seekTo(0, 0)
+                                            playerConnection.player.playWhenReady = true
+                                        } else {
+                                            playerConnection.togglePlayPause()
+                                        }
+                                    },
+                                    onSkipPrevious = { playerConnection.seekToPrevious() },
+                                    onSkipNext = { playerConnection.seekToNext() },
+                                    onToggleLike = playerConnection::toggleLike,
+                                    onOpenQueue = { queueSheetState.expandSoft() },
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .nestedScroll(state.preUpPostDownNestedScrollConnection),
                                 )
-                            } else {
-                                Thumbnail(
-                                    sliderPositionProvider = sliderPositionProvider,
-                                    modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
-                                    isPlayerExpanded = isExpandedProvider,
-                                    isListenTogetherGuest = isListenTogetherGuest
-                                )
+                            }
+                        } else {
+                            AnimatedContent(
+                                targetState = showInlineLyrics,
+                                label = "Lyrics",
+                                transitionSpec = { fadeIn() togetherWith fadeOut() }
+                            ) { showLyrics ->
+                                if (showLyrics) {
+                                    InlineLyricsView(
+                                        mediaMetadata = mediaMetadata,
+                                        showLyrics = showLyrics,
+                                        positionProvider = { effectivePosition }
+                                    )
+                                } else {
+                                    Thumbnail(
+                                        sliderPositionProvider = sliderPositionProvider,
+                                        modifier = Modifier.nestedScroll(state.preUpPostDownNestedScrollConnection),
+                                        isPlayerExpanded = isExpandedProvider,
+                                        isListenTogetherGuest = isListenTogetherGuest
+                                    )
+                                }
                             }
                         }
                     }
 
-                    if (showLyricsOnPlayer && !showInlineLyrics) {
+                    if (!useHighwayHalo && showLyricsOnPlayer && !showInlineLyrics) {
                         PlayerSyncedLyricsView(
                             mediaMetadata = mediaMetadata,
                             positionProvider = { effectivePosition },
@@ -2902,11 +2979,12 @@ fun BottomSheetPlayer(
                         )
                     }
 
-                    mediaMetadata?.let {
-                        controlsContent(it)
+                    if (!useHighwayHalo) {
+                        mediaMetadata?.let {
+                            controlsContent(it)
+                        }
+                        Spacer(Modifier.height(if (useNewPlayerDesign) 30.dp else 8.dp))
                     }
-
-                    Spacer(Modifier.height(if (useNewPlayerDesign) 30.dp else 8.dp))
                 }
             }
         }
