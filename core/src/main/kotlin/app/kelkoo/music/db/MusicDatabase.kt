@@ -30,7 +30,6 @@ import app.kelkoo.music.db.entities.PlayCountEntity
 import app.kelkoo.music.db.entities.PlaylistEntity
 import app.kelkoo.music.db.entities.PlaylistSongMap
 import app.kelkoo.music.db.entities.PlaylistSongMapPreview
-import app.kelkoo.music.db.entities.RecognitionHistory
 import app.kelkoo.music.db.entities.RelatedSongMap
 import app.kelkoo.music.db.entities.SearchHistory
 import app.kelkoo.music.db.entities.SetVideoIdEntity
@@ -103,7 +102,6 @@ class MusicDatabase(
         RelatedSongMap::class,
         SetVideoIdEntity::class,
         PlayCountEntity::class,
-        RecognitionHistory::class,
         SpeedDialItem::class,
         BeatInfoEntity::class
     ],
@@ -112,7 +110,7 @@ class MusicDatabase(
         SortedSongAlbumMap::class,
         PlaylistSongMapPreview::class,
     ],
-    version = 45,
+    version = 46,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 2, to = 3),
@@ -181,6 +179,7 @@ abstract class InternalDatabase : RoomDatabase() {
                             MIGRATION_42_43,
                             MIGRATION_43_44,
                             MIGRATION_44_45,
+                            MIGRATION_45_46,
                         )
                         .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
                         .setTransactionExecutor(java.util.concurrent.Executors.newFixedThreadPool(4))
@@ -1007,5 +1006,12 @@ val MIGRATION_44_45 = object : Migration(44, 45) {
             db.execSQL("ALTER TABLE `playlist` ADD COLUMN `isLocal` INTEGER NOT NULL DEFAULT 0")
             Timber.tag("MIGRATION_44_45").i("Added missing isLocal column to playlist")
         }
+    }
+}
+
+val MIGRATION_45_46 = object : Migration(45, 46) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE IF EXISTS `recognition_history`")
+        Timber.tag("MIGRATION_45_46").i("Dropped recognition_history table")
     }
 }

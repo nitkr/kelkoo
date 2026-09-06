@@ -406,15 +406,13 @@
     <string name="status_online">En línea</string>
     <string name="status_offline">Sin conexión</string>
     <string name="status_checking">Comprobando...</string>
-    <string name="recognition_notification_channel_name">Reconocimiento de música</string>
-    <string name="recognition_notification_channel_desc">Muestra una notificación mientras se identifica una canción desde los ajustes rápidos</string>
-    <string name="recognition_notification_listening">Escuchando música…</string>
-    <string name="recognition_notification_processing">Identificando…</string>
-    <string name="recognition_notification_no_match">No se encontraron coincidencias</string>
-    <string name="recognition_notification_failed">Falló el reconocimiento</string>
-    <string name="listen_on_echo_music">Escuchar en Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Reconocer música</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Escuchar en Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Activar Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Agregar automáticamente recomendaciones de IA basadas en tus hábitos de escucha</string>
     <string name="echo_brain_profile_statistics">Estadísticas del perfil</string>

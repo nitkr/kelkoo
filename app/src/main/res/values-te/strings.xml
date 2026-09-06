@@ -396,15 +396,13 @@
     <string name="status_online">ఆన్‌లైన్</string>
     <string name="status_offline">ఆఫ్‌లైన్</string>
     <string name="status_checking">తనిఖీ చేస్తోంది...</string>
-    <string name="recognition_notification_channel_name">సంగీత గుర్తింపు</string>
-    <string name="recognition_notification_channel_desc">త్వరిత సెట్టింగ్‌ల ద్వారా పాటను గుర్తిస్తున్నప్పుడు నోటిఫికేషన్‌ను చూపుతుంది</string>
-    <string name="recognition_notification_listening">సంగీతం కోసం వింటోంది…</string>
-    <string name="recognition_notification_processing">గుర్తిస్తోంది…</string>
-    <string name="recognition_notification_no_match">సరిపోలిక కనుగొనబడలేదు</string>
-    <string name="recognition_notification_failed">గుర్తింపు విఫలమైంది</string>
-    <string name="listen_on_echo_music">Kelkooలో వినండి</string>
-    <string name="qs_tile_music_recognizer">సంగీతాన్ని గుర్తించండి</string>
-    <string name="echo_brain_beta">Kelkoo Brain (బీటా)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkooలో వినండి</string>
+<string name="echo_brain_beta">Kelkoo Brain (బీటా)</string>
     <string name="echo_brain_enable">Kelkoo Brainను ప్రారంభించండి</string>
     <string name="echo_brain_enable_desc">మీ వినికిడి అలవాట్ల ఆధారంగా AI సిఫార్సులను స్వయంచాలకంగా చేర్చండి</string>
     <string name="echo_brain_profile_statistics">ప్రొఫైల్ గణాంకాలు</string>

@@ -407,15 +407,13 @@
     <string name="status_online">Na mreži</string>
     <string name="status_offline">Izvan mreže</string>
     <string name="status_checking">Provjera...</string>
-    <string name="recognition_notification_channel_name">Prepoznavanje glazbe</string>
-    <string name="recognition_notification_channel_desc">Prikazuje obavijest prilikom prepoznavanja pjesme iz brzih postavki</string>
-    <string name="recognition_notification_listening">Slušanje glazbe…</string>
-    <string name="recognition_notification_processing">Identificiranje…</string>
-    <string name="recognition_notification_no_match">Nije pronađen nijedan rezultat</string>
-    <string name="recognition_notification_failed">Prepoznavanje nije uspjelo</string>
-    <string name="listen_on_echo_music">Slušajte na Kelkoou</string>
-    <string name="qs_tile_music_recognizer">Prepoznaj glazbu</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Slušajte na Kelkoou</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Omogući Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Automatski ubrizgajte preporuke umjetne inteligencije na temelju vaših navika slušanja</string>
     <string name="echo_brain_profile_statistics">Statistika profila</string>

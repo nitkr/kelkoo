@@ -387,15 +387,13 @@
     <string name="status_online">Tilkopla</string>
     <string name="status_offline">Fråkopla</string>
     <string name="status_checking">Kontrollerer...</string>
-    <string name="recognition_notification_channel_name">Musikkattkjenning</string>
-    <string name="recognition_notification_channel_desc">Viser eit varsel medan ein song vert identifisert frå snøgginnstillingane</string>
-    <string name="recognition_notification_listening">Lyttar etter musikk…</string>
-    <string name="recognition_notification_processing">Identifiserer…</string>
-    <string name="recognition_notification_no_match">Fann ingen treff</string>
-    <string name="recognition_notification_failed">Attkjenninga mislukkast</string>
-    <string name="listen_on_echo_music">Lytt på Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Kjenn att musikk</string>
-    <string name="echo_brain_beta">Kelkoo Brain (beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Lytt på Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (beta)</string>
     <string name="echo_brain_enable">Slå på Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Legg automatisk til KI-tilrådingar baserte på lyttevanane dine</string>
     <string name="echo_brain_profile_statistics">Profilstatistikk</string>

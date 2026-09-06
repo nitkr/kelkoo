@@ -421,15 +421,13 @@
     <string name="status_online">У сетцы</string>
     <string name="status_offline">Не ў сетцы</string>
     <string name="status_checking">Праверка...</string>
-    <string name="recognition_notification_channel_name">Распазнаванне музыкі</string>
-    <string name="recognition_notification_channel_desc">Паказвае апавяшчэнне падчас распазнавання песні праз хуткія налады</string>
-    <string name="recognition_notification_listening">Праслухоўванне музыкі…</string>
-    <string name="recognition_notification_processing">Распазнаванне…</string>
-    <string name="recognition_notification_no_match">Супадзенняў не знойдзена</string>
-    <string name="recognition_notification_failed">Не ўдалося распазнаць</string>
-    <string name="listen_on_echo_music">Слухаць у Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Распазнаць музыку</string>
-    <string name="echo_brain_beta">Kelkoo Brain (бэта-версія)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Слухаць у Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (бэта-версія)</string>
     <string name="echo_brain_enable">Уключыць Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Аўтаматычна дадаваць рэкамендацыі ШІ на аснове вашых звычак праслухоўвання</string>
     <string name="echo_brain_profile_statistics">Статыстыка профілю</string>

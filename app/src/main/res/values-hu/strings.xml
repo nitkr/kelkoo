@@ -396,15 +396,13 @@
     <string name="status_online">Elérhető</string>
     <string name="status_offline">Nem érhető el</string>
     <string name="status_checking">Ellenőrzés…</string>
-    <string name="recognition_notification_channel_name">Zenefelismerés</string>
-    <string name="recognition_notification_channel_desc">Értesítést jelenít meg, amíg a gyorsbeállításokból indított dalazonosítás folyamatban van</string>
-    <string name="recognition_notification_listening">Zene figyelése…</string>
-    <string name="recognition_notification_processing">Azonosítás…</string>
-    <string name="recognition_notification_no_match">Nincs találat</string>
-    <string name="recognition_notification_failed">A felismerés sikertelen</string>
-    <string name="listen_on_echo_music">Meghallgatás az Kelkooban</string>
-    <string name="qs_tile_music_recognizer">Zene felismerése</string>
-    <string name="echo_brain_beta">Kelkoo Brain (béta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Meghallgatás az Kelkooban</string>
+<string name="echo_brain_beta">Kelkoo Brain (béta)</string>
     <string name="echo_brain_enable">Kelkoo Brain engedélyezése</string>
     <string name="echo_brain_enable_desc">MI-alapú ajánlások automatikus beillesztése a hallgatási szokásaid alapján</string>
     <string name="echo_brain_profile_statistics">Profilstatisztikák</string>

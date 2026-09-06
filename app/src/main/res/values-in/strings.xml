@@ -386,15 +386,13 @@
     <string name="status_online">Daring</string>
     <string name="status_offline">Luring</string>
     <string name="status_checking">Memeriksa...</string>
-    <string name="recognition_notification_channel_name">Pengenalan musik</string>
-    <string name="recognition_notification_channel_desc">Menampilkan notifikasi saat mengidentifikasi lagu dari setelan cepat</string>
-    <string name="recognition_notification_listening">Mendengarkan musik…</string>
-    <string name="recognition_notification_processing">Mengidentifikasi…</string>
-    <string name="recognition_notification_no_match">Tidak ditemukan kecocokan</string>
-    <string name="recognition_notification_failed">Pengenalan gagal</string>
-    <string name="listen_on_echo_music">Dengarkan di Kelkoo</string>
-    <string name="qs_tile_music_recognizer">Kenali musik</string>
-    <string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Dengarkan di Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (Beta)</string>
     <string name="echo_brain_enable">Aktifkan Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">Secara otomatis menyisipkan rekomendasi AI berdasarkan kebiasaan mendengarkan Anda</string>
     <string name="echo_brain_profile_statistics">Statistik Profil</string>

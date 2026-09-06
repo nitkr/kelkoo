@@ -377,15 +377,13 @@
     <string name="status_online">Onlayn</string>
     <string name="status_offline">Oflayn</string>
     <string name="status_checking">Yoxlanılır</string>
-    <string name="recognition_notification_channel_name">Musiqi tanıma</string>
-    <string name="recognition_notification_channel_desc">Musiqi tanıma bildirişləri</string>
-    <string name="recognition_notification_listening">Musiqi dinlənilir</string>
-    <string name="recognition_notification_processing">Musiqi emal edilir</string>
-    <string name="recognition_notification_no_match">Uyğunluq tapılmadı</string>
-    <string name="recognition_notification_failed">Musiqini tanımaq mümkün olmadı</string>
-    <string name="listen_on_echo_music">Kelkoo-də dinlə</string>
-    <string name="qs_tile_music_recognizer">Musiqi tanıyıcı</string>
-    <string name="echo_brain_beta">Kelkoo Brain Beta</string>
+
+
+
+
+
+<string name="listen_on_echo_music">Kelkoo-də dinlə</string>
+<string name="echo_brain_beta">Kelkoo Brain Beta</string>
     <string name="echo_brain_enable">Kelkoo Brain-i aktiv et</string>
     <string name="echo_brain_enable_desc">Fərdiləşdirilmiş musiqi profilinizi yaratmaq üçün dinləmə vərdişlərinizi öyrənir</string>
     <string name="echo_brain_profile_statistics">Profil statistikası</string>

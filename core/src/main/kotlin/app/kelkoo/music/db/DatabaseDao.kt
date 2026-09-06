@@ -39,7 +39,6 @@ import app.kelkoo.music.db.entities.Playlist
 import app.kelkoo.music.db.entities.PlaylistEntity
 import app.kelkoo.music.db.entities.PlaylistSong
 import app.kelkoo.music.db.entities.PlaylistSongMap
-import app.kelkoo.music.db.entities.RecognitionHistory
 import app.kelkoo.music.db.entities.RelatedSongMap
 import app.kelkoo.music.db.entities.SearchHistory
 import app.kelkoo.music.db.entities.SetVideoIdEntity
@@ -1176,36 +1175,6 @@ interface DatabaseDao {
     @Query("DELETE FROM search_history")
     fun clearSearchHistory()
 
-    
-    @Transaction
-    @Query("SELECT * FROM recognition_history ORDER BY recognizedAt DESC")
-    fun recognitionHistory(): Flow<List<RecognitionHistory>>
-
-    @Transaction
-    @Query("SELECT * FROM recognition_history WHERE id = :id")
-    fun recognitionHistoryById(id: Long): Flow<RecognitionHistory?>
-
-    @Transaction
-    @Query("SELECT * FROM recognition_history WHERE title LIKE '%' || :query || '%' OR artist LIKE '%' || :query || '%' ORDER BY recognizedAt DESC")
-    fun searchRecognitionHistory(query: String): Flow<List<RecognitionHistory>>
-
-    @Transaction
-    @Query("DELETE FROM recognition_history")
-    fun clearRecognitionHistory()
-
-    @Transaction
-    @Query("DELETE FROM recognition_history WHERE id = :id")
-    fun deleteRecognitionHistoryById(id: Long)
-
-    @Transaction
-    @Query("UPDATE recognition_history SET liked = :liked WHERE id = :id")
-    fun updateRecognitionHistoryLiked(id: Long, liked: Boolean)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(recognitionHistory: RecognitionHistory): Long
-
-    @Delete
-    fun delete(recognitionHistory: RecognitionHistory)
 
     @Query("UPDATE song SET totalPlayTime = totalPlayTime + :playTime WHERE id = :songId")
     fun incrementTotalPlayTime(songId: String, playTime: Long)

@@ -377,15 +377,13 @@
     <string name="status_online">អនឡាញ</string>
     <string name="status_offline">ក្រៅបណ្តាញ</string>
     <string name="status_checking">កំពុងពិនិត្យ...</string>
-    <string name="recognition_notification_channel_name">ការសម្គាល់តន្ត្រី</string>
-    <string name="recognition_notification_channel_desc">បង្ហាញការជូនដំណឹងពេលកំពុងសម្គាល់បទចម្រៀងពីការកំណត់រហ័ស</string>
-    <string name="recognition_notification_listening">កំពុងស្តាប់រកតន្ត្រី…</string>
-    <string name="recognition_notification_processing">កំពុងសម្គាល់…</string>
-    <string name="recognition_notification_no_match">រកមិនឃើញបទដែលត្រូវគ្នា</string>
-    <string name="recognition_notification_failed">ការសម្គាល់បានបរាជ័យ</string>
-    <string name="listen_on_echo_music">ស្តាប់លើ Kelkoo</string>
-    <string name="qs_tile_music_recognizer">សម្គាល់តន្ត្រី</string>
-    <string name="echo_brain_beta">Kelkoo Brain (សាកល្បង)</string>
+
+
+
+
+
+<string name="listen_on_echo_music">ស្តាប់លើ Kelkoo</string>
+<string name="echo_brain_beta">Kelkoo Brain (សាកល្បង)</string>
     <string name="echo_brain_enable">បើក Kelkoo Brain</string>
     <string name="echo_brain_enable_desc">បញ្ចូលការណែនាំពី AI ដោយស្វ័យប្រវត្តិ ផ្អែកលើទម្លាប់ស្តាប់របស់អ្នក</string>
     <string name="echo_brain_profile_statistics">ស្ថិតិប្រវត្តិរូប</string>
