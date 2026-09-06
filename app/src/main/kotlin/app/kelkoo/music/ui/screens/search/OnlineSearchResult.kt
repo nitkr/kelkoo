@@ -332,16 +332,22 @@ fun OnlineSearchResult(
             singleLine = true,
             shape = RoundedCornerShape(28.dp),
             colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary,
                 focusedContainerColor = if (pureBlack) 
-                    MaterialTheme.colorScheme.surface 
+                    MaterialTheme.colorScheme.surfaceContainerHigh 
                 else 
                     MaterialTheme.colorScheme.surfaceContainerHigh,
                 unfocusedContainerColor = if (pureBlack) 
-                    MaterialTheme.colorScheme.surface 
+                    MaterialTheme.colorScheme.surfaceContainerHigh 
                 else 
                     MaterialTheme.colorScheme.surfaceContainerHigh,
                 focusedBorderColor = Color.Transparent,
                 unfocusedBorderColor = Color.Transparent
+            ),
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
             ),
             modifier = Modifier
                 .fillMaxWidth()
