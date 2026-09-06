@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="welcome_to_kelkoo">Welcome to Kelkoo</string>
+    <string name="onboarding_welcome_subtitle">Drive Night — charcoal, amber, and your music.</string>
+    <string name="onboarding_permissions_title">Permissions</string>
+    <string name="onboarding_permissions_subtitle">Notifications keep media controls handy. Music access is optional for local files.</string>
+    <string name="permission_notifications_title">Notifications</string>
+    <string name="permission_notifications_desc">Show media controls and playback status</string>
+    <string name="permission_music_audio_title">Music &amp; audio</string>
+    <string name="permission_music_audio_desc">Optional — browse songs stored on this device</string>
+    <string name="onboarding_languages_title">Music languages</string>
+    <string name="onboarding_languages_subtitle">Pick languages for recommendations. You can change this later in Settings.</string>
+    <string name="continue_listening">Continue</string>
+    <string name="recents">Recents</string>
+    <string name="pinned">Pinned</string>
+    <string name="pin_from_library">Pin from Library</string>
+    <string name="nothing_playing_pick">Nothing playing — pick from Home or Search</string>
+    <string name="good_morning">Good morning</string>
+    <string name="good_afternoon">Good afternoon</string>
+    <string name="good_evening">Good evening</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_finish">Start listening</string>
+    <string name="not_now">Not now</string>
+</resources>
