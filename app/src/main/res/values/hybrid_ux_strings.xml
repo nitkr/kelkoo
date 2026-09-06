@@ -24,7 +24,6 @@
 
     <string name="onboarding_country_title">Where do you listen?</string>
     <string name="onboarding_country_subtitle">India is the default. Pick another country anytime — Discover follows your region.</string>
-    <string name="onboarding_languages_subtitle">Suggested for your country. Add more if you like. Change later in Settings.</string>
     <string name="onboarding_show_all_languages">Show all languages</string>
     <string name="onboarding_show_suggested_languages">Show suggested only</string>
     <string name="onboarding_more_countries">More countries</string>
