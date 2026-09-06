@@ -10,6 +10,7 @@ import com.music.innertube.models.filterExplicit
 import com.music.innertube.pages.ExplorePage
 import app.kelkoo.music.constants.HideExplicitKey
 import app.kelkoo.music.db.MusicDatabase
+import app.kelkoo.music.utils.ContentLanguageSupport
 import app.kelkoo.music.utils.dataStore
 import app.kelkoo.music.utils.get
 import app.kelkoo.music.utils.reportException
@@ -31,6 +32,7 @@ constructor(
     val explorePage = MutableStateFlow<ExplorePage?>(null)
 
     private suspend fun load() {
+        ContentLanguageSupport.applyToYouTube(context.dataStore)
         YouTube
             .explore()
             .onSuccess { page ->
