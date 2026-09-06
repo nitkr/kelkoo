@@ -177,6 +177,7 @@ fun Queue(
     showInlineLyrics: Boolean,
     playerBackground: PlayerBackgroundStyle = PlayerBackgroundStyle.DEFAULT,
     onToggleLyrics: () -> Unit = {},
+    useHighwayHalo: Boolean = false,
 ) {
     val context = LocalContext.current
     val haptic = LocalHapticFeedback.current
@@ -315,7 +316,16 @@ fun Queue(
             Box(Modifier.fillMaxSize().background(Color.Unspecified))
         },
         collapsedContent = {
-            if (useNewPlayerDesign) {
+            if (useHighwayHalo) {
+                // Dash triad: actions live on HighwayHalo NP — no chip carousel
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(
+                            WindowInsets.systemBars.only(WindowInsetsSides.Bottom)
+                        )
+                )
+            } else if (useNewPlayerDesign) {
                 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
