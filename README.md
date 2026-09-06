@@ -31,7 +31,7 @@ See `SETUP.md` only if you need SDK path notes; treat product naming in this REA
 
 <!-- readme: contributors -start -->
 <table>
-<tr><td align="center"><a href="https://github.com/nitkr"><img src="https://github.com/nitkr.png" width="60" height="60" alt="nitkr" /><br/>nitkr</a></td></tr>
+<tr><td align="center"><a href="https://github.com/nitkr"><img src="https://avatars.githubusercontent.com/u/4242027?v=4" width="60" height="60" alt="nitkr" /><br/>nitkr</a></td><td align="center"><a href="https://github.com/github-actions[bot]"><img src="https://avatars.githubusercontent.com/in/15368?v=4" width="60" height="60" alt="github-actions[bot]" /><br/>github-actions[bot]</a></td></tr>
 </table>
 <!-- readme: contributors -end -->
 
