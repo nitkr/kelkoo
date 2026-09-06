@@ -8,5 +8,9 @@
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
             tools:node="remove" />
+        <!-- Cast ReconnectionService is GMS-only; drop from FOSS merged manifest -->
+        <service
+            android:name="com.google.android.gms.cast.framework.ReconnectionService"
+            tools:node="remove" />
     </application>
 </manifest>
