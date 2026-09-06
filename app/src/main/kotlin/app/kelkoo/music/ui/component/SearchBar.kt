@@ -99,12 +99,12 @@ fun TopSearch(
                     leadingIcon = null,
                     trailingIcon = null,
                     colors = TextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.primary,
+                        cursorColor = Color(0xFFE8A838),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
@@ -164,8 +164,9 @@ private fun SearchBarInputField(
     focusRequester: FocusRequester = remember { FocusRequester() },
 ) {
     val focused = interactionSource.collectIsFocusedAsState().value
-    val textColor = LocalTextStyle.current.color.takeOrElse {
-        if (focused) colors.focusedTextColor else colors.unfocusedTextColor
+    // Prefer explicit TextFieldColors — LocalTextStyle can be low-contrast on Drive Night.
+    val textColor = (if (focused) colors.focusedTextColor else colors.unfocusedTextColor).takeOrElse {
+        LocalTextStyle.current.color
     }
 
     Row(
