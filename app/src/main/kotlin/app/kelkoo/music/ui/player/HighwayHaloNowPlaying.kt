@@ -21,12 +21,17 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +39,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -44,6 +50,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import app.kelkoo.music.R
 import app.kelkoo.music.models.MediaMetadata
+import app.kelkoo.music.ui.component.CastButton
 import app.kelkoo.music.utils.makeTimeString
 
 private val HaloCharcoal = Color(0xFF121212)
@@ -54,7 +61,12 @@ private val HeroCorner = RoundedCornerShape(16.dp)
 /**
  * Highway Halo fullscreen Now Playing — Drive Night charcoal field,
  * full square/rounded-rect album art hero, classic horizontal wave seek bar.
- * Orbital ring retired. MediaSession / Android Auto NP remain system; phone UI only.
+ *
+ * Dash triad Option A:
+ * - Transport: shuffle · prev · play · next · repeat (amber when on)
+ * - Footer: Lyrics | Queue (optional Like centered) — no sleep/share in row
+ * - Top ⋮ overflow: sleep, share, EQ, cast (sleep countdown badge when armed)
+ * Touch targets ≥48dp; play ≥64dp. No chip carousel.
  */
 @Composable
 fun HighwayHaloNowPlaying(
@@ -66,13 +78,23 @@ fun HighwayHaloNowPlaying(
     isLiked: Boolean,
     canSkipPrevious: Boolean,
     canSkipNext: Boolean,
+    shuffleModeEnabled: Boolean,
+    repeatMode: Int,
+    showInlineLyrics: Boolean,
+    sleepTimerEnabled: Boolean,
+    sleepTimerTimeLeftMs: Long,
     onSeekPreview: (Long) -> Unit = {},
     onSeekCommit: (Long) -> Unit,
     onTogglePlayPause: () -> Unit,
     onSkipPrevious: () -> Unit,
     onSkipNext: () -> Unit,
+    onToggleShuffle: () -> Unit,
+    onToggleRepeat: () -> Unit,
     onToggleLike: () -> Unit,
+    onOpenLyrics: () -> Unit,
     onOpenQueue: () -> Unit,
+    onOpenSleepTimer: () -> Unit,
+    onOpenEqualizer: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -82,6 +104,7 @@ fun HighwayHaloNowPlaying(
     } else {
         0f
     }
+    var overflowExpanded by remember { mutableStateOf(false) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,10 +114,113 @@ fun HighwayHaloNowPlaying(
             .windowInsetsPadding(WindowInsets.systemBars)
             .padding(horizontal = 24.dp),
     ) {
-        Spacer(Modifier.height(12.dp))
-        Spacer(Modifier.weight(0.2f))
+        // Top row — ⋮ overflow (sleep / share / EQ / cast)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+        ) {
+            Box {
+                IconButton(
+                    onClick = { overflowExpanded = true },
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(R.drawable.more_vert),
+                            contentDescription = stringResource(R.string.more_options),
+                            tint = Color.White.copy(alpha = 0.85f),
+                            modifier = Modifier.size(24.dp),
+                        )
+                        if (sleepTimerEnabled) {
+                            Text(
+                                text = makeTimeString(sleepTimerTimeLeftMs.coerceAtLeast(0L)),
+                                color = HaloAmber,
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 8.sp,
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                                maxLines = 1,
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(bottom = 2.dp),
+                            )
+                        }
+                    }
+                }
+                DropdownMenu(
+                    expanded = overflowExpanded,
+                    onDismissRequest = { overflowExpanded = false },
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                if (sleepTimerEnabled) {
+                                    "${stringResource(R.string.sleep_timer)} · ${makeTimeString(sleepTimerTimeLeftMs.coerceAtLeast(0L))}"
+                                } else {
+                                    stringResource(R.string.sleep_timer)
+                                }
+                            )
+                        },
+                        onClick = {
+                            overflowExpanded = false
+                            onOpenSleepTimer()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.sleep_timer),
+                                contentDescription = null,
+                                tint = if (sleepTimerEnabled) HaloAmber else Color.Unspecified,
+                            )
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.share)) },
+                        onClick = {
+                            overflowExpanded = false
+                            val intent = Intent(Intent.ACTION_SEND).apply {
+                                type = "text/plain"
+                                putExtra(
+                                    Intent.EXTRA_TEXT,
+                                    "https://www.youtube.com/watch?v=${mediaMetadata.id}",
+                                )
+                            }
+                            context.startActivity(Intent.createChooser(intent, null))
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.share),
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.equalizer)) },
+                        onClick = {
+                            overflowExpanded = false
+                            onOpenEqualizer()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.equalizer),
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                    // GMS: full cast row; FOSS: no-op stub
+                    CastButton(
+                        tintColor = MaterialTheme.colorScheme.onSurface,
+                        asMenuItem = true,
+                    )
+                }
+            }
+        }
 
-        // Full album art hero — square rounded-rect, fills hero (not a disc)
+        Spacer(Modifier.weight(0.12f))
+
+        // Full album art hero — square rounded-rect
         AsyncImage(
             model = ImageRequest.Builder(context)
                 .data(mediaMetadata.thumbnailUrl)
@@ -108,7 +234,7 @@ fun HighwayHaloNowPlaying(
                 .background(HaloCharcoalElevated),
         )
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(20.dp))
 
         Text(
             text = mediaMetadata.title,
@@ -140,9 +266,8 @@ fun HighwayHaloNowPlaying(
                 .padding(horizontal = 16.dp),
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // Classic horizontal seek + wave while playing
         WaveSeekBar(
             progress = progress,
             isPlaying = isPlaying,
@@ -180,31 +305,45 @@ fun HighwayHaloNowPlaying(
             )
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(16.dp))
 
-        // Transport — generous spacing, ≥48dp hit targets
+        // Transport — shuffle · prev · play · next · repeat (≥48dp; play ≥64dp)
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(36.dp),
-            modifier = Modifier.padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth(),
         ) {
+            IconButton(
+                onClick = onToggleShuffle,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    painter = painterResource(
+                        if (shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle
+                    ),
+                    contentDescription = stringResource(R.string.shuffle),
+                    tint = if (shuffleModeEnabled) HaloAmber else Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.size(26.dp),
+                )
+            }
+
             IconButton(
                 onClick = onSkipPrevious,
                 enabled = canSkipPrevious,
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(52.dp),
             ) {
                 Icon(
                     painter = painterResource(R.drawable.skip_previous),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = if (canSkipPrevious) 0.92f else 0.35f),
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(34.dp),
                 )
             }
 
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(72.dp)
+                    .size(64.dp)
                     .clip(CircleShape)
                     .background(HaloAmber.copy(alpha = 0.16f))
                     .clickable(
@@ -223,31 +362,63 @@ fun HighwayHaloNowPlaying(
                     ),
                     contentDescription = null,
                     tint = HaloAmber,
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(34.dp),
                 )
             }
 
             IconButton(
                 onClick = onSkipNext,
                 enabled = canSkipNext,
-                modifier = Modifier.size(56.dp),
+                modifier = Modifier.size(52.dp),
             ) {
                 Icon(
                     painter = painterResource(R.drawable.skip_next),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = if (canSkipNext) 0.92f else 0.35f),
-                    modifier = Modifier.size(36.dp),
+                    modifier = Modifier.size(34.dp),
+                )
+            }
+
+            IconButton(
+                onClick = onToggleRepeat,
+                modifier = Modifier.size(48.dp),
+            ) {
+                val repeatOn = repeatMode != Player.REPEAT_MODE_OFF
+                Icon(
+                    painter = painterResource(
+                        when (repeatMode) {
+                            Player.REPEAT_MODE_ONE -> R.drawable.repeat_one
+                            Player.REPEAT_MODE_ALL -> R.drawable.repeat
+                            else -> R.drawable.repeat
+                        }
+                    ),
+                    contentDescription = stringResource(R.string.repeat),
+                    tint = if (repeatOn) HaloAmber else Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.size(26.dp),
                 )
             }
         }
 
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(20.dp))
 
-        // Quiet ghost actions: like / queue / share
+        // Footer Dash triad — Lyrics | (Like) | Queue — no sleep/share
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth(),
         ) {
+            IconButton(
+                onClick = onOpenLyrics,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.lyrics),
+                    contentDescription = stringResource(R.string.lyrics),
+                    tint = if (showInlineLyrics) HaloAmber else HaloGhost,
+                    modifier = Modifier.size(22.dp),
+                )
+            }
+
             IconButton(
                 onClick = onToggleLike,
                 modifier = Modifier.size(48.dp),
@@ -261,40 +432,21 @@ fun HighwayHaloNowPlaying(
                     modifier = Modifier.size(22.dp),
                 )
             }
+
             IconButton(
                 onClick = onOpenQueue,
                 modifier = Modifier.size(48.dp),
             ) {
                 Icon(
                     painter = painterResource(R.drawable.queue_music),
-                    contentDescription = null,
-                    tint = HaloGhost,
-                    modifier = Modifier.size(22.dp),
-                )
-            }
-            IconButton(
-                onClick = {
-                    val intent = Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(
-                            Intent.EXTRA_TEXT,
-                            "https://www.youtube.com/watch?v=${mediaMetadata.id}",
-                        )
-                    }
-                    context.startActivity(Intent.createChooser(intent, null))
-                },
-                modifier = Modifier.size(48.dp),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.share),
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.queue),
                     tint = HaloGhost,
                     modifier = Modifier.size(22.dp),
                 )
             }
         }
 
-        Spacer(Modifier.weight(0.45f))
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.weight(0.35f))
+        Spacer(Modifier.height(4.dp))
     }
 }
