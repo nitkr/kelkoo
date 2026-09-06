@@ -38,6 +38,69 @@ import kotlin.math.sin
 val HaloAmber = Color(0xFFE8A838)
 
 /**
+ * Collapsed Unified Wave Sheet hairline — same amber wave DNA as [WaveSeekBar],
+ * but 2dp tall and non-interactive so mini stays tappable for expand/dismiss.
+ */
+@Composable
+fun WaveProgressHairline(
+    progress: Float,
+    isPlaying: Boolean,
+    modifier: Modifier = Modifier,
+    activeColor: Color = HaloAmber,
+    trackColor: Color = HaloAmber.copy(alpha = 0.18f),
+) {
+    val clamped = progress.coerceIn(0f, 1f)
+    val infinite = rememberInfiniteTransition(label = "waveHairline")
+    val wavePhase by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = (2f * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(1400, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "waveHairlinePhase",
+    )
+    val waveActive = isPlaying
+    Canvas(modifier = modifier.fillMaxWidth().height(2.dp)) {
+        val trackH = size.height
+        val cy = size.height / 2f
+        val progressX = size.width * clamped
+        drawRoundRect(
+            color = trackColor,
+            topLeft = Offset(0f, 0f),
+            size = Size(size.width, trackH),
+            cornerRadius = CornerRadius(trackH / 2f, trackH / 2f),
+        )
+        if (clamped > 0.001f) {
+            if (waveActive) {
+                val path = Path()
+                val amp = trackH * 0.9f
+                val steps = (progressX / 2f).toInt().coerceAtLeast(6)
+                val wavelength = size.width * 0.2f
+                for (i in 0..steps) {
+                    val x = progressX * (i.toFloat() / steps)
+                    val y = cy + amp * sin((x / wavelength) * 2f * PI.toFloat() + wavePhase)
+                    if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                }
+                drawPath(
+                    path = path,
+                    color = activeColor,
+                    style = Stroke(width = trackH, cap = StrokeCap.Round),
+                )
+            } else {
+                drawRoundRect(
+                    color = activeColor,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(progressX, trackH),
+                    cornerRadius = CornerRadius(trackH / 2f, trackH / 2f),
+                )
+            }
+        }
+    }
+}
+
+
+/**
  * Classic horizontal seek bar with a soft sine wobble on the active fill
  * while [isPlaying] is true. Paused/idle stays calm and flat.
  * Drag or tap to seek; Drive Night amber on charcoal continuity.
