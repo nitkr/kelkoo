@@ -60,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
@@ -139,7 +140,7 @@ fun SearchScreen(
     var isFirstLaunch by rememberSaveable { mutableStateOf(true) }
     
     var selectedTabIndex by rememberSaveable { mutableStateOf(0) }
-    var searchActive by rememberSaveable { mutableStateOf(true) }
+    var searchActive by rememberSaveable { mutableStateOf(false) }
 
 
     val onSearch: (String) -> Unit = remember {
@@ -209,11 +210,12 @@ fun SearchScreen(
     }
 
     Scaffold(
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(if (pureBlack) Color.Black else MaterialTheme.colorScheme.surface)
+                    .background(if (pureBlack) Color.Black else Color(0xFF1A1A1A))
                     .windowInsetsPadding(WindowInsets.statusBars.only(WindowInsetsSides.Top))
             ) {
                 OutlinedTextField(
@@ -231,7 +233,7 @@ fun SearchScreen(
                                 }
                             ),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.White.copy(alpha = 0.55f)
                         )
                     },
                     leadingIcon = {
@@ -254,7 +256,7 @@ fun SearchScreen(
                                     if (searchActive) R.drawable.arrow_back else R.drawable.search
                                 ),
                                 contentDescription = if (searchActive) stringResource(R.string.dismiss) else null,
-                                tint = MaterialTheme.colorScheme.onSurface
+                                tint = Color.White
                             )
                         }
                     },
@@ -265,7 +267,7 @@ fun SearchScreen(
                                     Icon(
                                         painter = painterResource(R.drawable.close),
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        tint = Color.White.copy(alpha = 0.8f)
                                     )
                                 }
                             }
@@ -283,7 +285,7 @@ fun SearchScreen(
                                         }
                                     ),
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = Color.White
                                 )
                             }
                         }
@@ -297,22 +299,36 @@ fun SearchScreen(
                     ),
                     singleLine = true,
                     textStyle = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = Color.White
                     ),
                     shape = RoundedCornerShape(28.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                        focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        focusedTextColor = Color.White,
+                        unfocusedTextColor = Color.White,
+                        disabledTextColor = Color.White.copy(alpha = 0.5f),
+                        cursorColor = Color(0xFFE8A838),
+                        focusedContainerColor = Color(0xFF2A2A2A),
+                        unfocusedContainerColor = Color(0xFF2A2A2A),
+                        disabledContainerColor = Color(0xFF2A2A2A),
                         focusedBorderColor = Color.Transparent,
-                        unfocusedBorderColor = Color.Transparent
+                        unfocusedBorderColor = Color.Transparent,
+                        disabledBorderColor = Color.Transparent,
+                        focusedPlaceholderColor = Color.White.copy(alpha = 0.55f),
+                        unfocusedPlaceholderColor = Color.White.copy(alpha = 0.55f),
+                        focusedLeadingIconColor = Color.White,
+                        unfocusedLeadingIconColor = Color.White,
+                        focusedTrailingIconColor = Color.White.copy(alpha = 0.8f),
+                        unfocusedTrailingIconColor = Color.White.copy(alpha = 0.8f),
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 8.dp)
                         .focusRequester(focusRequester)
+                        .onFocusChanged { state ->
+                            if (state.isFocused && !searchActive) {
+                                searchActive = true
+                            }
+                        }
                 )
 
                 AnimatedVisibility(
@@ -418,12 +434,7 @@ fun SearchScreen(
                         keyboardController?.hide()
                         focusManager.clearFocus()
                     } else if (isFirstLaunch) {
-                        
-                        try {
-                            focusRequester.requestFocus()
-                        } catch (e: Exception) {
-                            
-                        }
+                        // Do not autofocus: keeps Explore / Top Charts visible on tab open.
                         isFirstLaunch = false
                     }
                 }

@@ -145,16 +145,21 @@ object ContentLanguageSupport {
     fun orderedLanguages(selected: Set<String>, country: String): List<String> {
         val suggested = suggestedLanguages(country)
         val rest = selected.filter { it !in suggested }
-        return (suggested.filter { it in selected } + rest).ifEmpty {
+        val ordered = (suggested.filter { it in selected } + rest).ifEmpty {
             selected.toList().ifEmpty { listOf("en") }
         }
+        // English-first shelves when English is among the user's picks.
+        val english = ordered.filter { it.startsWith("en") }
+        val regional = ordered.filter { !it.startsWith("en") }
+        return (english + regional).ifEmpty { listOf("en") }
     }
 
     fun primaryLanguage(selected: Set<String>, country: String): String {
         val ordered = orderedLanguages(selected, country)
-        // Prefer a non-English pick when the user explicitly chose regional languages.
-        val nonEnglish = ordered.firstOrNull { !it.startsWith("en") }
-        return nonEnglish ?: ordered.first()
+        // Prefer English when present so InnerTube hl / Home+Explore stay English-first.
+        // Song-language shelves still follow [orderedLanguages]; regional picks are not discarded.
+        ordered.firstOrNull { it.startsWith("en") }?.let { return it }
+        return ordered.first()
     }
 
     fun resolveCountry(stored: String?): String {
@@ -212,9 +217,9 @@ object ContentLanguageSupport {
                     .orEmpty()
             }
             .ifEmpty { defaultLanguagesForCountry(country) }
-        val hl = prefs[ContentLanguageKey]
-            ?.takeIf { it != SYSTEM_DEFAULT && it != "system" }
-            ?: primaryLanguage(selected, country)
+        // Always derive hl from the multi-lang set so a stale ContentLanguageKey
+        // (e.g. Hindi from older onboarding) cannot force Hindi-only discovery.
+        val hl = primaryLanguage(selected, country)
         YouTube.locale = YouTubeLocale(gl = country, hl = hl)
     }
 }
