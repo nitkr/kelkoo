@@ -2,7 +2,7 @@
 
 package app.kelkoo.music.ui.component
 
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
@@ -106,7 +106,15 @@ fun BottomSheet(
             }
     ) {
         if (!state.isCollapsed && !state.isDismissed) {
-            BackHandler(onBack = state::collapseSoft)
+            // Unified Wave Sheet: predictive/system back collapses expanded NP (not skip)
+            PredictiveBackHandler { progress ->
+                try {
+                    progress.collect { /* settle on completion */ }
+                    state.collapseSoft()
+                } catch (_: kotlinx.coroutines.CancellationException) {
+                    // Gesture cancelled — remain expanded
+                }
+            }
         }
 
         
