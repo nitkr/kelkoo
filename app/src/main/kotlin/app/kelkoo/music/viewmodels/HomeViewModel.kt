@@ -581,16 +581,12 @@ class HomeViewModel @Inject constructor(
 
         ContentLanguageSupport.applyToYouTube(context.dataStore)
 
+        // Cold-start: fetch YouTube home + explore FIRST (parallel). Previously,
+        // languageDiscoverSections ran BEFORE home() in the same coroutine — N
+        // sequential search RTTs blocked first shelf paint. Secondary fetches
+        // (similar/daily/community) and language shelves follow after.
         coroutineScope {
-            launch(Dispatchers.IO) { getDailyDiscover() }
-            launch(Dispatchers.IO) { getCommunityPlaylists() }
-            launch(Dispatchers.IO) { loadSimilarRecommendations() }
             launch(Dispatchers.IO) {
-                val languageSections = languageDiscoverSections(
-                    hideExplicit = hideExplicit,
-                    hideVideoSongs = hideVideoSongs,
-                    hideYoutubeShorts = hideYoutubeShorts,
-                )
                 YouTube.home().onSuccess { page ->
                     val filteredHome = page.sections.mapNotNull { section ->
                         val filteredItems = section.items
@@ -599,9 +595,7 @@ class HomeViewModel @Inject constructor(
                             .filterYoutubeShorts(hideYoutubeShorts)
                         if (filteredItems.isEmpty()) null else section.copy(items = filteredItems)
                     }
-                    homePage.value = page.copy(
-                        sections = languageSections + filteredHome
-                    )
+                    homePage.value = page.copy(sections = filteredHome)
                 }.onFailure { reportException(it) }
             }
             launch(Dispatchers.IO) {
@@ -611,25 +605,45 @@ class HomeViewModel @Inject constructor(
                     )
                 }.onFailure { reportException(it) }
             }
+        }
+
+        // Primary shelves ready (or failed) — stop Explore full-screen wait.
+        isLoading.value = false
+
+        // Locale-mutating language shelves — must not race home/explore.
+        val languageSections = languageDiscoverSections(
+            hideExplicit = hideExplicit,
+            hideVideoSongs = hideVideoSongs,
+            hideYoutubeShorts = hideYoutubeShorts,
+        )
+        if (languageSections.isNotEmpty()) {
+            val current = homePage.value
+            homePage.value = if (current != null) {
+                current.copy(sections = languageSections + current.sections)
+            } else {
+                HomePage(chips = null, sections = languageSections)
+            }
+        }
+
+        // Secondary enrichment (can be slow; UI already has shelves).
+        coroutineScope {
+            launch(Dispatchers.IO) { getDailyDiscover() }
+            launch(Dispatchers.IO) { getCommunityPlaylists() }
+            launch(Dispatchers.IO) { loadSimilarRecommendations() }
             if (YouTube.cookie != null) {
                 launch(Dispatchers.IO) { loadAccountPlaylists() }
             }
         }
 
-        
         allYtItems.value = similarRecommendations.value?.flatMap { it.items }.orEmpty() +
                 homePage.value?.sections?.flatMap { it.items }.orEmpty()
     }
 
     private suspend fun load() {
         isLoading.value = true
-
-        
         loadLocalDataPhase()
-
-        
         loadNetworkDataPhase()
-        
+        // isLoading cleared inside loadNetworkDataPhase after primary shelves
         isLoading.value = false
     }
 
