@@ -111,7 +111,7 @@ fun UpdateSettings(
                         }
                     },
                     onClick = {
-                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://echomusic.fun"))
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/nitkr/kelkoo/releases"))
                         context.startActivity(intent)
                     }
                 ),
