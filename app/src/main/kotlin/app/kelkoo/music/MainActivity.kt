@@ -208,7 +208,8 @@ import app.kelkoo.music.ui.menu.YouTubeSongMenu
 import app.kelkoo.music.ui.player.BottomSheetPlayer
 import app.kelkoo.music.ui.screens.Screens
 import app.kelkoo.music.ui.screens.SettingDialoge
-import app.kelkoo.music.ui.screens.WelcomeDialog
+import app.kelkoo.music.ui.screens.onboarding.OnboardingScreen
+import app.kelkoo.music.constants.OnboardingCompleteKey
 import app.kelkoo.music.ui.screens.navigationBuilder
 import app.kelkoo.music.ui.screens.settings.DarkMode
 import app.kelkoo.music.ui.screens.settings.NavigationTab
@@ -302,7 +303,10 @@ class MainActivity : ComponentActivity() {
     override fun onStart() {
         super.onStart()
         
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        // Hybrid UX: notification prompt lives in onboarding; only re-ask after setup
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            dataStore[OnboardingCompleteKey] == true
+        ) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1000)
             }
@@ -557,7 +561,20 @@ class MainActivity : ComponentActivity() {
             pureBlack = pureBlack,
             themeColor = themeColor,
         ) {
-
+        var onboardingComplete by rememberPreference(OnboardingCompleteKey, defaultValue = false)
+        val (lastOpenedForOnboarding, setLastOpenedForOnboarding) = rememberPreference(
+            app.kelkoo.music.constants.LastOpenedVersionCodeKey,
+            -1,
+        )
+        // Cold install only: existing Drive Night installs already have a version stamp.
+        val showOnboarding = !onboardingComplete && lastOpenedForOnboarding < 0
+        if (showOnboarding) {
+            OnboardingScreen(onFinished = {
+                onboardingComplete = true
+                setLastOpenedForOnboarding(app.kelkoo.music.BuildConfig.VERSION_CODE)
+            })
+            return@echomusicTheme
+        }
 
         if (showUpdateDialog) {
             app.kelkoo.music.echomusic.component.UpdateAvailableDialog(
@@ -608,7 +625,7 @@ class MainActivity : ComponentActivity() {
 
                 val (listenTogetherInTopBar) = rememberPreference(ListenTogetherInTopBarKey, defaultValue = true)
                 val navigationItems = remember {
-                    Screens.MainScreens // Home / Search / Library only (Drive Night)
+                    Screens.MainScreens // Home | Explore | Search | Library
                 }
                 val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                 val defaultOpenTab = remember {
@@ -625,6 +642,8 @@ class MainActivity : ComponentActivity() {
                 val topLevelScreens = remember {
                     listOf(
                         Screens.Home.route,
+                        Screens.Explore.route,
+                        Screens.Search.route,
                         Screens.Library.route,
                         Screens.ListenTogether.route,
                         "settings",
@@ -850,9 +869,8 @@ class MainActivity : ComponentActivity() {
                 var showSettingDialoge by remember { mutableStateOf(false) }
 
                 val (lastOpenedVersionCode, setLastOpenedVersionCode) = rememberPreference(app.kelkoo.music.constants.LastOpenedVersionCodeKey, -1)
-                var showWelcomeDialog by remember { mutableStateOf(false) }
 
-                // Drive Night: no Welcome/About popup on cold start or version bump
+                // Hybrid UX: version stamp only — WelcomeDialog / Echo launch popups removed
                 LaunchedEffect(lastOpenedVersionCode) {
                     if (lastOpenedVersionCode < BuildConfig.VERSION_CODE) {
                         setLastOpenedVersionCode(BuildConfig.VERSION_CODE)
@@ -1253,6 +1271,8 @@ class MainActivity : ComponentActivity() {
                                     navController = navController,
                                     startDestination = when (tabOpenedFromShortcut ?: defaultOpenTab) {
                                         NavigationTab.HOME -> Screens.Home
+                                        NavigationTab.EXPLORE -> Screens.Explore
+                                        NavigationTab.SEARCH -> Screens.Search
                                         NavigationTab.LIBRARY -> Screens.Library
                                         else -> Screens.Home
                                     }.route,
@@ -1395,15 +1415,6 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(route)
                             },
                             homeViewModel = homeViewModel
-                        )
-                    }
-
-                    if (showWelcomeDialog) {
-                        WelcomeDialog(
-                            onDismissRequest = {
-                                showWelcomeDialog = false
-                                setLastOpenedVersionCode(BuildConfig.VERSION_CODE)
-                            }
                         )
                     }
 
