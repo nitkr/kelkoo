@@ -442,6 +442,20 @@ private fun NewMiniPlayer(
                 gradientColors = gradientColors
             )
 
+            // Highway Halo: thin 1–2dp amber progress underline under bar
+            val haloAmber = Color(0xFFE8A838)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .align(Alignment.BottomCenter)
+                    .drawWithContent {
+                        val p = progressState.progress.coerceIn(0f, 1f)
+                        drawRect(haloAmber.copy(alpha = 0.18f))
+                        drawRect(haloAmber, size = Size(size.width * p, size.height))
+                    }
+            )
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp, vertical = 8.dp),
@@ -510,68 +524,29 @@ private fun NewMiniPlayer(
 
 @Composable
 private fun NewMiniPlayerThumbnail(
-    progressState: ProgressState,
+    @Suppress("UNUSED_PARAMETER") progressState: ProgressState,
     mediaMetadata: MediaMetadata?,
-    primaryColor: Color,
+    @Suppress("UNUSED_PARAMETER") primaryColor: Color,
     outlineColor: Color,
 ) {
-    val trackColor = outlineColor.copy(alpha = 0.2f)
-    val strokeWidth = 3.dp
-
+    // Highway Halo continuity: circular thumb (progress lives as underline under the bar)
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
-            .size(48.dp)
-            .drawWithContent {
-                drawContent()
-                
-                val progress = progressState.progress
-                val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
-                val startAngle = -90f
-                val sweepAngle = 360f * progress
-                val diameter = size.minDimension
-                val topLeft = Offset((size.width - diameter) / 2, (size.height - diameter) / 2)
-                
-                
-                drawArc(
-                    color = trackColor,
-                    startAngle = 0f,
-                    sweepAngle = 360f,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = Size(diameter, diameter),
-                    style = stroke
-                )
-                
-                drawArc(
-                    color = primaryColor,
-                    startAngle = startAngle,
-                    sweepAngle = sweepAngle,
-                    useCenter = false,
-                    topLeft = topLeft,
-                    size = Size(diameter, diameter),
-                    style = stroke
-                )
-            }
+            .size(44.dp)
+            .clip(CircleShape)
+            .border(1.dp, outlineColor.copy(alpha = 0.28f), CircleShape)
+            .background(Color(0xFF1A1A1A))
     ) {
-        
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .border(1.dp, outlineColor.copy(alpha = 0.3f), CircleShape)
-        ) {
-            mediaMetadata?.let { metadata ->
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(metadata.thumbnailUrl)
-                        .build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize().clip(CircleShape)
-                )
-            }
+        mediaMetadata?.let { metadata ->
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(metadata.thumbnailUrl)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().clip(CircleShape)
+            )
         }
     }
 }
@@ -1285,7 +1260,11 @@ private fun MiniPlayerControls(
                         clip = true
                         shape = PolygonCookieShape(sides = 9, indent = cookieIndent)
                     }
-                    .background(primaryColor)
+                    .background(
+                        if (effectiveIsPlaying && !isListenTogetherGuest)
+                            Color(0xFFE8A838).copy(alpha = 0.18f)
+                        else primaryColor
+                    )
             )
 
             Icon(
@@ -1298,7 +1277,8 @@ private fun MiniPlayerControls(
                     }
                 ),
                 contentDescription = null,
-                tint = onPrimaryColor,
+                // Highway Halo: amber play glyph while playing
+                tint = if (effectiveIsPlaying && !isListenTogetherGuest) Color(0xFFE8A838) else onPrimaryColor,
                 modifier = Modifier.size(24.dp)
             )
         }
