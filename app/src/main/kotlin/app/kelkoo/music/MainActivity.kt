@@ -175,11 +175,11 @@ import app.kelkoo.music.constants.MiniPlayerBottomSpacing
 import app.kelkoo.music.constants.MiniPlayerHeight
 import app.kelkoo.music.constants.NavigationBarAnimationSpec
 import app.kelkoo.music.constants.NavigationBarHeight
-import app.kelkoo.music.echomusic.updater.checkForUpdate
-import app.kelkoo.music.echomusic.updater.getAutoUpdateCheckSetting
-import app.kelkoo.music.echomusic.updater.isNewerVersion
-import app.kelkoo.music.echomusic.updater.saveUpdateAvailableState
-import app.kelkoo.music.echomusic.updater.getUpdateNotificationsSetting
+import app.kelkoo.music.updater.checkForUpdate
+import app.kelkoo.music.updater.getAutoUpdateCheckSetting
+import app.kelkoo.music.updater.isNewerVersion
+import app.kelkoo.music.updater.saveUpdateAvailableState
+import app.kelkoo.music.updater.getUpdateNotificationsSetting
 import app.kelkoo.music.echomusic.UpdateNotificationHelper
 import android.util.Log
 import androidx.compose.ui.platform.LocalContext
@@ -453,7 +453,7 @@ class MainActivity : ComponentActivity() {
         val context = LocalContext.current
         var showUpdateDialog by remember { androidx.compose.runtime.mutableStateOf(false) }
         var availableUpdateVersion by remember { androidx.compose.runtime.mutableStateOf("") }
-        var availableUpdateChangelog by remember { androidx.compose.runtime.mutableStateOf<List<app.kelkoo.music.echomusic.updater.ChangelogSection>>(emptyList()) }
+        var availableUpdateChangelog by remember { androidx.compose.runtime.mutableStateOf<List<app.kelkoo.music.updater.ChangelogSection>>(emptyList()) }
         var availableUpdateDescription by remember { androidx.compose.runtime.mutableStateOf<String?>(null) }
 
         // Drive Night: no Echo/upstream update popup on cold start

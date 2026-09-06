@@ -155,7 +155,7 @@ import app.kelkoo.music.extensions.toEnum
 import app.kelkoo.music.extensions.toMediaItem
 import app.kelkoo.music.playback.toPersistQueue
 import app.kelkoo.music.playback.toQueue
-import app.kelkoo.music.echomusic.updater.downloadmanager.EchoNotificationProvider
+import app.kelkoo.music.updater.downloadmanager.AppMediaNotificationProvider
 import app.kelkoo.music.lyrics.LyricsHelper
 import app.kelkoo.music.models.PersistPlayerState
 import app.kelkoo.music.models.PersistQueue
@@ -628,7 +628,7 @@ class MusicService :
         }
 
         setMediaNotificationProvider(
-            EchoNotificationProvider(
+            AppMediaNotificationProvider(
                 this,
                 { NOTIFICATION_ID },
                 CHANNEL_ID,
