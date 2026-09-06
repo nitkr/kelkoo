@@ -437,6 +437,7 @@ fun BottomSheetPlayer(
     val currentSong by playerConnection.currentSong.collectAsState(initial = null)
     val automix by playerConnection.service.automixItems.collectAsState()
     val repeatMode by playerConnection.repeatMode.collectAsState()
+    val shuffleModeEnabled by playerConnection.shuffleModeEnabled.collectAsState()
     val canSkipPrevious by playerConnection.canSkipPrevious.collectAsState()
     val canSkipNext by playerConnection.canSkipNext.collectAsState()
     val isMuted by playerConnection.isMuted.collectAsState()
@@ -2812,6 +2813,11 @@ fun BottomSheetPlayer(
                                     isLiked = currentSong?.song?.liked == true,
                                     canSkipPrevious = canSkipPrevious,
                                     canSkipNext = canSkipNext,
+                                    shuffleModeEnabled = shuffleModeEnabled,
+                                    repeatMode = repeatMode,
+                                    showInlineLyrics = showInlineLyrics,
+                                    sleepTimerEnabled = sleepTimerEnabled,
+                                    sleepTimerTimeLeftMs = sleepTimerTimeLeft,
                                     onSeekPreview = { pos -> sliderPosition = pos },
                                     onSeekCommit = { pos ->
                                         sliderPosition = pos
@@ -2828,8 +2834,19 @@ fun BottomSheetPlayer(
                                     },
                                     onSkipPrevious = { playerConnection.seekToPrevious() },
                                     onSkipNext = { playerConnection.seekToNext() },
+                                    onToggleShuffle = {
+                                        playerConnection.player.shuffleModeEnabled =
+                                            !playerConnection.player.shuffleModeEnabled
+                                    },
+                                    onToggleRepeat = { playerConnection.player.toggleRepeatMode() },
                                     onToggleLike = playerConnection::toggleLike,
+                                    onOpenLyrics = { showInlineLyrics = !showInlineLyrics },
                                     onOpenQueue = { queueSheetState.expandSoft() },
+                                    onOpenSleepTimer = { showSleepTimerDialog = true },
+                                    onOpenEqualizer = {
+                                        navController.navigate("equalizer")
+                                        state.collapseSoft()
+                                    },
                                     modifier = Modifier.fillMaxSize(),
                                 )
                             }
@@ -2920,9 +2937,12 @@ fun BottomSheetPlayer(
                                     isLiked = currentSong?.song?.liked == true,
                                     canSkipPrevious = canSkipPrevious,
                                     canSkipNext = canSkipNext,
-                                    onSeekPreview = { pos ->
-                                        sliderPosition = pos
-                                    },
+                                    shuffleModeEnabled = shuffleModeEnabled,
+                                    repeatMode = repeatMode,
+                                    showInlineLyrics = showInlineLyrics,
+                                    sleepTimerEnabled = sleepTimerEnabled,
+                                    sleepTimerTimeLeftMs = sleepTimerTimeLeft,
+                                    onSeekPreview = { pos -> sliderPosition = pos },
                                     onSeekCommit = { pos ->
                                         sliderPosition = pos
                                         playerConnection.seekTo(pos)
@@ -2938,8 +2958,19 @@ fun BottomSheetPlayer(
                                     },
                                     onSkipPrevious = { playerConnection.seekToPrevious() },
                                     onSkipNext = { playerConnection.seekToNext() },
+                                    onToggleShuffle = {
+                                        playerConnection.player.shuffleModeEnabled =
+                                            !playerConnection.player.shuffleModeEnabled
+                                    },
+                                    onToggleRepeat = { playerConnection.player.toggleRepeatMode() },
                                     onToggleLike = playerConnection::toggleLike,
+                                    onOpenLyrics = { showInlineLyrics = !showInlineLyrics },
                                     onOpenQueue = { queueSheetState.expandSoft() },
+                                    onOpenSleepTimer = { showSleepTimerDialog = true },
+                                    onOpenEqualizer = {
+                                        navController.navigate("equalizer")
+                                        state.collapseSoft()
+                                    },
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .nestedScroll(state.preUpPostDownNestedScrollConnection),
@@ -3014,6 +3045,7 @@ fun BottomSheetPlayer(
                 onToggleLyrics = {
                     showInlineLyrics = !showInlineLyrics
                 },
+                useHighwayHalo = useHighwayHalo,
             )
         }
     }
