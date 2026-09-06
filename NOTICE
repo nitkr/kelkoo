@@ -1,0 +1,10 @@
+Kelkoo is a personal fork of Echo Music (https://github.com/EchoMusicApp/Echo-Music),
+which is licensed under the GNU General Public License v3.0.
+
+This distribution retains the original LICENSE (GPL-3.0) and preserves copyright
+and license notices from Echo Music and its upstream projects as required by the GPL.
+
+Display name: Kelkoo
+applicationId / package: app.kelkoo.music
+Owner: Nithin
+Sideload APK only (no Play Store distribution intended for this personal build).
