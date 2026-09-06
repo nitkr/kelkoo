@@ -54,7 +54,7 @@ import app.kelkoo.music.ui.screens.settings.AiSettings
 
 import app.kelkoo.music.ui.screens.settings.integrations.ListenTogetherSettings
 import app.kelkoo.music.ui.screens.settings.UpdateSettings
-import app.kelkoo.music.echomusic.updater.UpdateScreen
+import app.kelkoo.music.updater.UpdateScreen
 import app.kelkoo.music.utils.rememberEnumPreference
 import app.kelkoo.music.utils.rememberPreference
 import app.kelkoo.music.echomusic.changelog.ChangelogScreen

@@ -108,8 +108,8 @@
     <string name="thumbnail_corner_radius_desc">Change the corner radius of the album cover thumbnail</string>
     <string name="crop_album_art">Crop Album Art</string>
     <string name="crop_album_art_desc">Force a square aspect ratio by cropping video thumbnails</string>
-    <string name="echomusic_canvas">Canvas</string>
-    <string name="echomusic_canvas_desc">Show animated album covers when available</string>
+    <string name="album_canvas">Canvas</string>
+    <string name="album_canvas_desc">Show animated album covers when available</string>
     <string name="show_album_canvas">Show Album Canvas</string>
     <string name="show_album_canvas_desc">Display animated canvas in album</string>
     <string name="rotating_thumbnail">Rotating thumbnail</string>
@@ -437,7 +437,7 @@
     <string name="karaoke">Karaoke</string>
     <string name="apple_music_style">Apple Music</string>
     <string name="apple_music_style_letter">Apple Music V2 (Letter by Letter)</string>
-    <string name="echomusic_1">Vivi Music (Fluid)</string>
+    <string name="lyrics_fluid">Fluid</string>
     <string name="apple_music_lyrics_blur">Apple Music Lyrics Blur</string>
     <string name="apple_music_lyrics_blur_desc">Apply blur to inactive lyrics lines for a premium focus effect</string>
     <string name="lyrics_v2_fluid">Lyrics V2 (Fluid)</string>
@@ -510,8 +510,8 @@
     <string name="error_eq_apply_failed">Failed to apply EQ profile: %1$s</string>
 
     <!-- Equalizer Strings -->
-    <string name="echo_equalizer">Equalizer</string>
-    <string name="echo_equalizer_desc">Pro-grade acoustic tuning &amp; effects</string>
+    <string name="axion_equalizer">Equalizer</string>
+    <string name="axion_equalizer_desc">Pro-grade acoustic tuning &amp; effects</string>
     <string name="eq_simple">Simple</string>
     <string name="eq_advanced">Advanced</string>
     <string name="eq_label_bass">Bass</string>

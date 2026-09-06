@@ -83,7 +83,7 @@ import coil3.compose.AsyncImage
 import app.kelkoo.music.BuildConfig
 import app.kelkoo.music.LocalPlayerAwareWindowInsets
 import app.kelkoo.music.R
-import app.kelkoo.music.echomusic.updater.extractUrls
+import app.kelkoo.music.updater.extractUrls
 import app.kelkoo.music.ui.component.parseMarkdown
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

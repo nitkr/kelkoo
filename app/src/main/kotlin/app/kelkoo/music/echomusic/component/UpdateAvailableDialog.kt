@@ -14,7 +14,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.kelkoo.music.R
-import app.kelkoo.music.echomusic.updater.ChangelogSection
+import app.kelkoo.music.updater.ChangelogSection
 import app.kelkoo.music.ui.utils.parseSimpleMarkdown
 import racra.compose.smooth_corner_rect_library.AbsoluteSmoothCornerShape
 

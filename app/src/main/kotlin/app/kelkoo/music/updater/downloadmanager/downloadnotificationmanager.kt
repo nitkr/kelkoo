@@ -1,4 +1,4 @@
-package app.kelkoo.music.echomusic.updater.downloadmanager
+package app.kelkoo.music.updater.downloadmanager
 
 import android.app.Notification
 import android.app.NotificationChannel
