@@ -63,7 +63,7 @@ private val HeroCorner = RoundedCornerShape(16.dp)
  * full square/rounded-rect album art hero, classic horizontal wave seek bar.
  *
  * Dash triad Option A:
- * - Transport: shuffle · prev · play · next · repeat (amber when on)
+ * - Transport: shuffle · prev · play · next · repeat (gold when on)
  * - Footer: Lyrics | Queue (optional Like centered) — no sleep/share in row
  * - Top ⋮ overflow: sleep, share, EQ, cast (sleep countdown badge when armed)
  * Touch targets ≥48dp; play ≥64dp. No chip carousel.
@@ -137,7 +137,7 @@ fun HighwayHaloNowPlaying(
                         if (sleepTimerEnabled) {
                             Text(
                                 text = makeTimeString(sleepTimerTimeLeftMs.coerceAtLeast(0L)),
-                                color = HaloAmber,
+                                color = HaloGold,
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     fontSize = 8.sp,
                                     fontWeight = FontWeight.Bold,
@@ -172,7 +172,7 @@ fun HighwayHaloNowPlaying(
                             Icon(
                                 painter = painterResource(R.drawable.sleep_timer),
                                 contentDescription = null,
-                                tint = if (sleepTimerEnabled) HaloAmber else Color.Unspecified,
+                                tint = if (sleepTimerEnabled) HaloGold else Color.Unspecified,
                             )
                         },
                     )
@@ -322,7 +322,7 @@ fun HighwayHaloNowPlaying(
                         if (shuffleModeEnabled) R.drawable.shuffle_on else R.drawable.shuffle
                     ),
                     contentDescription = stringResource(R.string.shuffle),
-                    tint = if (shuffleModeEnabled) HaloAmber else Color.White.copy(alpha = 0.85f),
+                    tint = if (shuffleModeEnabled) HaloGold else Color.White.copy(alpha = 0.85f),
                     modifier = Modifier.size(26.dp),
                 )
             }
@@ -345,7 +345,7 @@ fun HighwayHaloNowPlaying(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(HaloAmber.copy(alpha = 0.16f))
+                    .background(HaloGold.copy(alpha = 0.16f))
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -361,7 +361,7 @@ fun HighwayHaloNowPlaying(
                         }
                     ),
                     contentDescription = null,
-                    tint = HaloAmber,
+                    tint = HaloGold,
                     modifier = Modifier.size(34.dp),
                 )
             }
@@ -393,7 +393,7 @@ fun HighwayHaloNowPlaying(
                         }
                     ),
                     contentDescription = stringResource(R.string.repeat),
-                    tint = if (repeatOn) HaloAmber else Color.White.copy(alpha = 0.85f),
+                    tint = if (repeatOn) HaloGold else Color.White.copy(alpha = 0.85f),
                     modifier = Modifier.size(26.dp),
                 )
             }
@@ -414,7 +414,7 @@ fun HighwayHaloNowPlaying(
                 Icon(
                     painter = painterResource(R.drawable.lyrics),
                     contentDescription = stringResource(R.string.lyrics),
-                    tint = if (showInlineLyrics) HaloAmber else HaloGhost,
+                    tint = if (showInlineLyrics) HaloGold else HaloGhost,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -428,7 +428,7 @@ fun HighwayHaloNowPlaying(
                         if (isLiked) R.drawable.favorite else R.drawable.favorite_border
                     ),
                     contentDescription = null,
-                    tint = if (isLiked) HaloAmber else HaloGhost,
+                    tint = if (isLiked) HaloGold else HaloGhost,
                     modifier = Modifier.size(22.dp),
                 )
             }

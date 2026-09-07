@@ -19,9 +19,9 @@ val FloatingToolbarHorizontalPadding = 16.dp
 val FloatingToolbarBottomPadding = 12.dp
 val NavigationBarHeight = FloatingToolbarHeight
 val SlimNavBarHeight = 64.dp
-val MiniPlayerHeight = 64.dp
+val MiniPlayerHeight = 96.dp // Dial FAB above glass nav
 val MinMiniPlayerHeight = 16.dp
-val MiniPlayerBottomSpacing = 0.dp // Unified Wave Sheet: flush mini with tab chassis (no dual-pill gap)
+val MiniPlayerBottomSpacing = 8.dp // Aura: Dial floats above glass bottom bar
 val QueuePeekHeight = 64.dp
 val AppBarHeight = 64.dp
 

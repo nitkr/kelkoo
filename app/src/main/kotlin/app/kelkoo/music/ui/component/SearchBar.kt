@@ -104,7 +104,7 @@ fun TopSearch(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                        cursorColor = Color(0xFFE8A838),
+                        cursorColor = Color(0xFFD4AF37),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),

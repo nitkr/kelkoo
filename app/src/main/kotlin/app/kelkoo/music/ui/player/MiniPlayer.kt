@@ -248,9 +248,11 @@ fun MiniPlayer(
             )
         }
     } else if (useNewMiniPlayerDesign) {
-        NewMiniPlayer(
+        // Aura Phase 1: Dial FAB replaces Unified Wave Sheet mini
+        DialFabMiniPlayer(
             progressState = progressState,
             modifier = modifier,
+            onOpenNowPlaying = onClick,
             onDismiss = onDismiss,
         )
     } else {
@@ -275,10 +277,10 @@ private fun NewMiniPlayer(
 ) {
     val playerConnection = LocalPlayerConnection.current ?: return
 
-    // Unified Wave Sheet collapsed chassis — Drive Night charcoal, flush with tab bar
+    // Legacy Unified Wave Sheet chassis (kept for reference; Dial is primary)
     val driveNight = Color(0xFF1A1A1A)
     val driveNightDeep = Color(0xFF121212)
-    val haloAmber = HaloAmber
+    val haloAmber = HaloGold
 
     val playbackState by playerConnection.playbackState.collectAsState()
     val mediaMetadata by playerConnection.mediaMetadata.collectAsState()
@@ -430,7 +432,7 @@ private fun NewMiniPlayer(
                 )
             }
 
-            // Amber wave hairline — continuous mini ↔ full WaveSeekBar DNA
+            // Gold wave hairline — continuous mini ↔ full WaveSeekBar DNA
             WaveProgressHairline(
                 progress = progressState.progress,
                 isPlaying = effectiveIsPlaying && !isListenTogetherGuest,
@@ -463,7 +465,7 @@ private fun UnifiedWaveMiniControls(
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(HaloAmber.copy(alpha = if (effectiveIsPlaying && !isListenTogetherGuest) 0.18f else 0.10f))
+                .background(HaloGold.copy(alpha = if (effectiveIsPlaying && !isListenTogetherGuest) 0.18f else 0.10f))
                 .clickable {
                     if (isListenTogetherGuest) {
                         playerConnection.toggleMute()
@@ -489,7 +491,7 @@ private fun UnifiedWaveMiniControls(
                     },
                 ),
                 contentDescription = null,
-                tint = HaloAmber,
+                tint = HaloGold,
                 modifier = Modifier.size(22.dp),
             )
         }
@@ -1252,7 +1254,7 @@ private fun MiniPlayerControls(
                     }
                     .background(
                         if (effectiveIsPlaying && !isListenTogetherGuest)
-                            Color(0xFFE8A838).copy(alpha = 0.18f)
+                            Color(0xFFD4AF37).copy(alpha = 0.18f)
                         else primaryColor
                     )
             )
@@ -1267,8 +1269,8 @@ private fun MiniPlayerControls(
                     }
                 ),
                 contentDescription = null,
-                // Highway Halo: amber play glyph while playing
-                tint = if (effectiveIsPlaying && !isListenTogetherGuest) Color(0xFFE8A838) else onPrimaryColor,
+                // Aura: gold play glyph while playing
+                tint = if (effectiveIsPlaying && !isListenTogetherGuest) Color(0xFFD4AF37) else onPrimaryColor,
                 modifier = Modifier.size(24.dp)
             )
         }
