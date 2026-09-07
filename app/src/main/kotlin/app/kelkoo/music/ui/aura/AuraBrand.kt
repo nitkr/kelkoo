@@ -100,6 +100,28 @@ fun AuraSerifTitle(
     )
 }
 
+/** Multi-word onboarding titles — restrained sans, never ultra-wide display face. */
+@Composable
+fun AuraReadableTitle(
+    text: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.White,
+    fontSize: Int = 26,
+    fontWeight: FontWeight = FontWeight.SemiBold,
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        color = color,
+        fontFamily = FontFamily.Default,
+        fontWeight = fontWeight,
+        fontSize = fontSize.sp,
+        letterSpacing = 0.sp,
+        textAlign = TextAlign.Center,
+        lineHeight = (fontSize + 6).sp,
+    )
+}
+
 @Composable
 fun AuraPageDots(
     pageCount: Int,
@@ -132,6 +154,7 @@ fun AuraGlassPillButton(
     modifier: Modifier = Modifier,
     filled: Boolean = false,
     leadingIcon: Int? = null,
+    trailingIcon: Int? = null,
     /** When true, button wraps content with side margins instead of full-bleed stretch. */
     compact: Boolean = false,
 ) {
@@ -142,14 +165,14 @@ fun AuraGlassPillButton(
     Row(
         modifier = modifier
             .then(widthMod)
-            .height(if (compact) 48.dp else 50.dp)
+            .height(if (compact) 50.dp else 52.dp)
             .clip(shape)
             .background(bg)
             .then(
                 if (!filled) Modifier.border(1.dp, AuraHairline, shape) else Modifier
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = if (compact) 28.dp else 20.dp),
+            .padding(horizontal = if (compact) 28.dp else 22.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -165,11 +188,21 @@ fun AuraGlassPillButton(
         Text(
             text = label,
             color = fg,
+            // UI CTAs always use readable sans — never ultra-wide display face.
             fontWeight = FontWeight.SemiBold,
             fontSize = 15.sp,
-            fontFamily = if (!filled) AuraSerif else FontFamily.Default,
+            fontFamily = FontFamily.Default,
             maxLines = 1,
         )
+        if (trailingIcon != null) {
+            Spacer(Modifier.width(6.dp))
+            Icon(
+                painter = painterResource(trailingIcon),
+                contentDescription = null,
+                tint = fg,
+                modifier = Modifier.size(18.dp),
+            )
+        }
     }
 }
 
@@ -194,8 +227,8 @@ fun AuraGlassCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(shape)
-            .background(AuraGlassFill)
-            .border(1.dp, AuraHairline.copy(alpha = 0.35f), shape)
+            .background(Color(0xFF1A1A1A).copy(alpha = 0.62f))
+            .border(1.dp, AuraHairline.copy(alpha = 0.42f), shape)
             .padding(16.dp),
     ) {
         content()
@@ -236,9 +269,9 @@ fun AuraWaveform(
 /** Phone ↔ car sync line-art (Compose approximation). */
 @Composable
 fun AuraSyncIllustration(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.fillMaxWidth().height(140.dp)) {
+    Canvas(modifier = modifier.fillMaxWidth().height(150.dp)) {
         val gold = AuraGold
-        val stroke = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        val stroke = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
         // Phone
         val phoneL = size.width * 0.12f
         val phoneT = size.height * 0.18f
@@ -282,14 +315,17 @@ fun AuraSyncIllustration(modifier: Modifier = Modifier) {
             x = next
             up = !up
         }
-        drawPath(path, gold.copy(alpha = 0.85f), style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round))
+        drawPath(path, gold.copy(alpha = 0.95f), style = Stroke(width = 3.5.dp.toPx(), cap = StrokeCap.Round))
     }
 }
 
 /** Head + waves sonic profile illustration. */
 @Composable
-fun AuraSonicIllustration(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.fillMaxWidth().height(180.dp)) {
+fun AuraSonicIllustration(
+    modifier: Modifier = Modifier,
+    height: Dp = 180.dp,
+) {
+    Canvas(modifier = modifier.fillMaxWidth().height(height)) {
         val gold = AuraGold
         val cx = size.width * 0.42f
         val cy = size.height * 0.5f
