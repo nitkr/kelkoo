@@ -312,7 +312,7 @@ fun LibraryMixScreen(
                 thumbnailUrl = al.thumbnailUrl,
             )
         }
-        (fromPlaylists + fromAlbums).distinctBy { it.id }.take(8)
+        (fromPlaylists + fromAlbums).distinctBy { it.id }.take(12)
     }
 
     val auraCapsules: @Composable () -> Unit = {

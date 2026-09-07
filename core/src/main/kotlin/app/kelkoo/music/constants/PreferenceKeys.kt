@@ -15,6 +15,9 @@ import com.music.innertube.models.IpVersion
 
 val IsFirstRunKey = booleanPreferencesKey("isFirstRun")
 val OnboardingCompleteKey = booleanPreferencesKey("onboarding_complete")
+val SonicProfileMoodsKey = stringSetPreferencesKey("sonic_profile_moods")
+val LocationPersonalizationKey = booleanPreferencesKey("location_personalization")
+val LocationFocusKey = stringPreferencesKey("location_focus") // city / metro soft preference
 val ContentLanguagesKey = stringSetPreferencesKey("contentLanguages")
 val DataSaverEnabledKey = booleanPreferencesKey("dataSaverEnabled")
 val SpotifySpDcKey = stringPreferencesKey("spotify_sp_dc")

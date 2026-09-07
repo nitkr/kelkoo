@@ -10,6 +10,7 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
@@ -92,6 +93,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.NavController
@@ -135,6 +137,8 @@ import app.kelkoo.music.playback.queues.LocalAlbumRadio
 import app.kelkoo.music.playback.queues.YouTubeAlbumRadio
 import app.kelkoo.music.playback.queues.YouTubeQueue
 import app.kelkoo.music.R
+import app.kelkoo.music.ui.aura.AuraGold
+import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.ui.component.AlbumGridItem
 import app.kelkoo.music.ui.component.ArtistGridItem
 import app.kelkoo.music.ui.component.ChipsRow
@@ -953,6 +957,96 @@ fun HomeScreen(
                 state = lazylistState,
                 contentPadding = LocalPlayerAwareWindowInsets.current.asPaddingValues()
             ) {
+                item(key = "aura_editorial_header") {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            AuraWordmark(fontSize = 22, modifier = Modifier.weight(1f))
+                        }
+                        Text(
+                            text = "Sound. Your World.",
+                            color = androidx.compose.ui.graphics.Color.White,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 6.dp, bottom = 2.dp),
+                        )
+                        Text(
+                            text = "The sounds you love. The artists you follow.",
+                            color = AuraGold.copy(alpha = 0.9f),
+                            fontSize = 13.sp,
+                            modifier = Modifier.padding(bottom = 10.dp),
+                        )
+                        quickPicks?.firstOrNull()?.let { song ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(150.dp)
+                                    .clip(RoundedCornerShape(18.dp))
+                                    .border(1.dp, AuraGold.copy(alpha = 0.35f), RoundedCornerShape(18.dp))
+                                    .combinedClickable(
+                                        onClick = {
+                                            if (song.id == mediaMetadata?.id) {
+                                                playerConnection.togglePlayPause()
+                                            } else {
+                                                playerConnection.playQueue(
+                                                    YouTubeQueue.radio(song.toMediaMetadata()),
+                                                )
+                                            }
+                                        }
+                                    )
+                            ) {
+                                coil3.compose.AsyncImage(
+                                    model = song.thumbnailUrl,
+                                    contentDescription = song.title,
+                                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier.fillMaxSize(),
+                                )
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            androidx.compose.ui.graphics.Brush.verticalGradient(
+                                                listOf(
+                                                    androidx.compose.ui.graphics.Color.Transparent,
+                                                    androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.75f),
+                                                )
+                                            )
+                                        )
+                                )
+                                Column(
+                                    Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(14.dp)
+                                ) {
+                                    Text("FEATURED ARTIST", color = AuraGold, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+                                    Text(
+                                        song.title,
+                                        color = androidx.compose.ui.graphics.Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        song.artists.joinToString { it.name },
+                                        color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.7f),
+                                        fontSize = 12.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                        }
+                    }
+                }
+
                 item {
                     ChipsRow(
                         chips = homePage?.chips?.filter { 

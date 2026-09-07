@@ -3,6 +3,7 @@ package app.kelkoo.music.ui.aura
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,13 +21,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -122,8 +130,8 @@ data class DeckCard(
 )
 
 /**
- * Shippable Compose approximation of the Library 3D/fan deck from Aura boards.
- * Stacks up to 4 cards with rotation + offset; front card is interactive.
+ * Richer Library 3D card deck — perspective rotationY, staggered fan,
+ * swipe to cycle front card (closer to FINAL library mock).
  */
 @Composable
 fun LibraryFanDeck(
@@ -132,65 +140,94 @@ fun LibraryFanDeck(
     modifier: Modifier = Modifier,
 ) {
     if (cards.isEmpty()) return
-    val visible = cards.take(4)
+    var frontIndex by remember(cards) { mutableIntStateOf(0) }
+    val density = LocalDensity.current
+    var dragAccum by remember { mutableFloatStateOf(0f) }
+    val ordered = remember(cards, frontIndex) {
+        val n = cards.size
+        val idx = ((frontIndex % n) + n) % n
+        cards.drop(idx) + cards.take(idx)
+    }
+    val visible = ordered.take(5)
     val front = visible.first()
+
     Column(modifier = modifier.fillMaxWidth()) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(280.dp)
-            .padding(horizontal = 24.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        visible.asReversed().forEachIndexed { revIndex, card ->
-            val indexFromFront = visible.size - 1 - revIndex
-            val rot = indexFromFront * 7f
-            val xOff = indexFromFront * 18f
-            val yOff = indexFromFront * 6f
-            val scale = 1f - indexFromFront * 0.04f
-            DeckCardFace(
-                card = card,
-                isFront = indexFromFront == 0,
-                modifier = Modifier
-                    .zIndex((visible.size - indexFromFront).toFloat())
-                    .graphicsLayer {
-                        rotationZ = rot
-                        translationX = xOff
-                        translationY = yOff
-                        scaleX = scale
-                        scaleY = scale
-                        shadowElevation = (12 - indexFromFront * 2).dp.toPx()
-                    }
-                    .then(
-                        if (indexFromFront == 0) Modifier.clickable { onFrontClick(front) }
-                        else Modifier
-                    ),
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp)
+                .padding(horizontal = 20.dp)
+                .pointerInput(cards.size) {
+                    detectHorizontalDragGestures(
+                        onDragStart = { dragAccum = 0f },
+                        onHorizontalDrag = { _, amount -> dragAccum += amount },
+                        onDragCancel = { dragAccum = 0f },
+                        onDragEnd = {
+                            val threshold = with(density) { 48.dp.toPx() }
+                            when {
+                                dragAccum < -threshold -> frontIndex = (frontIndex + 1) % cards.size
+                                dragAccum > threshold -> frontIndex =
+                                    (frontIndex - 1 + cards.size) % cards.size
+                            }
+                            dragAccum = 0f
+                        },
+                    )
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            visible.asReversed().forEachIndexed { revIndex, card ->
+                val indexFromFront = visible.size - 1 - revIndex
+                val rotZ = indexFromFront * 8.5f
+                val rotY = indexFromFront * -12f
+                val xOff = indexFromFront * 22f
+                val yOff = indexFromFront * 8f
+                val scale = 1f - indexFromFront * 0.05f
+                DeckCardFace(
+                    card = card,
+                    isFront = indexFromFront == 0,
+                    modifier = Modifier
+                        .zIndex((visible.size - indexFromFront).toFloat())
+                        .graphicsLayer {
+                            rotationZ = rotZ
+                            rotationY = rotY
+                            translationX = xOff
+                            translationY = yOff
+                            scaleX = scale
+                            scaleY = scale
+                            cameraDistance = 12f * density.density
+                            shadowElevation = (16 - indexFromFront * 2).dp.toPx()
+                            alpha = 1f - indexFromFront * 0.08f
+                        }
+                        .then(
+                            if (indexFromFront == 0) Modifier.clickable { onFrontClick(front) }
+                            else Modifier
+                        ),
+                )
+            }
+        }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 24.dp, top = 6.dp),
+            horizontalAlignment = Alignment.Start,
+        ) {
+            Text(
+                text = front.title,
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = front.subtitle,
+                color = AuraGold,
+                fontSize = 14.sp,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 24.dp, end = 24.dp, top = 4.dp),
-        horizontalAlignment = Alignment.Start,
-    ) {
-        Text(
-            text = front.title,
-            color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = front.subtitle,
-            color = AuraGold,
-            fontSize = 14.sp,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-    } // outer Column
 }
 
 @Composable
@@ -202,10 +239,10 @@ private fun DeckCardFace(
     val shape = RoundedCornerShape(18.dp)
     Box(
         modifier = modifier
-            .size(200.dp)
-            .shadow(if (isFront) 16.dp else 6.dp, shape, ambientColor = AuraGold.copy(alpha = 0.25f))
+            .size(width = 210.dp, height = 240.dp)
+            .shadow(if (isFront) 18.dp else 8.dp, shape, ambientColor = AuraGold.copy(alpha = 0.28f))
             .clip(shape)
-            .border(1.dp, AuraGold.copy(alpha = if (isFront) 0.55f else 0.25f), shape)
+            .border(1.dp, AuraGold.copy(alpha = if (isFront) 0.6f else 0.28f), shape)
             .background(Color(0xFF1A1A1A)),
     ) {
         if (!card.thumbnailUrl.isNullOrBlank()) {
@@ -237,7 +274,7 @@ private fun DeckCardFace(
                 tint = AuraGold,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = 12.dp)
+                    .padding(bottom = 14.dp)
                     .size(22.dp),
             )
         }
