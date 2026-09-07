@@ -78,6 +78,20 @@ import app.kelkoo.music.utils.listItemShape
 import app.kelkoo.music.viewmodels.ChartsViewModel
 import app.kelkoo.music.viewmodels.ExploreViewModel
 
+import androidx.compose.foundation.border
+import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
+import app.kelkoo.music.ui.aura.AuraGold
+import app.kelkoo.music.ui.aura.AuraWordmark
+import app.kelkoo.music.ui.aura.scrubMoodTitle
+import app.kelkoo.music.ui.theme.DefaultThemeColor
+import app.kelkoo.music.ui.theme.bbhBartle
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ExploreScreen(
@@ -227,11 +241,91 @@ fun ExploreScreen(
                     }
                 }
             } else {
+                // Aura Explore header
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AuraWordmark(fontSize = 20, modifier = Modifier.weight(1f))
+                    IconButton(onClick = { navController.navigate("search") }) {
+                        Icon(
+                            painter = painterResource(R.drawable.search),
+                            contentDescription = stringResource(R.string.search),
+                            tint = DefaultThemeColor,
+                        )
+                    }
+                }
+                Text(
+                    text = stringResource(R.string.explore_title),
+                    color = Color.White.copy(alpha = 0.55f),
+                    fontFamily = bbhBartle,
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
+                )
+
+                // Masonry mood strip (photo-led cards) — Energize spelling scrubbed
+                explorePage?.moodAndGenres?.take(8)?.let { moods ->
+                    LazyRow(
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(moods, key = { it.title + it.endpoint.browseId }) { mood ->
+                            val title = scrubMoodTitle(mood.title)
+                            Box(
+                                modifier = Modifier
+                                    .width(148.dp)
+                                    .height(190.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .border(1.dp, AuraGold.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
+                                    .combinedClickable(
+                                        onClick = {
+                                            navController.navigate(
+                                                "youtube_browse/${mood.endpoint.browseId}?params=${mood.endpoint.params}"
+                                            )
+                                        },
+                                    ),
+                            ) {
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(
+                                            Brush.verticalGradient(
+                                                listOf(Color(0xFF2A2418), Color(0xFF0A0A0A))
+                                            )
+                                        )
+                                )
+                                Column(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomStart)
+                                        .padding(12.dp),
+                                ) {
+                                    Text(
+                                        text = title.lowercase(),
+                                        color = Color.White,
+                                        fontFamily = bbhBartle,
+                                        fontSize = 18.sp,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    Text(
+                                        text = "playlist",
+                                        color = AuraGold,
+                                        fontSize = 12.sp,
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Kelkoo chart (KEEP Chart module)
                 chartsPage?.sections?.filter { it.title != "Top music videos" }?.forEach { section ->
                     NavigationTitle(
                         title = when (section.title) {
                             "Trending" -> stringResource(R.string.trending)
-                            else -> section.title.ifEmpty { stringResource(R.string.charts) }
+                            else -> section.title.ifEmpty { stringResource(R.string.kelkoo_chart) }
                         },
                     )
                     BoxWithConstraints(
@@ -427,7 +521,7 @@ fun ExploreScreen(
                     ) {
                         items(moodAndGenres) {
                             MoodAndGenresButton(
-                                title = it.title,
+                                title = scrubMoodTitle(it.title),
                                 onClick = {
                                     navController.navigate("youtube_browse/${it.endpoint.browseId}?params=${it.endpoint.params}")
                                 },

@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -97,6 +98,15 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
 import app.kelkoo.music.ui.component.AutoPlaylistButton
+
+import app.kelkoo.music.ui.aura.DeckCard
+import app.kelkoo.music.ui.aura.LibraryCapsule
+import app.kelkoo.music.ui.aura.LibraryCapsuleRow
+import app.kelkoo.music.ui.aura.LibraryFanDeck
+import app.kelkoo.music.ui.aura.AuraWordmark
+import app.kelkoo.music.ui.theme.DefaultThemeColor
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material3.IconButton
@@ -174,6 +184,8 @@ fun LibraryMixScreen(
             songCount = 0,
             songThumbnails = emptyList(),
         )
+
+    var selectedCapsule by remember { mutableStateOf<LibraryCapsule?>(LibraryCapsule.LIKED) }
 
     val (showLiked) = rememberPreference(ShowLikedPlaylistKey, true)
     val (showDownloaded) = rememberPreference(ShowDownloadedPlaylistKey, true)
@@ -282,6 +294,66 @@ fun LibraryMixScreen(
         }
     }
 
+
+    val deckCards: List<DeckCard> = remember(sortedPlaylists, sortedAlbums) {
+        val fromPlaylists = (pinnedPlaylists + otherPlaylists).map { pl ->
+            DeckCard(
+                id = pl.id,
+                title = pl.playlist.name,
+                subtitle = "Playlist",
+                thumbnailUrl = pl.thumbnails.firstOrNull(),
+            )
+        }
+        val fromAlbums = sortedAlbums.map { al ->
+            DeckCard(
+                id = al.id,
+                title = al.album.title,
+                subtitle = al.artists.joinToString { it.name }.ifEmpty { "Album" },
+                thumbnailUrl = al.thumbnailUrl,
+            )
+        }
+        (fromPlaylists + fromAlbums).distinctBy { it.id }.take(8)
+    }
+
+    val auraCapsules: @Composable () -> Unit = {
+        Column {
+            AuraWordmark(
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                showMusicLabel = false,
+                fontSize = 18,
+            )
+            androidx.compose.material3.Text(
+                text = stringResource(R.string.library_title),
+                color = androidx.compose.ui.graphics.Color.White,
+                fontWeight = FontWeight.Bold,
+                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
+            )
+            LibraryCapsuleRow(
+                selected = selectedCapsule,
+                onSelect = { capsule ->
+                    selectedCapsule = capsule
+                    when (capsule) {
+                        LibraryCapsule.LIKED -> navController.navigate("auto_playlist/liked")
+                        LibraryCapsule.DOWNLOADED -> navController.navigate("auto_playlist/downloaded")
+                        LibraryCapsule.EXPORTED -> navController.navigate("auto_playlist/exported")
+                        LibraryCapsule.LOCAL -> navController.navigate("local_songs")
+                    }
+                },
+            )
+            if (deckCards.isNotEmpty()) {
+                LibraryFanDeck(
+                    cards = deckCards,
+                    onFrontClick = { card ->
+                        val isPlaylist = (pinnedPlaylists + otherPlaylists).any { it.id == card.id }
+                        if (isPlaylist) navController.navigate("local_playlist/${card.id}")
+                        else navController.navigate("album/${card.id}")
+                    },
+                )
+            }
+        }
+    }
+
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val pullRefreshState = rememberPullToRefreshState()
 
@@ -311,6 +383,13 @@ fun LibraryMixScreen(
                     }
 
                     item(
+                        key = "aura_library_header",
+                        contentType = CONTENT_TYPE_HEADER,
+                    ) {
+                        auraCapsules()
+                    }
+
+                    item(
                         key = "header",
                         contentType = CONTENT_TYPE_HEADER,
                     ) {
@@ -332,27 +411,27 @@ fun LibraryMixScreen(
                             val itemModifier = Modifier.weight(1f)
                             if (showLiked) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.liked),
+                                    title = stringResource(R.string.capsule_liked),
                                     icon = R.drawable.favorite,
-                                    iconTint = Color(0xFFE57373),
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/liked") },
                                     modifier = itemModifier
                                 )
                             }
                             if (showDownloaded) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.offline),
-                                    icon = R.drawable.offline,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    title = stringResource(R.string.capsule_downloaded),
+                                    icon = R.drawable.arrow_downward,
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/downloaded") },
                                     modifier = itemModifier
                                 )
                             }
                             if (showExported) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.action_exported),
-                                    icon = R.drawable.download,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    title = stringResource(R.string.capsule_exported),
+                                    icon = R.drawable.arrow_upward,
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/exported") },
                                     modifier = itemModifier
                                 )
@@ -377,9 +456,9 @@ fun LibraryMixScreen(
                                 )
                             }
                             AutoPlaylistButton(
-                                title = stringResource(R.string.filter_local),
-                                icon = R.drawable.snippet_folder,
-                                iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                title = stringResource(R.string.capsule_local),
+                                icon = R.drawable.library_music,
+                                iconTint = DefaultThemeColor,
                                 onClick = { navController.navigate("local_songs") },
                                 modifier = Modifier
                                     .fillMaxWidth(0.5f)
@@ -591,6 +670,14 @@ fun LibraryMixScreen(
                     }
 
                     item(
+                        key = "aura_library_header",
+                        span = { GridItemSpan(maxLineSpan) },
+                        contentType = CONTENT_TYPE_HEADER,
+                    ) {
+                        auraCapsules()
+                    }
+
+                    item(
                         key = "header",
                         span = { GridItemSpan(maxLineSpan) },
                         contentType = CONTENT_TYPE_HEADER,
@@ -614,27 +701,27 @@ fun LibraryMixScreen(
                             val itemModifier = Modifier.weight(1f)
                             if (showLiked) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.liked),
+                                    title = stringResource(R.string.capsule_liked),
                                     icon = R.drawable.favorite,
-                                    iconTint = Color(0xFFE57373),
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/liked") },
                                     modifier = itemModifier
                                 )
                             }
                             if (showDownloaded) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.offline),
-                                    icon = R.drawable.offline,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    title = stringResource(R.string.capsule_downloaded),
+                                    icon = R.drawable.arrow_downward,
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/downloaded") },
                                     modifier = itemModifier
                                 )
                             }
                             if (showExported) {
                                 AutoPlaylistButton(
-                                    title = stringResource(R.string.action_exported),
-                                    icon = R.drawable.download,
-                                    iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                    title = stringResource(R.string.capsule_exported),
+                                    icon = R.drawable.arrow_upward,
+                                    iconTint = DefaultThemeColor,
                                     onClick = { navController.navigate("auto_playlist/exported") },
                                     modifier = itemModifier
                                 )
@@ -659,9 +746,9 @@ fun LibraryMixScreen(
                                 )
                             }
                             AutoPlaylistButton(
-                                title = stringResource(R.string.filter_local),
-                                icon = R.drawable.snippet_folder,
-                                iconTint = androidx.compose.material3.MaterialTheme.colorScheme.onSurface,
+                                title = stringResource(R.string.capsule_local),
+                                icon = R.drawable.library_music,
+                                iconTint = DefaultThemeColor,
                                 onClick = { navController.navigate("local_songs") },
                                 modifier = Modifier
                                     .fillMaxWidth(0.5f)
