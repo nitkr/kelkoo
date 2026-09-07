@@ -100,10 +100,7 @@ import java.util.UUID
 import app.kelkoo.music.ui.component.AutoPlaylistButton
 
 import app.kelkoo.music.ui.aura.DeckCard
-import app.kelkoo.music.ui.aura.LibraryCapsule
-import app.kelkoo.music.ui.aura.LibraryCapsuleRow
 import app.kelkoo.music.ui.aura.LibraryFanDeck
-import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.ui.theme.DefaultThemeColor
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -185,7 +182,6 @@ fun LibraryMixScreen(
             songThumbnails = emptyList(),
         )
 
-    var selectedCapsule by remember { mutableStateOf<LibraryCapsule?>(LibraryCapsule.LIKED) }
 
     val (showLiked) = rememberPreference(ShowLikedPlaylistKey, true)
     val (showDownloaded) = rememberPreference(ShowDownloadedPlaylistKey, true)
@@ -315,31 +311,15 @@ fun LibraryMixScreen(
         (fromPlaylists + fromAlbums).distinctBy { it.id }.take(12)
     }
 
+    // Keep ONE action pattern: the 2-column grid below. No duplicate capsule chips.
     val auraCapsules: @Composable () -> Unit = {
         Column {
-            AuraWordmark(
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp),
-                showMusicLabel = false,
-                fontSize = 18,
-            )
             androidx.compose.material3.Text(
                 text = stringResource(R.string.library_title),
                 color = androidx.compose.ui.graphics.Color.White,
                 fontWeight = FontWeight.Bold,
                 style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
-            )
-            LibraryCapsuleRow(
-                selected = selectedCapsule,
-                onSelect = { capsule ->
-                    selectedCapsule = capsule
-                    when (capsule) {
-                        LibraryCapsule.LIKED -> navController.navigate("auto_playlist/liked")
-                        LibraryCapsule.DOWNLOADED -> navController.navigate("auto_playlist/downloaded")
-                        LibraryCapsule.EXPORTED -> navController.navigate("auto_playlist/exported")
-                        LibraryCapsule.LOCAL -> navController.navigate("local_songs")
-                    }
-                },
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
             )
             if (deckCards.isNotEmpty()) {
                 LibraryFanDeck(

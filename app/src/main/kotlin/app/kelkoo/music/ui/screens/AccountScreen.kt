@@ -57,7 +57,6 @@ import app.kelkoo.music.constants.InnerTubeCookieKey
 import app.kelkoo.music.constants.SmallGridThumbnailHeight
 import app.kelkoo.music.ui.aura.AuraGlassPillButton
 import app.kelkoo.music.ui.aura.AuraGold
-import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.ui.component.ChipsRow
 import app.kelkoo.music.ui.component.LocalMenuState
 import app.kelkoo.music.ui.component.YouTubeGridItem
@@ -134,26 +133,36 @@ fun AccountScreen(
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        AuraWordmark(fontSize = 20, modifier = Modifier.weight(1f))
-                        IconButton(onClick = { navController.navigate("settings") }) {
-                            Icon(
-                                painter = painterResource(R.drawable.settings),
-                                contentDescription = stringResource(R.string.settings),
-                                tint = AuraGold,
-                            )
-                        }
-                    }
+                    // Single H1 — no interior wordmark; Settings lives in global top bar only.
                     Text(
                         text = stringResource(R.string.account),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 26.sp,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 12.dp),
+                        fontSize = 28.sp,
+                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
                     )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        IconButton(onClick = { navController.navigate("history") }) {
+                            Icon(
+                                painter = painterResource(R.drawable.music_history),
+                                contentDescription = stringResource(R.string.history),
+                                tint = AuraGold,
+                            )
+                        }
+                        IconButton(onClick = { navController.navigate("listen_together") }) {
+                            Icon(
+                                painter = painterResource(R.drawable.group_outlined),
+                                contentDescription = stringResource(R.string.together),
+                                tint = AuraGold,
+                            )
+                        }
+                    }
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier

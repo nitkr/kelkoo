@@ -164,7 +164,6 @@ import app.kelkoo.music.ui.menu.YouTubePlaylistMenu
 import app.kelkoo.music.ui.menu.YouTubeSongMenu
 import app.kelkoo.music.ui.utils.SnapLayoutInfoProvider
 import app.kelkoo.music.ui.utils.resize
-import app.kelkoo.music.utils.listItemShape
 import app.kelkoo.music.utils.rememberEnumPreference
 import app.kelkoo.music.utils.rememberPreference
 import app.kelkoo.music.viewmodels.CommunityPlaylistItem
@@ -1639,7 +1638,8 @@ fun HomeScreen(
                                                 isActive = song!!.id == mediaMetadata?.id,
                                                 isPlaying = isPlaying,
                                                 isSwipeable = false,
-                                                shape = listItemShape(index = index % rows, count = rows),
+                                                color = androidx.compose.ui.graphics.Color.Transparent,
+                                                shape = androidx.compose.ui.graphics.RectangleShape,
                                                 trailingContent = {
                                                     IconButton(
                                                         onClick = {
@@ -1817,7 +1817,8 @@ fun HomeScreen(
                                                     isActive = song.id == mediaMetadata?.id,
                                                     isPlaying = isPlaying,
                                                     isSwipeable = false,
-                                                    shape = listItemShape(index = index % 4, count = 4),
+                                                    color = androidx.compose.ui.graphics.Color.Transparent,
+                                                    shape = androidx.compose.ui.graphics.RectangleShape,
                                                     trailingContent = {
                                                         IconButton(
                                                             onClick = {

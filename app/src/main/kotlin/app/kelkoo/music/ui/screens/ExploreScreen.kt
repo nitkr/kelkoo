@@ -77,7 +77,6 @@ import app.kelkoo.music.ui.component.shimmer.TextPlaceholder
 import app.kelkoo.music.ui.menu.YouTubeAlbumMenu
 import app.kelkoo.music.ui.menu.YouTubeSongMenu
 import app.kelkoo.music.ui.utils.SnapLayoutInfoProvider
-import app.kelkoo.music.utils.listItemShape
 import app.kelkoo.music.viewmodels.ChartsViewModel
 import app.kelkoo.music.viewmodels.ExploreViewModel
 
@@ -90,9 +89,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import app.kelkoo.music.ui.aura.AuraGold
-import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.ui.aura.scrubMoodTitle
-import app.kelkoo.music.ui.theme.DefaultThemeColor
 import app.kelkoo.music.ui.theme.bbhBartle
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
@@ -244,29 +241,44 @@ fun ExploreScreen(
                     }
                 }
             } else {
-                // Aura Explore header
+                // One page H1 — no interior wordmark (logo stays on Home).
+                Text(
+                    text = stringResource(R.string.explore),
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 28.sp,
+                    modifier = Modifier.padding(start = 16.dp, top = 4.dp, bottom = 8.dp),
+                )
+                // History / Trending / People moved out of global top bar.
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 4.dp),
+                        .padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    AuraWordmark(fontSize = 20, modifier = Modifier.weight(1f))
-                    IconButton(onClick = { navController.navigate("search") }) {
+                    IconButton(onClick = { navController.navigate("history") }) {
                         Icon(
-                            painter = painterResource(R.drawable.search),
-                            contentDescription = stringResource(R.string.search),
-                            tint = DefaultThemeColor,
+                            painter = painterResource(R.drawable.music_history),
+                            contentDescription = stringResource(R.string.history),
+                            tint = AuraGold,
+                        )
+                    }
+                    IconButton(onClick = { navController.navigate("stats") }) {
+                        Icon(
+                            painter = painterResource(R.drawable.trending_up),
+                            contentDescription = stringResource(R.string.trending),
+                            tint = AuraGold,
+                        )
+                    }
+                    IconButton(onClick = { navController.navigate("listen_together") }) {
+                        Icon(
+                            painter = painterResource(R.drawable.group_outlined),
+                            contentDescription = stringResource(R.string.together),
+                            tint = AuraGold,
                         )
                     }
                 }
-                Text(
-                    text = stringResource(R.string.explore_title),
-                    color = Color.White.copy(alpha = 0.55f),
-                    fontFamily = bbhBartle,
-                    fontSize = 22.sp,
-                    modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
-                )
 
                 // True staggered Explore masonry (2-col variable heights) — keep Chart below
                 explorePage?.moodAndGenres?.take(10)?.let { moods ->
@@ -376,7 +388,8 @@ fun ExploreScreen(
                                     isActive = song.id == mediaMetadata?.id,
                                     isPlaying = isPlaying,
                                     isSwipeable = false,
-                                    shape = listItemShape(index % 4, 4),
+                                    color = Color.Transparent,
+                                    shape = androidx.compose.ui.graphics.RectangleShape,
                                     trailingContent = {
                                         IconButton(
                                             onClick = {

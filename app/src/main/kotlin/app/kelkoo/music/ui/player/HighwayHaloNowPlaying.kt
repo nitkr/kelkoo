@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -56,17 +57,27 @@ import app.kelkoo.music.utils.makeTimeString
 private val HaloCharcoal = Color(0xFF121212)
 private val HaloCharcoalElevated = Color(0xFF1A1A1A)
 private val HaloGhost = Color.White.copy(alpha = 0.55f)
+private val HaloPlayGlyph = Color(0xFF121212)
 private val HeroCorner = RoundedCornerShape(16.dp)
+
+/** Unified stroke weight across transport + secondary rows. */
+private val TransportSideIcon = 24.dp
+private val TransportSkipIcon = 28.dp
+private val TransportPlayIcon = 32.dp
+private val SecondaryIcon = 24.dp
 
 /**
  * Highway Halo fullscreen Now Playing — Drive Night charcoal field,
  * full square/rounded-rect album art hero, classic horizontal wave seek bar.
  *
- * Dash triad Option A:
+ * Vertical balance: art near top with air; transport lower; secondary row
+ * anchored near bottom above safe area / Dial.
+ *
+ * Dash triad Option A (immersive polish):
  * - Transport: shuffle · prev · play · next · repeat (gold when on)
- * - Footer: Lyrics | Queue (optional Like centered) — no sleep/share in row
- * - Top ⋮ overflow: sleep, share, EQ, cast (sleep countdown badge when armed)
- * Touch targets ≥48dp; play ≥64dp. No chip carousel.
+ * - Footer: Queue | Heart | Add to playlist — Lyrics in ⋮ overflow
+ * - Top-left minimize chevron; top-right ⋮ overflow
+ * Touch targets ≥48dp; play ≥64dp. Play glyph dark on solid gold.
  */
 @Composable
 fun HighwayHaloNowPlaying(
@@ -93,6 +104,8 @@ fun HighwayHaloNowPlaying(
     onToggleLike: () -> Unit,
     onOpenLyrics: () -> Unit,
     onOpenQueue: () -> Unit,
+    onAddToPlaylist: () -> Unit = {},
+    onMinimize: () -> Unit = {},
     onOpenSleepTimer: () -> Unit,
     onOpenEqualizer: () -> Unit,
     modifier: Modifier = Modifier,
@@ -114,14 +127,25 @@ fun HighwayHaloNowPlaying(
             .windowInsetsPadding(WindowInsets.systemBars)
             .padding(horizontal = 24.dp),
     ) {
-        // Top row — ⋮ overflow (sleep / share / EQ / cast)
+        // Top row — minimize (v) left + ⋮ overflow right
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.End,
+            horizontalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),
         ) {
+            IconButton(
+                onClick = onMinimize,
+                modifier = Modifier.size(48.dp),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.expand_more),
+                    contentDescription = stringResource(R.string.close),
+                    tint = Color.White.copy(alpha = 0.85f),
+                    modifier = Modifier.size(TransportSideIcon),
+                )
+            }
             Box {
                 IconButton(
                     onClick = { overflowExpanded = true },
@@ -132,7 +156,7 @@ fun HighwayHaloNowPlaying(
                             painter = painterResource(R.drawable.more_vert),
                             contentDescription = stringResource(R.string.more_options),
                             tint = Color.White.copy(alpha = 0.85f),
-                            modifier = Modifier.size(24.dp),
+                            modifier = Modifier.size(TransportSideIcon),
                         )
                         if (sleepTimerEnabled) {
                             Text(
@@ -154,6 +178,20 @@ fun HighwayHaloNowPlaying(
                     expanded = overflowExpanded,
                     onDismissRequest = { overflowExpanded = false },
                 ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.lyrics)) },
+                        onClick = {
+                            overflowExpanded = false
+                            onOpenLyrics()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                painter = painterResource(R.drawable.lyrics),
+                                contentDescription = null,
+                                tint = if (showInlineLyrics) HaloGold else Color.Unspecified,
+                            )
+                        },
+                    )
                     DropdownMenuItem(
                         text = {
                             Text(
@@ -209,7 +247,6 @@ fun HighwayHaloNowPlaying(
                             )
                         },
                     )
-                    // GMS: full cast row; FOSS: no-op stub
                     CastButton(
                         tintColor = MaterialTheme.colorScheme.onSurface,
                         asMenuItem = true,
@@ -218,23 +255,29 @@ fun HighwayHaloNowPlaying(
             }
         }
 
-        Spacer(Modifier.weight(0.12f))
-
-        // Full album art hero — square rounded-rect
-        AsyncImage(
-            model = ImageRequest.Builder(context)
-                .data(mediaMetadata.thumbnailUrl)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
+        // Art near top — capped so controls are not jammed into upper 60%
+        Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(HeroCorner)
-                .background(HaloCharcoalElevated),
-        )
+                .weight(0.48f, fill = true)
+                .padding(top = 8.dp),
+        ) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(mediaMetadata.thumbnailUrl)
+                    .build(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f)
+                    .clip(HeroCorner)
+                    .background(HaloCharcoalElevated),
+            )
+        }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
 
         Text(
             text = mediaMetadata.title,
@@ -266,7 +309,7 @@ fun HighwayHaloNowPlaying(
                 .padding(horizontal = 16.dp),
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(14.dp))
 
         WaveSeekBar(
             progress = progress,
@@ -305,9 +348,10 @@ fun HighwayHaloNowPlaying(
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        // Push transport + secondary toward bottom
+        Spacer(Modifier.weight(0.28f))
 
-        // Transport — shuffle · prev · play · next · repeat (≥48dp; play ≥64dp)
+        // Transport — shuffle · prev · play · next · repeat
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -323,7 +367,7 @@ fun HighwayHaloNowPlaying(
                     ),
                     contentDescription = stringResource(R.string.shuffle),
                     tint = if (shuffleModeEnabled) HaloGold else Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(26.dp),
+                    modifier = Modifier.size(TransportSideIcon),
                 )
             }
 
@@ -336,7 +380,7 @@ fun HighwayHaloNowPlaying(
                     painter = painterResource(R.drawable.skip_previous),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = if (canSkipPrevious) 0.92f else 0.35f),
-                    modifier = Modifier.size(34.dp),
+                    modifier = Modifier.size(TransportSkipIcon),
                 )
             }
 
@@ -345,7 +389,7 @@ fun HighwayHaloNowPlaying(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(CircleShape)
-                    .background(HaloGold.copy(alpha = 0.16f))
+                    .background(HaloGold)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
@@ -361,8 +405,8 @@ fun HighwayHaloNowPlaying(
                         }
                     ),
                     contentDescription = null,
-                    tint = HaloGold,
-                    modifier = Modifier.size(34.dp),
+                    tint = HaloPlayGlyph,
+                    modifier = Modifier.size(TransportPlayIcon),
                 )
             }
 
@@ -375,7 +419,7 @@ fun HighwayHaloNowPlaying(
                     painter = painterResource(R.drawable.skip_next),
                     contentDescription = null,
                     tint = Color.White.copy(alpha = if (canSkipNext) 0.92f else 0.35f),
-                    modifier = Modifier.size(34.dp),
+                    modifier = Modifier.size(TransportSkipIcon),
                 )
             }
 
@@ -394,28 +438,28 @@ fun HighwayHaloNowPlaying(
                     ),
                     contentDescription = stringResource(R.string.repeat),
                     tint = if (repeatOn) HaloGold else Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(26.dp),
+                    modifier = Modifier.size(TransportSideIcon),
                 )
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(10.dp))
 
-        // Footer Dash triad — Lyrics | (Like) | Queue — no sleep/share
+        // Secondary Dash triad — Queue | Heart | Add to playlist (anchored near bottom)
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(
-                onClick = onOpenLyrics,
+                onClick = onOpenQueue,
                 modifier = Modifier.size(48.dp),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.lyrics),
-                    contentDescription = stringResource(R.string.lyrics),
-                    tint = if (showInlineLyrics) HaloGold else HaloGhost,
-                    modifier = Modifier.size(22.dp),
+                    painter = painterResource(R.drawable.queue_music),
+                    contentDescription = stringResource(R.string.queue),
+                    tint = HaloGhost,
+                    modifier = Modifier.size(SecondaryIcon),
                 )
             }
 
@@ -429,24 +473,24 @@ fun HighwayHaloNowPlaying(
                     ),
                     contentDescription = null,
                     tint = if (isLiked) HaloGold else HaloGhost,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(SecondaryIcon),
                 )
             }
 
             IconButton(
-                onClick = onOpenQueue,
+                onClick = onAddToPlaylist,
                 modifier = Modifier.size(48.dp),
             ) {
                 Icon(
-                    painter = painterResource(R.drawable.queue_music),
-                    contentDescription = stringResource(R.string.queue),
+                    painter = painterResource(R.drawable.playlist_add),
+                    contentDescription = stringResource(R.string.add_to_playlist),
                     tint = HaloGhost,
-                    modifier = Modifier.size(22.dp),
+                    modifier = Modifier.size(SecondaryIcon),
                 )
             }
         }
 
-        Spacer(Modifier.weight(0.35f))
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(8.dp))
     }
 }
+
