@@ -32,8 +32,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -65,6 +63,7 @@ import app.kelkoo.music.constants.LocationFocusKey
 import app.kelkoo.music.constants.LocationPersonalizationKey
 import app.kelkoo.music.constants.OnboardingCompleteKey
 import app.kelkoo.music.constants.SonicProfileMoodsKey
+import app.kelkoo.music.ui.aura.AuraBottomAnchoredHero
 import app.kelkoo.music.ui.aura.AuraGlassCard
 import app.kelkoo.music.ui.aura.AuraGlassPillButton
 import app.kelkoo.music.ui.aura.AuraGold
@@ -121,17 +120,38 @@ fun OnboardingScreen(
     var mediaAllowed by remember { mutableStateOf(mediaGranted) }
 
     // Soft "Location" preference for boards (region personalization) — no undeclared ACCESS_* permission.
+    // Off until Grant Access; focus chips deferred to later prefs (not toggled on this page).
     var locationAllowed by remember { mutableStateOf(false) }
     var sonicMoods by remember { mutableStateOf(setOf<String>()) }
     var locationFocus by remember { mutableStateOf("metro") } // metro | city | travel
 
-    val notificationLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted -> notificationsAllowed = granted }
+    // Sequential grant chain: Location (soft pref) → Notifications → Music/audio.
+    var pendingAdvanceAfterGrant by remember { mutableStateOf(false) }
 
     val mediaLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { granted -> mediaAllowed = granted }
+    ) { granted ->
+        mediaAllowed = granted
+        if (pendingAdvanceAfterGrant) {
+            pendingAdvanceAfterGrant = false
+            page = 4
+        }
+    }
+
+    val notificationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        notificationsAllowed = granted
+        if (pendingAdvanceAfterGrant) {
+            if (!mediaAllowed) {
+                mediaLauncher.launch(mediaPermission)
+            } else {
+                pendingAdvanceAfterGrant = false
+                page = 4
+            }
+        }
+    }
+
 
     fun completeOnboarding() {
         scope.launch {
@@ -156,13 +176,25 @@ fun OnboardingScreen(
         }
     }
 
-    fun requestOutstandingPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed) {
-            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    fun grantAccessAndAdvance() {
+        // Location is a soft region-personalization pref (no ACCESS_* declared) — on until Grant.
+        locationAllowed = true
+        pendingAdvanceAfterGrant = true
+        val needNotifications =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             notificationsAllowed = true
         }
-        if (!mediaAllowed) mediaLauncher.launch(mediaPermission)
+        when {
+            needNotifications ->
+                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            !mediaAllowed ->
+                mediaLauncher.launch(mediaPermission)
+            else -> {
+                pendingAdvanceAfterGrant = false
+                page = 4
+            }
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -194,28 +226,7 @@ fun OnboardingScreen(
                         onSkip = { page = 3 },
                     )
                     3 -> PermissionsPage(
-                        locationAllowed = locationAllowed,
-                        locationFocus = locationFocus,
-                        onLocationFocus = { locationFocus = it },
-                        notificationsAllowed = notificationsAllowed,
-                        mediaAllowed = mediaAllowed,
-                        onToggleLocation = { locationAllowed = !locationAllowed },
-                        onToggleNotifications = {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                if (!notificationsAllowed) {
-                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                                }
-                            } else {
-                                notificationsAllowed = true
-                            }
-                        },
-                        onToggleMedia = {
-                            if (!mediaAllowed) mediaLauncher.launch(mediaPermission)
-                        },
-                        onGrant = {
-                            requestOutstandingPermissions()
-                            page = 4
-                        },
+                        onGrant = { grantAccessAndAdvance() },
                         onMaybeLater = { page = 4 },
                     )
                     else -> PreferencesPage(
@@ -258,70 +269,71 @@ fun OnboardingScreen(
 private fun WelcomePage(onGetStarted: () -> Unit) {
     val config = LocalConfiguration.current
     val compact = config.screenHeightDp < 720 || config.fontScale > 1.1f
-    val titleSp = if (compact) 34 else 40
-    val waveH = if (compact) 64.dp else 76.dp
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+    // ~25% smaller than prior 34/40 — less wide/heavy; more L/R margin via padding.
+    val titleSp = if (compact) 26 else 30
+    val waveH = if (compact) 58.dp else 68.dp
+    AuraBottomAnchoredHero(
+        modifier = Modifier.padding(horizontal = 16.dp),
+        cta = {
+            AuraGlassPillButton(
+                label = stringResource(R.string.get_started),
+                onClick = onGetStarted,
+                filled = true,
+                trailingIcon = R.drawable.navigate_next,
+                compact = true,
+                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
+            )
+        },
     ) {
-        // Single hero brand path — no sticky top wordmark chrome.
-        Spacer(Modifier.height(if (compact) 28.dp else 40.dp))
+        // One vertical cluster: Welcome to + wordmark + waveform + subtitle.
         Text(
             text = "Welcome to",
             color = Color.White.copy(alpha = 0.85f),
             fontSize = if (compact) 15.sp else 16.sp,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(if (compact) 10.dp else 12.dp))
         AuraSerifTitle(
             text = "Kelkoo",
             color = AuraGold,
             fontSize = titleSp,
-            letterSpacing = 1.2f,
+            letterSpacing = 0.8f,
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
-        Spacer(Modifier.height(if (compact) 18.dp else 24.dp))
-        AuraWaveform(height = waveH)
-        Spacer(Modifier.height(8.dp))
-        Icon(
-            painter = painterResource(R.drawable.music_note),
-            contentDescription = null,
-            tint = AuraGold,
-            modifier = Modifier.size(if (compact) 22.dp else 26.dp),
+        Spacer(Modifier.height(if (compact) 16.dp else 20.dp))
+        AuraWaveform(
+            height = waveH,
+            modifier = Modifier.padding(horizontal = 8.dp),
         )
-        Spacer(Modifier.height(if (compact) 12.dp else 16.dp))
+        // Waveform alone signals music — no decorative note.
+        Spacer(Modifier.height(if (compact) 10.dp else 12.dp))
         Text(
             text = stringResource(R.string.onboarding_welcome_subtitle),
             color = Color.White.copy(alpha = 0.72f),
             fontSize = if (compact) 13.sp else 14.sp,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = 20.dp),
         )
-        Spacer(Modifier.weight(1f))
-        AuraGlassPillButton(
-            label = stringResource(R.string.get_started),
-            onClick = onGetStarted,
-            filled = true,
-            trailingIcon = R.drawable.navigate_next,
-            compact = true,
-            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
-        )
-        Spacer(Modifier.height(4.dp))
     }
 }
 
 @Composable
 private fun SyncPage(onNext: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+    AuraBottomAnchoredHero(
+        modifier = Modifier.padding(horizontal = 8.dp),
+        cta = {
+            AuraGlassPillButton(
+                label = stringResource(R.string.onboarding_next),
+                onClick = onNext,
+                filled = true,
+                trailingIcon = R.drawable.navigate_next,
+                compact = true,
+                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
+            )
+        },
     ) {
-        Spacer(Modifier.height(12.dp))
-        // Balanced wrap — never leave "Car" orphaned alone on line 2.
         AuraReadableTitle(
-            text = "Seamlessly Sync to\nPhone and Car",
+            text = "Sync Between Phone and Car",
             color = Color.White,
             fontSize = 24,
             modifier = Modifier.padding(horizontal = 12.dp),
@@ -336,16 +348,6 @@ private fun SyncPage(onNext: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Spacer(Modifier.height(28.dp))
-        AuraGlassPillButton(
-            label = stringResource(R.string.onboarding_next),
-            onClick = onNext,
-            filled = true,
-            trailingIcon = R.drawable.navigate_next,
-            compact = true,
-            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
-        )
-        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -365,50 +367,65 @@ private fun SonicProfilePage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(if (compact) 12.dp else 20.dp))
-        AuraReadableTitle(
-            text = "Discover your\nsonic profile",
-            color = Color.White,
-            fontSize = if (compact) 24 else 28,
-            modifier = Modifier.padding(horizontal = 12.dp),
-        )
-        Spacer(Modifier.height(if (compact) 8.dp else 12.dp))
-        AuraSonicIllustration(height = if (compact) 120.dp else 160.dp)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.onboarding_sonic_subtitle),
-            color = Color.White.copy(alpha = 0.7f),
-            fontSize = 13.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 12.dp),
-        )
-        Spacer(Modifier.height(16.dp))
-        Text(
-            text = "Pick moods that feel like you",
-            color = AuraGold.copy(alpha = 0.9f),
-            fontSize = 12.sp,
+        // Hero + chips scroll in the space above fixed bottom CTAs.
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 10.dp),
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth(),
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
         ) {
-            moods.forEach { mood ->
-                PreferenceChip(
-                    label = mood,
-                    selected = mood in selectedMoods,
-                    onClick = { onToggleMood(mood) },
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.height(if (compact) 8.dp else 12.dp))
+                AuraReadableTitle(
+                    text = "Discover your\nsonic profile",
+                    color = Color.White,
+                    fontSize = if (compact) 24 else 28,
+                    modifier = Modifier.padding(horizontal = 12.dp),
                 )
+                Spacer(Modifier.height(if (compact) 8.dp else 12.dp))
+                AuraSonicIllustration(height = if (compact) 120.dp else 160.dp)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_sonic_subtitle),
+                    color = Color.White.copy(alpha = 0.7f),
+                    fontSize = 13.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Pick moods that feel like you",
+                    color = AuraGold.copy(alpha = 0.9f),
+                    fontSize = 12.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 10.dp),
+                )
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterHorizontally),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    moods.forEach { mood ->
+                        PreferenceChip(
+                            label = mood,
+                            selected = mood in selectedMoods,
+                            onClick = { onToggleMood(mood) },
+                        )
+                    }
+                }
+                Spacer(Modifier.height(12.dp))
             }
         }
-        Spacer(Modifier.height(22.dp))
         AuraGlassPillButton(
             label = stringResource(R.string.continue_listening),
             onClick = onGetStarted,
@@ -417,7 +434,7 @@ private fun SonicProfilePage(
             compact = true,
             modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(2.dp))
         AuraTextLink(
             label = stringResource(R.string.onboarding_sonic_skip),
             onClick = onSkip,
@@ -428,91 +445,63 @@ private fun SonicProfilePage(
 
 @Composable
 private fun PermissionsPage(
-    locationAllowed: Boolean,
-    locationFocus: String,
-    onLocationFocus: (String) -> Unit,
-    notificationsAllowed: Boolean,
-    mediaAllowed: Boolean,
-    onToggleLocation: () -> Unit,
-    onToggleNotifications: () -> Unit,
-    onToggleMedia: () -> Unit,
     onGrant: () -> Unit,
     onMaybeLater: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
+            .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(16.dp))
-        AuraReadableTitle(
-            text = "Enable your journey",
-            color = Color.White,
-            fontSize = 26,
-            modifier = Modifier.padding(horizontal = 12.dp),
-        )
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = stringResource(R.string.onboarding_permissions_subtitle),
-            color = Color.White.copy(alpha = 0.72f),
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp),
-        )
-        Spacer(Modifier.height(20.dp))
-        PermissionToggleCard(
-            icon = R.drawable.location_on,
-            title = stringResource(R.string.permission_location_title),
-            description = stringResource(R.string.permission_location_desc),
-            checked = locationAllowed,
-            onCheckedChange = { onToggleLocation() },
-            belowToggle = {
-                if (locationAllowed) {
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        text = "Location focus",
-                        color = AuraGold.copy(alpha = 0.9f),
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        listOf(
-                            "metro" to "Metro area",
-                            "city" to "City charts",
-                            "travel" to "Travel mode",
-                        ).forEach { (code, label) ->
-                            PreferenceChip(
-                                label = label,
-                                selected = locationFocus == code,
-                                onClick = { onLocationFocus(code) },
-                            )
-                        }
-                    }
-                }
-            },
-        )
-        Spacer(Modifier.height(12.dp))
-        PermissionToggleCard(
-            icon = R.drawable.notification,
-            title = stringResource(R.string.permission_notifications_title),
-            description = stringResource(R.string.permission_notifications_desc),
-            checked = notificationsAllowed,
-            onCheckedChange = { if (it) onToggleNotifications() },
-        )
-        Spacer(Modifier.height(12.dp))
-        PermissionToggleCard(
-            icon = R.drawable.library_music,
-            title = stringResource(R.string.permission_music_audio_title),
-            description = stringResource(R.string.permission_music_audio_desc),
-            checked = mediaAllowed,
-            onCheckedChange = { if (it) onToggleMedia() },
-        )
-        Spacer(Modifier.height(28.dp))
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.height(8.dp))
+                AuraReadableTitle(
+                    text = "Enable your journey",
+                    color = Color.White,
+                    fontSize = 26,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = stringResource(R.string.onboarding_permissions_subtitle),
+                    color = Color.White.copy(alpha = 0.72f),
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                )
+                Spacer(Modifier.height(20.dp))
+                PermissionInfoCard(
+                    icon = R.drawable.location_on,
+                    title = stringResource(R.string.permission_location_title),
+                    description = stringResource(R.string.permission_location_desc),
+                )
+                Spacer(Modifier.height(12.dp))
+                PermissionInfoCard(
+                    icon = R.drawable.notification,
+                    title = stringResource(R.string.permission_notifications_title),
+                    description = stringResource(R.string.permission_notifications_desc),
+                )
+                Spacer(Modifier.height(12.dp))
+                PermissionInfoCard(
+                    icon = R.drawable.library_music,
+                    title = stringResource(R.string.permission_music_audio_title),
+                    description = stringResource(R.string.permission_music_audio_desc),
+                )
+                Spacer(Modifier.height(12.dp))
+            }
+        }
         AuraGlassPillButton(
             label = stringResource(R.string.onboarding_grant_access),
             onClick = onGrant,
@@ -525,60 +514,50 @@ private fun PermissionsPage(
             label = stringResource(R.string.onboarding_maybe_later),
             onClick = onMaybeLater,
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
 @Composable
-private fun PermissionToggleCard(
+private fun PermissionInfoCard(
     icon: Int,
     title: String,
     description: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-    belowToggle: @Composable () -> Unit = {},
 ) {
     AuraGlassCard {
-        Column(modifier = Modifier.fillMaxWidth()) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .border(1.dp, AuraGold.copy(alpha = 0.6f), CircleShape)
+                    .clip(CircleShape),
+                contentAlignment = Alignment.Center,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .border(1.dp, AuraGold.copy(alpha = 0.6f), CircleShape)
-                        .clip(CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        painter = painterResource(icon),
-                        contentDescription = null,
-                        tint = AuraGold,
-                        modifier = Modifier.size(22.dp),
-                    )
-                }
-                Spacer(Modifier.size(14.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                    Text(
-                        description,
-                        color = Color.White.copy(alpha = 0.72f),
-                        fontSize = 12.sp,
-                    )
-                }
-                Switch(
-                    checked = checked,
-                    onCheckedChange = onCheckedChange,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.Black,
-                        checkedTrackColor = AuraGold,
-                        uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
-                        uncheckedTrackColor = Color.White.copy(alpha = 0.15f),
-                    ),
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = AuraGold,
+                    modifier = Modifier.size(22.dp),
                 )
             }
-            belowToggle()
+            Spacer(Modifier.size(14.dp))
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 12.dp),
+            ) {
+                Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    description,
+                    color = Color.White.copy(alpha = 0.72f),
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
         }
     }
 }
@@ -614,124 +593,163 @@ private fun PreferencesPage(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
+            .padding(horizontal = 4.dp),
+        horizontalAlignment = Alignment.Start,
     ) {
-        Spacer(Modifier.height(12.dp))
-        Icon(
-            painter = painterResource(R.drawable.globe),
-            contentDescription = null,
-            tint = AuraGold,
-            modifier = Modifier.size(44.dp),
-        )
-        Spacer(Modifier.height(12.dp))
-        // Title case + balanced wrap — never orphan a trailing single letter.
-        AuraReadableTitle(
-            text = "Choose your\npreferences",
-            color = Color.White,
-            fontSize = 26,
-            modifier = Modifier.padding(horizontal = 16.dp),
-        )
-        Spacer(Modifier.height(20.dp))
-
-        Text(
-            text = stringResource(R.string.onboarding_preferences_region),
-            color = AuraGold.copy(alpha = 0.85f),
-            fontSize = 12.sp,
+        Column(
             modifier = Modifier
+                .weight(1f)
                 .fillMaxWidth()
-                .padding(bottom = 6.dp),
-        )
-        val regionShape = RoundedCornerShape(28.dp)
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(regionShape)
-                .background(Color(0xFF1A1A1A).copy(alpha = 0.55f))
-                .border(1.dp, AuraGold.copy(alpha = 0.5f), regionShape)
-                .clickable { onShowAllCountries(!showAllCountries) }
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.Start,
         ) {
+            Spacer(Modifier.height(12.dp))
             Icon(
-                painter = painterResource(R.drawable.location_on),
+                painter = painterResource(R.drawable.globe),
                 contentDescription = null,
                 tint = AuraGold,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(40.dp),
             )
-            Spacer(Modifier.size(10.dp))
-            Text(
-                text = ContentLanguageSupport.countryName(selectedCountry),
-                color = Color.White,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier.weight(1f),
-            )
-            Icon(
-                painter = painterResource(R.drawable.arrow_downward),
-                contentDescription = null,
-                tint = AuraGold,
-                modifier = Modifier.size(18.dp),
-            )
-        }
-        if (showAllCountries) {
             Spacer(Modifier.height(10.dp))
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                countries.forEach { code ->
-                    PreferenceChip(
-                        label = ContentLanguageSupport.countryName(code),
-                        selected = code == selectedCountry,
-                        onClick = { onSelectCountry(code) },
-                    )
-                }
-            }
-        }
+            // Left-aligned with Region/Language labels and dropdown leading edge.
+            AuraReadableTitle(
+                text = "Choose your\npreferences",
+                color = Color.White,
+                fontSize = 26,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth(),
+            )
+            Spacer(Modifier.height(20.dp))
 
-        Spacer(Modifier.height(18.dp))
-        Text(
-            text = stringResource(R.string.onboarding_preferences_language),
-            color = AuraGold.copy(alpha = 0.85f),
-            fontSize = 12.sp,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 6.dp),
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            languageCodes.forEach { code ->
-                PreferenceChip(
-                    label = ContentLanguageSupport.languageLabel(code),
-                    selected = code in selectedLanguages,
-                    onClick = { onToggleLanguage(code) },
+            Text(
+                text = stringResource(R.string.onboarding_preferences_region),
+                color = AuraGold.copy(alpha = 0.85f),
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+            )
+            val regionShape = RoundedCornerShape(28.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(regionShape)
+                    .background(Color(0xFF1A1A1A).copy(alpha = 0.55f))
+                    .border(1.dp, AuraGold.copy(alpha = 0.5f), regionShape)
+                    .clickable { onShowAllCountries(!showAllCountries) }
+                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.location_on),
+                    contentDescription = null,
+                    tint = AuraGold,
+                    modifier = Modifier.size(20.dp),
+                )
+                Spacer(Modifier.size(10.dp))
+                Text(
+                    text = ContentLanguageSupport.countryName(selectedCountry),
+                    color = Color.White,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.weight(1f),
+                )
+                Icon(
+                    painter = painterResource(R.drawable.arrow_downward),
+                    contentDescription = null,
+                    tint = AuraGold,
+                    modifier = Modifier.size(18.dp),
                 )
             }
-        }
-        AuraTextLink(
-            label = stringResource(
-                if (showAllLanguages) R.string.onboarding_show_suggested_languages
-                else R.string.onboarding_show_all_languages
-            ),
-            onClick = { onShowAllLanguages(!showAllLanguages) },
-        )
+            if (showAllCountries) {
+                Spacer(Modifier.height(10.dp))
+                PreferenceChipGrid(
+                    labels = countries.map { ContentLanguageSupport.countryName(it) },
+                    selected = { idx -> countries[idx] == selectedCountry },
+                    onClick = { idx -> onSelectCountry(countries[idx]) },
+                    columns = 2,
+                )
+            }
 
-        Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(18.dp))
+            Text(
+                text = stringResource(R.string.onboarding_preferences_language),
+                color = AuraGold.copy(alpha = 0.85f),
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+            )
+            PreferenceChipGrid(
+                labels = languageCodes.map { ContentLanguageSupport.languageLabel(it) },
+                selected = { idx -> languageCodes[idx] in selectedLanguages },
+                onClick = { idx -> onToggleLanguage(languageCodes[idx]) },
+                columns = 3,
+            )
+            // Breathing room under chip grid before show-all link.
+            Spacer(Modifier.height(14.dp))
+            AuraTextLink(
+                label = stringResource(
+                    if (showAllLanguages) R.string.onboarding_show_suggested_languages
+                    else R.string.onboarding_show_all_languages
+                ),
+                onClick = { onShowAllLanguages(!showAllLanguages) },
+                modifier = Modifier.padding(start = 0.dp),
+            )
+            Spacer(Modifier.height(8.dp))
+        }
+
+        // Fixed bottom CTA slot — same rhythm as Welcome / Sync / Sonic / Permissions.
         AuraGlassPillButton(
             label = stringResource(R.string.onboarding_save_preferences),
             onClick = onSave,
             filled = true,
             compact = true,
-            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .widthIn(max = 300.dp)
+                .fillMaxWidth(),
         )
         Spacer(Modifier.height(2.dp))
         AuraTextLink(
             label = stringResource(R.string.onboarding_change_later),
             onClick = onChangeLater,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
+/** Strict equal-width chip grid — no jagged last-row void. */
+@Composable
+private fun PreferenceChipGrid(
+    labels: List<String>,
+    selected: (Int) -> Boolean,
+    onClick: (Int) -> Unit,
+    columns: Int,
+) {
+    val rows = labels.indices.chunked(columns)
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        rows.forEach { indices ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                indices.forEach { idx ->
+                    PreferenceChip(
+                        label = labels[idx],
+                        selected = selected(idx),
+                        onClick = { onClick(idx) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                repeat(columns - indices.size) {
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
     }
 }
 
@@ -740,21 +758,25 @@ private fun PreferenceChip(
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val shape = RoundedCornerShape(22.dp)
     Box(
-        modifier = Modifier
+        modifier = modifier
             .clip(shape)
             .background(if (selected) AuraGold else Color.Transparent)
             .border(1.dp, AuraGold.copy(alpha = 0.7f), shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 18.dp, vertical = 12.dp),
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
             color = if (selected) Color.Black else AuraGold,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
         )
     }
 }
