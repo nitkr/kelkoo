@@ -1,13 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="welcome_to_kelkoo">Welcome to Kelkoo</string>
-    <string name="onboarding_welcome_subtitle">Your personal music player for phone and car.</string>
-    <string name="onboarding_permissions_title">Permissions</string>
-    <string name="onboarding_permissions_subtitle">Notifications keep media controls handy. Music access is optional for local files.</string>
+    <!-- Aura Phase 2 onboarding — display wordmark Kelkoo / kelkoo / KELKOO -->
+    <string name="welcome_to_kelkoo">Welcome to KELKOO</string>
+    <string name="onboarding_welcome_subtitle">Your curated music, ready for every journey.</string>
+    <string name="onboarding_sync_title">Seamlessly Sync to Phone and Car</string>
+    <string name="onboarding_sync_subtitle">Enjoy your music from driveway to highway.</string>
+    <string name="onboarding_sonic_title">Discover Your Sonic Profile</string>
+    <string name="onboarding_sonic_subtitle">Unlock music that matches your unique taste and vibe.</string>
+    <string name="onboarding_sonic_skip">Skip for now</string>
+    <string name="onboarding_permissions_title">Enable Your Journey</string>
+    <string name="onboarding_permissions_subtitle">We need a few permissions to power your curated experience.</string>
     <string name="permission_notifications_title">Notifications</string>
-    <string name="permission_notifications_desc">Show media controls and playback status</string>
+    <string name="permission_notifications_desc">Stay updated on new editorial drops and playback on other devices.</string>
     <string name="permission_music_audio_title">Music &amp; audio</string>
     <string name="permission_music_audio_desc">Optional — browse songs stored on this device</string>
+    <string name="permission_location_title">Location</string>
+    <string name="permission_location_desc">Personalize charts and local editorial for your region.</string>
+    <string name="onboarding_grant_access">Grant Access</string>
+    <string name="onboarding_maybe_later">Maybe Later</string>
+    <string name="onboarding_preferences_title">Choose Your Preferences</string>
+    <string name="onboarding_preferences_region">Region</string>
+    <string name="onboarding_preferences_language">Language</string>
+    <string name="onboarding_save_preferences">Save Preferences</string>
+    <string name="onboarding_change_later">Change Later</string>
     <string name="onboarding_languages_title">Music languages</string>
     <string name="onboarding_languages_subtitle">Suggested for your country. Add more if you like. Change later in Settings.</string>
     <string name="continue_listening">Continue</string>
@@ -29,4 +44,15 @@
     <string name="onboarding_show_suggested_languages">Show suggested only</string>
     <string name="onboarding_more_countries">More countries</string>
     <string name="onboarding_popular_countries">Popular</string>
+
+    <!-- Explore / Library Aura polish -->
+    <string name="explore_title">explore</string>
+    <string name="kelkoo_chart">Kelkoo chart</string>
+    <string name="view_all">View all</string>
+    <string name="library_title">Library</string>
+    <string name="capsule_liked">Liked</string>
+    <string name="capsule_downloaded">Downloaded</string>
+    <string name="capsule_exported">Exported</string>
+    <string name="capsule_local">Local</string>
+    <string name="mood_energize">Energize</string>
 </resources>
