@@ -34,20 +34,23 @@ import androidx.compose.ui.unit.dp
 import kotlin.math.PI
 import kotlin.math.sin
 
-/** Drive Night amber used by Highway Halo / full-art NP. */
-val HaloAmber = Color(0xFFE8A838)
+/** Aura gold primary chrome — waveform, dial, selected nav. */
+val HaloGold = Color(0xFFD4AF37)
+
+/** @deprecated Use [HaloGold]; kept as alias during Aura Phase 1 migration. */
+@Deprecated("Use HaloGold", ReplaceWith("HaloGold"))
+val HaloAmber = HaloGold
 
 /**
- * Collapsed Unified Wave Sheet hairline — same amber wave DNA as [WaveSeekBar],
- * but 2dp tall and non-interactive so mini stays tappable for expand/dismiss.
+ * Compact gold progress hairline (legacy mini path). Dial FAB is primary mini.
  */
 @Composable
 fun WaveProgressHairline(
     progress: Float,
     isPlaying: Boolean,
     modifier: Modifier = Modifier,
-    activeColor: Color = HaloAmber,
-    trackColor: Color = HaloAmber.copy(alpha = 0.18f),
+    activeColor: Color = HaloGold,
+    trackColor: Color = HaloGold.copy(alpha = 0.18f),
 ) {
     val clamped = progress.coerceIn(0f, 1f)
     val infinite = rememberInfiniteTransition(label = "waveHairline")
@@ -103,15 +106,16 @@ fun WaveProgressHairline(
 /**
  * Classic horizontal seek bar with a soft sine wobble on the active fill
  * while [isPlaying] is true. Paused/idle stays calm and flat.
- * Drag or tap to seek; Drive Night amber on charcoal continuity.
+ * Immersive NP gold haptic waveform seek — vertical bars with play-in-wave DNA.
+ * Drag or tap to seek; gold on cinematic charcoal.
  */
 @Composable
 fun WaveSeekBar(
     progress: Float,
     isPlaying: Boolean,
     modifier: Modifier = Modifier,
-    activeColor: Color = HaloAmber,
-    trackColor: Color = HaloAmber.copy(alpha = 0.22f),
+    activeColor: Color = HaloGold,
+    trackColor: Color = HaloGold.copy(alpha = 0.22f),
     trackHeight: Dp = 4.dp,
     waveAmplitude: Dp = 3.dp,
     onSeekFraction: ((Float) -> Unit)? = null,
@@ -175,52 +179,45 @@ fun WaveSeekBar(
             },
     ) {
         Canvas(modifier = Modifier.fillMaxWidth().height(36.dp)) {
-            val trackH = trackHeight.toPx()
-            val amp = if (waveActive) waveAmplitude.toPx() else 0f
             val cy = size.height / 2f
             val progressX = size.width * displayProgress
+            val barCount = 48
+            val gap = size.width / barCount
+            val barW = gap * 0.55f
+            val maxH = size.height * 0.92f
+            val minH = size.height * 0.16f
 
-            // Inactive track (flat)
-            drawRoundRect(
-                color = trackColor,
-                topLeft = Offset(0f, cy - trackH / 2f),
-                size = Size(size.width, trackH),
-                cornerRadius = CornerRadius(trackH / 2f, trackH / 2f),
-            )
-
-            if (displayProgress > 0.001f) {
-                if (waveActive && amp > 0.5f) {
-                    // Wobble wave along the active portion
-                    val path = Path()
-                    val steps = (progressX / 3f).toInt().coerceAtLeast(8)
-                    val wavelength = size.width * 0.18f
-                    path.moveTo(0f, cy)
-                    for (i in 0..steps) {
-                        val x = progressX * (i.toFloat() / steps)
-                        val y = cy + amp * sin((x / wavelength) * 2f * PI.toFloat() + wavePhase)
-                        if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                    }
-                    drawPath(
-                        path = path,
-                        color = activeColor,
-                        style = Stroke(width = trackH * 1.15f, cap = StrokeCap.Round),
-                    )
+            for (i in 0 until barCount) {
+                val t = i.toFloat() / (barCount - 1).coerceAtLeast(1)
+                // Symmetric haptic envelope peaking near center (immersive NP look)
+                val envelope = (sin(t * PI.toFloat()).coerceIn(0.15f, 1f))
+                val wobble = if (waveActive) {
+                    0.65f + 0.35f * sin(wavePhase + i * 0.55f)
                 } else {
-                    // Calm flat active fill
-                    drawRoundRect(
-                        color = activeColor,
-                        topLeft = Offset(0f, cy - trackH / 2f),
-                        size = Size(progressX, trackH),
-                        cornerRadius = CornerRadius(trackH / 2f, trackH / 2f),
-                    )
+                    0.85f
                 }
+                val h = (minH + (maxH - minH) * envelope * wobble).coerceAtMost(maxH)
+                val x = i * gap + (gap - barW) / 2f
+                val active = x + barW / 2f <= progressX
+                val color = if (active) activeColor else trackColor
+                drawRoundRect(
+                    color = color,
+                    topLeft = Offset(x, cy - h / 2f),
+                    size = Size(barW, h),
+                    cornerRadius = CornerRadius(barW / 2f, barW / 2f),
+                )
             }
 
-            // Thumb
+            // Soft play-center glow marker at scrub position
             if (scrubbing || displayProgress > 0.001f) {
                 drawCircle(
+                    color = activeColor.copy(alpha = 0.35f),
+                    radius = size.height * 0.28f,
+                    center = Offset(progressX.coerceIn(0f, size.width), cy),
+                )
+                drawCircle(
                     color = activeColor,
-                    radius = if (scrubbing) trackH * 2.2f else trackH * 1.4f,
+                    radius = if (scrubbing) 5f else 3.5f,
                     center = Offset(progressX.coerceIn(0f, size.width), cy),
                 )
             }

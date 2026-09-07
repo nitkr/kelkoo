@@ -114,7 +114,7 @@ fun FloatingNavigationToolbar(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        val showSelectedLabels = false
+        val showSelectedLabels = true // Aura glass nav labels
 
         if (hasOverflowMenu) {
             HorizontalFloatingToolbar(
@@ -507,11 +507,11 @@ private fun FloatingNavigationToolbarItem(
 
 @Composable
 private fun floatingToolbarContainerColor(pureBlack: Boolean): Color {
-    // Unified Wave Sheet chassis — Drive Night charcoal continuous with collapsed mini
+    // Aura glass bottom nav — frosted charcoal (Dial FAB sits above, not in bar)
     return if (pureBlack) {
-        Color.Black
+        Color.Black.copy(alpha = 0.92f)
     } else {
-        Color(0xFF1A1A1A)
+        Color(0xFF141414).copy(alpha = 0.88f)
     }
 }
 
@@ -527,12 +527,12 @@ private fun floatingToolbarFabContentColor(pureBlack: Boolean): Color {
 
 @Composable
 private fun floatingToolbarSelectedItemContainerColor(pureBlack: Boolean): Color {
-    return Color(0xFFE8A838).copy(alpha = 0.22f)
+    return Color(0xFFD4AF37).copy(alpha = 0.22f)
 }
 
 @Composable
 private fun floatingToolbarSelectedItemContentColor(pureBlack: Boolean): Color {
-    return Color(0xFFE8A838)
+    return Color(0xFFD4AF37)
 }
 
 

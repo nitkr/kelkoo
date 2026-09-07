@@ -622,7 +622,7 @@ class MainActivity : ComponentActivity() {
 
                 val (listenTogetherInTopBar) = rememberPreference(ListenTogetherInTopBarKey, defaultValue = true)
                 val navigationItems = remember {
-                    Screens.MainScreens // Home | Explore | Search | Library
+                    Screens.MainScreens // Aura: Home | Explore | Library | Profile
                 }
                 val (useNewMiniPlayerDesign) = rememberPreference(UseNewMiniPlayerDesignKey, defaultValue = true)
                 val defaultOpenTab = remember {
@@ -642,6 +642,7 @@ class MainActivity : ComponentActivity() {
                         Screens.Explore.route,
                         Screens.Search.route,
                         Screens.Library.route,
+                        Screens.Profile.route,
                         Screens.ListenTogether.route,
                         "settings",
                     )
@@ -901,6 +902,7 @@ class MainActivity : ComponentActivity() {
                     Screens.Home.route, Screens.Explore.route -> stringResource(R.string.app_name)
                     Screens.Search.route -> stringResource(R.string.search)
                     Screens.Library.route -> stringResource(R.string.filter_library)
+                    Screens.Profile.route -> stringResource(R.string.account)
                     Screens.ListenTogether.route -> stringResource(R.string.together)
                     else -> ""
                 }
@@ -993,6 +995,17 @@ class MainActivity : ComponentActivity() {
                                             )
                                         },
                                         actions = {
+                                            // Search remains reachable from top bar (not a bottom tab in Aura Phase 1)
+                                            IconButton(onClick = {
+                                                navController.navigate(Screens.Search.route) {
+                                                    launchSingleTop = true
+                                                }
+                                            }) {
+                                                Icon(
+                                                    painter = painterResource(R.drawable.search),
+                                                    contentDescription = stringResource(R.string.search)
+                                                )
+                                            }
                                             if (showHistoryButton) {
                                                 IconButton(onClick = { navController.navigate("history") }) {
                                                     Icon(
@@ -1138,17 +1151,7 @@ class MainActivity : ComponentActivity() {
                                             FloatingNavigationToolbar(
                                                 items = navigationItems,
                                                 pureBlack = pureBlack,
-                                                onShuffleClick = onShuffleClick,
-                                                shuffleEnabled = shuffleEnabled,
-                                                shuffleIconRes = R.drawable.shuffle,
-                                                shuffleContentDescription = stringResource(R.string.shuffle),
-                                                onAiHubClick = { 
-                                                    navController.navigate("settings/ai") {
-                                                        launchSingleTop = true
-                                                    }
-                                                },
-                                                aiHubIconRes = R.drawable.sparks,
-                                                aiHubContentDescription = stringResource(R.string.ai_lyrics_translation),
+                                                // Aura Phase 1: Dial FAB is the mini-player above this glass bar (not a tab)
                                                 isSelected = { screen ->
                                                     currentRoute == screen.route || currentRoute?.startsWith("${screen.route}/") == true
                                                 },
@@ -1253,6 +1256,7 @@ class MainActivity : ComponentActivity() {
                                         NavigationTab.EXPLORE -> Screens.Explore
                                         NavigationTab.SEARCH -> Screens.Search
                                         NavigationTab.LIBRARY -> Screens.Library
+                                        NavigationTab.PROFILE -> Screens.Profile
                                         else -> Screens.Home
                                     }.route,
                                     

@@ -335,7 +335,7 @@ fun OnlineSearchResult(
                 focusedTextColor = Color.White,
                 unfocusedTextColor = Color.White,
                 disabledTextColor = Color.White.copy(alpha = 0.5f),
-                cursorColor = Color(0xFFE8A838),
+                cursorColor = Color(0xFFD4AF37),
                 focusedContainerColor = Color(0xFF2A2A2A),
                 unfocusedContainerColor = Color(0xFF2A2A2A),
                 disabledContainerColor = Color(0xFF2A2A2A),
