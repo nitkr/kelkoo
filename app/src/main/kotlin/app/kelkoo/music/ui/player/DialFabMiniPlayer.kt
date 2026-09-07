@@ -13,8 +13,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,8 +41,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -55,10 +61,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Aura Phase 1 Dial FAB — primary mini-player above the glass bottom bar (not a tab).
- * Minimized: brushed gold metallic ring + album thumb.
- * Expanded: fanned prev / like / next around play, wired to Media3 / playback.
- * Long-press opens immersive NP; parent BottomSheet vertical drag still expands NP.
+ * Aura Dial FAB — mini-player above glass bottom bar (not a tab).
+ * Fans stay fully visible + hittable above glass nav; swipe-up to Immersive NP
+ * only from this Dial cluster. Fold-safe end bias for SM-F966B-class widths.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -104,18 +109,33 @@ fun DialFabMiniPlayer(
     @Suppress("UNUSED_VARIABLE")
     val dismissHook = onDismiss
 
-    Box(
+    val configuration = LocalConfiguration.current
+    // SM-F966B / Fold unfolded ≈ 600–900+ dp wide — keep Dial on outer trailing pane past hinge.
+    val isFoldExpanded = configuration.screenWidthDp >= 600
+    val dialEndPadding = when {
+        configuration.screenWidthDp >= 840 -> 52.dp
+        isFoldExpanded -> 32.dp
+        else -> 16.dp
+    }
+    val dialBottomPadding = if (isFoldExpanded) 10.dp else 6.dp
+    val clusterSize = if (dialExpanded) 168.dp else 148.dp
+    val dialSize = 76.dp
+    val playHitSize = 56.dp
+
+    val density = LocalDensity.current
+    var swipeAccum by remember { mutableFloatStateOf(0f) }
+
+    BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
             .height(MiniPlayerHeight)
             .semantics { contentDescription = "Dial mini player" },
     ) {
-        // Collapse fans by tapping empty left space
         if (dialExpanded) {
             Box(
                 modifier = Modifier
                     .align(Alignment.CenterStart)
-                    .fillMaxWidth(0.5f)
+                    .fillMaxWidth(if (isFoldExpanded) 0.55f else 0.5f)
                     .height(MiniPlayerHeight)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
@@ -124,20 +144,36 @@ fun DialFabMiniPlayer(
             )
         }
 
-        // Dial cluster — right side, above glass nav
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(end = 16.dp, bottom = 4.dp)
-                .size(140.dp),
+                .padding(end = dialEndPadding, bottom = dialBottomPadding)
+                .size(clusterSize)
+                .pointerInput(Unit) {
+                    detectVerticalDragGestures(
+                        onDragStart = { swipeAccum = 0f },
+                        onVerticalDrag = { _, dragAmount ->
+                            swipeAccum += dragAmount
+                        },
+                        onDragCancel = { swipeAccum = 0f },
+                        onDragEnd = {
+                            val threshold = with(density) { 28.dp.toPx() }
+                            if (swipeAccum < -threshold) {
+                                onOpenNowPlaying()
+                            }
+                            swipeAccum = 0f
+                        },
+                    )
+                },
         ) {
             if (fanProgress > 0.02f) {
                 DialFanButton(
                     icon = R.drawable.skip_previous,
                     enabled = canSkipPrevious && !isListenTogetherGuest,
-                    angleDeg = -50f,
+                    angleDeg = -52f,
                     progress = fanProgress,
+                    radiusDp = 62f,
                     onClick = {
                         if (!isListenTogetherGuest) {
                             playerConnection.player.seekToPreviousMediaItem()
@@ -149,6 +185,7 @@ fun DialFabMiniPlayer(
                     enabled = !isListenTogetherGuest,
                     angleDeg = 0f,
                     progress = fanProgress,
+                    radiusDp = 62f,
                     tint = if (isLiked) HaloGold else Color.White,
                     onClick = {
                         if (!isListenTogetherGuest) {
@@ -159,8 +196,9 @@ fun DialFabMiniPlayer(
                 DialFanButton(
                     icon = R.drawable.skip_next,
                     enabled = canSkipNext && !isListenTogetherGuest,
-                    angleDeg = 50f,
+                    angleDeg = 52f,
                     progress = fanProgress,
+                    radiusDp = 62f,
                     onClick = {
                         if (!isListenTogetherGuest) {
                             playerConnection.player.seekToNext()
@@ -169,11 +207,10 @@ fun DialFabMiniPlayer(
                 )
             }
 
-            // Metallic ring + thumb / play
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(72.dp)
+                    .size(dialSize)
                     .shadow(
                         elevation = 12.dp,
                         shape = CircleShape,
@@ -225,7 +262,7 @@ fun DialFabMiniPlayer(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(50.dp)
+                        .size(playHitSize)
                         .clip(CircleShape)
                         .background(Color(0xFF141414))
                         .border(1.dp, HaloGold.copy(alpha = 0.4f), CircleShape),
@@ -269,7 +306,7 @@ fun DialFabMiniPlayer(
                                     ),
                                     contentDescription = "Play pause",
                                     tint = Color(0xFF0F0F0F),
-                                    modifier = Modifier.size(26.dp),
+                                    modifier = Modifier.size(28.dp),
                                 )
                             }
                         } else {
@@ -299,17 +336,17 @@ private fun DialFanButton(
     progress: Float,
     onClick: () -> Unit,
     tint: Color = Color.White,
+    radiusDp: Float = 54f,
 ) {
-    // 0° = up; fans arc above the dial ring
     val rad = Math.toRadians(angleDeg.toDouble() - 90.0)
-    val radiusPx = 54f * progress
+    val radiusPx = radiusDp * progress
     val x = (radiusPx * cos(rad)).dp
     val y = (radiusPx * sin(rad)).dp
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             .offset(x = x, y = y)
-            .size(40.dp)
+            .size(44.dp)
             .shadow(6.dp, CircleShape)
             .clip(CircleShape)
             .background(
@@ -322,7 +359,7 @@ private fun DialFanButton(
             painter = painterResource(icon),
             contentDescription = null,
             tint = if (enabled) tint else tint.copy(alpha = 0.35f),
-            modifier = Modifier.size(20.dp),
+            modifier = Modifier.size(22.dp),
         )
     }
 }

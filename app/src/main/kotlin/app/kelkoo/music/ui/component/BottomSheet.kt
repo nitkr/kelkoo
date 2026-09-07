@@ -56,6 +56,16 @@ fun BottomSheet(
     onDismiss: (() -> Unit)? = null,
     collapsedContent: @Composable BoxScope.() -> Unit,
     isExpandable: Boolean = true,
+    /**
+     * When collapsed, only vertical drags that start within this fraction of width
+     * from the trailing edge can expand Immersive NP (Dial zone). Null = full width.
+     * Aura Dial: pass ~0.42f so left-side / elsewhere swipe-up cannot hijack into NP.
+     */
+    collapsedExpandFromEndFraction: Float? = null,
+    /** When false, tapping empty collapsed chrome does not expand NP (Dial owns open). */
+    expandOnCollapsedClick: Boolean = true,
+    /** Avoid clipping Dial fan controls that paint above the collapsed chassis. */
+    clipCollapsedContent: Boolean = true,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val density = LocalDensity.current
@@ -79,30 +89,45 @@ fun BottomSheet(
                     .coerceAtLeast(0f)
                 translationY = y
             }
-            .pointerInput(state, isExpandable) {
+            .pointerInput(state, isExpandable, collapsedExpandFromEndFraction) {
                 if (!isExpandable) return@pointerInput
                 val velocityTracker = VelocityTracker()
+                var dragAllowed = true
 
                 detectVerticalDragGestures(
+                    onDragStart = { offset ->
+                        val zone = collapsedExpandFromEndFraction
+                        dragAllowed = if (zone == null || !state.isCollapsed) {
+                            true
+                        } else {
+                            val fromEnd = size.width - offset.x
+                            fromEnd <= size.width * zone.coerceIn(0.15f, 1f)
+                        }
+                        if (!dragAllowed) velocityTracker.resetTracking()
+                    },
                     onVerticalDrag = { change, dragAmount ->
+                        if (!dragAllowed) return@detectVerticalDragGestures
                         velocityTracker.addPointerInputChange(change)
                         state.dispatchRawDelta(dragAmount)
                     },
                     onDragCancel = {
                         velocityTracker.resetTracking()
-                        state.snapTo(state.collapsedBound)
+                        if (dragAllowed) state.snapTo(state.collapsedBound)
+                        dragAllowed = true
                     },
                     onDragEnd = {
                         val velocity = -velocityTracker.calculateVelocity().y
                         velocityTracker.resetTracking()
-                        state.performFling(velocity, onDismiss)
+                        if (dragAllowed) state.performFling(velocity, onDismiss)
+                        dragAllowed = true
                     }
                 )
             }
             .graphicsLayer {
                 val cornerRadius = if (!state.isExpanded) 16.dp.toPx() else 0f
                 shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius)
-                clip = true
+                // Dial fans arc above the chassis — do not clip when collapsed
+                clip = if (state.isCollapsed) clipCollapsedContent else true
             }
     ) {
         if (!state.isCollapsed && !state.isDismissed) {
@@ -135,10 +160,14 @@ fun BottomSheet(
                 Modifier
                     .graphicsLayer {
                         alpha = 1f - (state.progress * 4).coerceAtMost(1f)
-                    }.clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { if (isExpandable) state.expandSoft() },
+                    }.then(
+                        if (expandOnCollapsedClick) {
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                                onClick = { if (isExpandable) state.expandSoft() },
+                            )
+                        } else Modifier
                     ).fillMaxWidth()
                     .height(state.collapsedBound),
                 content = collapsedContent,

@@ -975,6 +975,9 @@ fun BottomSheetPlayer(
     BottomSheet(
         state = state,
         modifier = modifier,
+        collapsedExpandFromEndFraction = 0.42f,
+        expandOnCollapsedClick = false,
+        clipCollapsedContent = false,
         background = {
             val backgroundThumbnailUrl = mediaMetadata?.thumbnailUrl ?: playerConnection.player.currentMediaItem?.mediaMetadata?.artworkUri?.toString()
             Box(

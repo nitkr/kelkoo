@@ -7,6 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -49,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -92,7 +95,7 @@ import app.kelkoo.music.ui.aura.scrubMoodTitle
 import app.kelkoo.music.ui.theme.DefaultThemeColor
 import app.kelkoo.music.ui.theme.bbhBartle
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun ExploreScreen(
     navController: NavController,
@@ -265,20 +268,26 @@ fun ExploreScreen(
                     modifier = Modifier.padding(start = 16.dp, bottom = 8.dp),
                 )
 
-                // Masonry mood strip (photo-led cards) — Energize spelling scrubbed
-                explorePage?.moodAndGenres?.take(8)?.let { moods ->
-                    LazyRow(
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
+                // True staggered Explore masonry (2-col variable heights) — keep Chart below
+                explorePage?.moodAndGenres?.take(10)?.let { moods ->
+                    val colWidth = (LocalConfiguration.current.screenWidthDp.dp - 36.dp) / 2
+                    FlowRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        maxItemsInEachRow = 2,
                     ) {
-                        items(moods, key = { it.title + it.endpoint.browseId }) { mood ->
+                        moods.forEachIndexed { index, mood ->
                             val title = scrubMoodTitle(mood.title)
+                            val tall = index % 3 != 1
                             Box(
                                 modifier = Modifier
-                                    .width(148.dp)
-                                    .height(190.dp)
+                                    .width(colWidth)
+                                    .height(if (tall) 200.dp else 148.dp)
                                     .clip(RoundedCornerShape(16.dp))
-                                    .border(1.dp, AuraGold.copy(alpha = 0.25f), RoundedCornerShape(16.dp))
+                                    .border(1.dp, AuraGold.copy(alpha = 0.28f), RoundedCornerShape(16.dp))
                                     .combinedClickable(
                                         onClick = {
                                             navController.navigate(
@@ -292,7 +301,10 @@ fun ExploreScreen(
                                         .fillMaxSize()
                                         .background(
                                             Brush.verticalGradient(
-                                                listOf(Color(0xFF2A2418), Color(0xFF0A0A0A))
+                                                listOf(
+                                                    if (tall) Color(0xFF2A2418) else Color(0xFF1A2228),
+                                                    Color(0xFF0A0A0A),
+                                                )
                                             )
                                         )
                                 )
@@ -305,8 +317,8 @@ fun ExploreScreen(
                                         text = title.lowercase(),
                                         color = Color.White,
                                         fontFamily = bbhBartle,
-                                        fontSize = 18.sp,
-                                        maxLines = 1,
+                                        fontSize = 17.sp,
+                                        maxLines = 2,
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     Text(

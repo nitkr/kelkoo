@@ -62,9 +62,10 @@ fun AuraWordmark(
             text = "kelkoo",
             color = AuraGold,
             fontFamily = AuraSerif,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Medium,
             fontSize = fontSize.sp,
-            letterSpacing = 1.sp,
+            letterSpacing = 1.5.sp,
+            maxLines = 1,
         )
         if (showMusicLabel) {
             Spacer(Modifier.height(2.dp))
@@ -131,21 +132,24 @@ fun AuraGlassPillButton(
     modifier: Modifier = Modifier,
     filled: Boolean = false,
     leadingIcon: Int? = null,
+    /** When true, button wraps content with side margins instead of full-bleed stretch. */
+    compact: Boolean = false,
 ) {
     val shape = RoundedCornerShape(28.dp)
     val bg = if (filled) AuraGold else AuraGlassFill
     val fg = if (filled) Color.Black else AuraGold
+    val widthMod = if (compact) Modifier else Modifier.fillMaxWidth()
     Row(
         modifier = modifier
-            .fillMaxWidth()
-            .height(54.dp)
+            .then(widthMod)
+            .height(if (compact) 48.dp else 50.dp)
             .clip(shape)
             .background(bg)
             .then(
                 if (!filled) Modifier.border(1.dp, AuraHairline, shape) else Modifier
             )
             .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = if (compact) 28.dp else 20.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -154,16 +158,17 @@ fun AuraGlassPillButton(
                 painter = painterResource(leadingIcon),
                 contentDescription = null,
                 tint = fg,
-                modifier = Modifier.size(20.dp),
+                modifier = Modifier.size(18.dp),
             )
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(8.dp))
         }
         Text(
             text = label,
             color = fg,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 16.sp,
+            fontSize = 15.sp,
             fontFamily = if (!filled) AuraSerif else FontFamily.Default,
+            maxLines = 1,
         )
     }
 }
