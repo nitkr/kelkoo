@@ -648,6 +648,7 @@ highlightKey: String? = null) {
                     NavigationTab.EXPLORE -> stringResource(R.string.explore)
                     NavigationTab.SEARCH -> stringResource(R.string.search)
                     NavigationTab.LIBRARY -> stringResource(R.string.filter_library)
+                    NavigationTab.PROFILE -> stringResource(R.string.account)
                 }
             }
         )
@@ -1802,6 +1803,7 @@ highlightKey: String? = null) {
                                 NavigationTab.EXPLORE -> stringResource(R.string.explore)
                                 NavigationTab.SEARCH -> stringResource(R.string.search)
                                 NavigationTab.LIBRARY -> stringResource(R.string.filter_library)
+                                NavigationTab.PROFILE -> stringResource(R.string.account)
                             }
                         )
                     },
@@ -2090,6 +2092,7 @@ enum class NavigationTab {
     EXPLORE,
     SEARCH,
     LIBRARY,
+    PROFILE,
 }
 
 enum class LyricsPosition {
