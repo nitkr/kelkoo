@@ -9,9 +9,9 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,15 +30,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -64,16 +59,27 @@ import app.kelkoo.music.constants.AppLanguageKey
 import app.kelkoo.music.constants.ContentCountryKey
 import app.kelkoo.music.constants.ContentLanguageKey
 import app.kelkoo.music.constants.ContentLanguagesKey
-import app.kelkoo.music.constants.CountryCodeToName
 import app.kelkoo.music.constants.OnboardingCompleteKey
-import app.kelkoo.music.ui.theme.DefaultThemeColor
+import app.kelkoo.music.ui.aura.AuraGlassCard
+import app.kelkoo.music.ui.aura.AuraGlassPillButton
+import app.kelkoo.music.ui.aura.AuraGold
+import app.kelkoo.music.ui.aura.AuraPageDots
+import app.kelkoo.music.ui.aura.AuraSerifTitle
+import app.kelkoo.music.ui.aura.AuraSonicIllustration
+import app.kelkoo.music.ui.aura.AuraSyncIllustration
+import app.kelkoo.music.ui.aura.AuraTextLink
+import app.kelkoo.music.ui.aura.AuraVoidBackground
+import app.kelkoo.music.ui.aura.AuraWaveform
+import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.utils.ContentLanguageSupport
-import app.kelkoo.music.utils.setAppLocale
 import app.kelkoo.music.utils.dataStore
+import app.kelkoo.music.utils.setAppLocale
 import com.music.innertube.YouTube
 import com.music.innertube.models.YouTubeLocale
 import java.util.Locale
 import kotlinx.coroutines.launch
+
+private const val PAGE_COUNT = 5
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -109,6 +115,9 @@ fun OnboardingScreen(
     }
     var mediaAllowed by remember { mutableStateOf(mediaGranted) }
 
+    // Soft "Location" preference for boards (region personalization) — no undeclared ACCESS_* permission.
+    var locationAllowed by remember { mutableStateOf(true) }
+
     val notificationLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted -> notificationsAllowed = granted }
@@ -127,7 +136,7 @@ fun OnboardingScreen(
                 prefs[ContentCountryKey] = selectedCountry
                 prefs[ContentLanguagesKey] = langs
                 prefs[ContentLanguageKey] = primary
-                // Keep app UI English for now; song-language prefs must not flip UI locale.
+                // English-first UI after onboarding
                 prefs[AppLanguageKey] = "en"
                 prefs[OnboardingCompleteKey] = true
             }
@@ -137,17 +146,23 @@ fun OnboardingScreen(
         }
     }
 
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color(0xFF121212),
-        contentColor = Color.White,
-    ) {
+    fun requestOutstandingPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !notificationsAllowed) {
+            notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            notificationsAllowed = true
+        }
+        if (!mediaAllowed) mediaLauncher.launch(mediaPermission)
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AuraVoidBackground(Modifier.fillMaxSize())
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 24.dp, vertical = 16.dp)
+                .padding(horizontal = 24.dp, vertical = 12.dp)
         ) {
             AnimatedContent(
                 targetState = page,
@@ -157,67 +172,67 @@ fun OnboardingScreen(
             ) { current ->
                 when (current) {
                     0 -> WelcomePage(onGetStarted = { page = 1 })
-                    1 -> PermissionsPage(
+                    1 -> SyncPage(onNext = { page = 2 })
+                    2 -> SonicProfilePage(
+                        onGetStarted = { page = 3 },
+                        onSkip = { page = 3 },
+                    )
+                    3 -> PermissionsPage(
+                        locationAllowed = locationAllowed,
                         notificationsAllowed = notificationsAllowed,
                         mediaAllowed = mediaAllowed,
-                        onAllowNotifications = {
+                        onToggleLocation = { locationAllowed = !locationAllowed },
+                        onToggleNotifications = {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                if (!notificationsAllowed) {
+                                    notificationLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                }
                             } else {
                                 notificationsAllowed = true
                             }
                         },
-                        onAllowMedia = { mediaLauncher.launch(mediaPermission) },
-                        onSkip = { page = 2 },
-                        onNext = { page = 2 },
+                        onToggleMedia = {
+                            if (!mediaAllowed) mediaLauncher.launch(mediaPermission)
+                        },
+                        onGrant = {
+                            requestOutstandingPermissions()
+                            page = 4
+                        },
+                        onMaybeLater = { page = 4 },
                     )
-                    2 -> CountryPage(
-                        selected = selectedCountry,
-                        showAll = showAllCountries,
-                        onShowAllChange = { showAllCountries = it },
-                        onSelect = { code ->
+                    else -> PreferencesPage(
+                        selectedCountry = selectedCountry,
+                        selectedLanguages = selectedLanguages,
+                        showAllCountries = showAllCountries,
+                        showAllLanguages = showAllLanguages,
+                        onShowAllCountries = { showAllCountries = it },
+                        onShowAllLanguages = { showAllLanguages = it },
+                        onSelectCountry = { code ->
                             selectedCountry = code
                             selectedLanguages =
                                 ContentLanguageSupport.defaultLanguagesForCountry(code)
                             showAllLanguages = false
                         },
-                        onNext = { page = 3 },
-                    )
-                    else -> LanguagesPage(
-                        country = selectedCountry,
-                        selected = selectedLanguages,
-                        showAll = showAllLanguages,
-                        onShowAllChange = { showAllLanguages = it },
-                        onToggle = { code ->
+                        onToggleLanguage = { code ->
                             selectedLanguages = selectedLanguages.toMutableSet().also { set ->
                                 if (!set.add(code)) {
                                     if (set.size > 1) set.remove(code)
                                 }
                             }
                         },
-                        onFinish = { completeOnboarding() },
+                        onSave = { completeOnboarding() },
+                        onChangeLater = { completeOnboarding() },
                     )
                 }
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                repeat(4) { index ->
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
-                            .size(if (index == page) 10.dp else 8.dp)
-                            .clip(CircleShape)
-                            .background(
-                                if (index == page) DefaultThemeColor
-                                else Color.White.copy(alpha = 0.25f)
-                            )
-                    )
-                }
+            if (page <= 1) {
+                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
+            } else if (page == 2) {
+                // Sonic has its own CTAs; still show dots for continuity
+                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
+            } else {
+                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
             }
         }
     }
@@ -228,322 +243,422 @@ private fun WelcomePage(onGetStarted: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
-        Image(
-            painter = painterResource(R.drawable.ic_launcher_nobg),
-            contentDescription = null,
-            modifier = Modifier
-                .size(112.dp)
-                .clip(RoundedCornerShape(28.dp))
-                .background(Color(0xFF1A1A1A))
-                .padding(16.dp),
-        )
+        Spacer(Modifier.height(24.dp))
+        AuraWordmark(showMusicLabel = false, fontSize = 20)
         Spacer(Modifier.height(28.dp))
         Text(
-            text = stringResource(R.string.welcome_to_kelkoo),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold,
+            text = "Welcome to",
+            color = Color.White.copy(alpha = 0.85f),
+            fontSize = 18.sp,
             textAlign = TextAlign.Center,
         )
+        Spacer(Modifier.height(6.dp))
+        AuraSerifTitle(
+            text = "KELKOO",
+            color = AuraGold,
+            fontSize = 40,
+            letterSpacing = 6f,
+        )
+        Spacer(Modifier.height(36.dp))
+        AuraWaveform(height = 88.dp)
         Spacer(Modifier.height(12.dp))
+        Icon(
+            painter = painterResource(R.drawable.music_note),
+            contentDescription = null,
+            tint = AuraGold,
+            modifier = Modifier.size(28.dp),
+        )
+        Spacer(Modifier.height(20.dp))
         Text(
             text = stringResource(R.string.onboarding_welcome_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
             color = Color.White.copy(alpha = 0.7f),
+            fontSize = 15.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 12.dp),
+        )
+        Spacer(Modifier.weight(1f))
+        AuraGlassPillButton(
+            label = stringResource(R.string.get_started),
+            onClick = onGetStarted,
+            filled = false,
+            leadingIcon = R.drawable.navigate_next,
+        )
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun SyncPage(onNext: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(16.dp))
+        AuraWordmark(showMusicLabel = true, fontSize = 20)
+        Spacer(Modifier.height(28.dp))
+        Text(
+            text = stringResource(R.string.onboarding_sync_title),
+            color = Color.White,
+            fontWeight = FontWeight.Bold,
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp),
+        )
+        Spacer(Modifier.height(28.dp))
+        AuraSyncIllustration()
+        Spacer(Modifier.height(20.dp))
+        Text(
+            text = stringResource(R.string.onboarding_sync_subtitle),
+            color = Color.White.copy(alpha = 0.65f),
+            fontSize = 15.sp,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(40.dp))
-        Button(
+        Spacer(Modifier.weight(1f))
+        AuraGlassPillButton(
+            label = stringResource(R.string.onboarding_next),
+            onClick = onNext,
+            filled = true,
+        )
+        Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun SonicProfilePage(
+    onGetStarted: () -> Unit,
+    onSkip: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Spacer(Modifier.height(16.dp))
+        AuraWordmark(showMusicLabel = true, fontSize = 20)
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = "Discover Your",
+            color = Color.White,
+            fontSize = 22.sp,
+            textAlign = TextAlign.Center,
+        )
+        AuraSerifTitle(
+            text = "Sonic Profile",
+            color = AuraGold,
+            fontSize = 32,
+        )
+        Spacer(Modifier.height(12.dp))
+        AuraSonicIllustration()
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = stringResource(R.string.onboarding_sonic_subtitle),
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp),
+        )
+        Spacer(Modifier.weight(1f))
+        AuraGlassPillButton(
+            label = stringResource(R.string.get_started),
             onClick = onGetStarted,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DefaultThemeColor,
-                contentColor = Color.Black,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(
-                text = stringResource(R.string.get_started),
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-            )
-        }
+            filled = false,
+            leadingIcon = R.drawable.music_note,
+        )
+        AuraTextLink(
+            label = stringResource(R.string.onboarding_sonic_skip) + " ›",
+            onClick = onSkip,
+        )
     }
 }
 
 @Composable
 private fun PermissionsPage(
+    locationAllowed: Boolean,
     notificationsAllowed: Boolean,
     mediaAllowed: Boolean,
-    onAllowNotifications: () -> Unit,
-    onAllowMedia: () -> Unit,
-    onSkip: () -> Unit,
-    onNext: () -> Unit,
+    onToggleLocation: () -> Unit,
+    onToggleNotifications: () -> Unit,
+    onToggleMedia: () -> Unit,
+    onGrant: () -> Unit,
+    onMaybeLater: () -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(24.dp))
-        Text(
+        Spacer(Modifier.height(8.dp))
+        AuraWordmark(showMusicLabel = true, fontSize = 18)
+        Spacer(Modifier.height(20.dp))
+        AuraSerifTitle(
             text = stringResource(R.string.onboarding_permissions_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-        )
-        Text(
-            text = stringResource(R.string.onboarding_permissions_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 28,
         )
         Spacer(Modifier.height(8.dp))
-        PermissionCard(
+        Text(
+            text = stringResource(R.string.onboarding_permissions_subtitle),
+            color = Color.White.copy(alpha = 0.7f),
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(20.dp))
+        PermissionToggleCard(
+            icon = R.drawable.location_on,
+            title = stringResource(R.string.permission_location_title),
+            description = stringResource(R.string.permission_location_desc),
+            checked = locationAllowed,
+            onCheckedChange = { onToggleLocation() },
+        )
+        Spacer(Modifier.height(12.dp))
+        PermissionToggleCard(
+            icon = R.drawable.notification,
             title = stringResource(R.string.permission_notifications_title),
             description = stringResource(R.string.permission_notifications_desc),
-            granted = notificationsAllowed,
-            onAllow = onAllowNotifications,
+            checked = notificationsAllowed,
+            onCheckedChange = { if (it) onToggleNotifications() },
         )
-        PermissionCard(
+        Spacer(Modifier.height(12.dp))
+        PermissionToggleCard(
+            icon = R.drawable.library_music,
             title = stringResource(R.string.permission_music_audio_title),
             description = stringResource(R.string.permission_music_audio_desc),
-            granted = mediaAllowed,
-            onAllow = onAllowMedia,
+            checked = mediaAllowed,
+            onCheckedChange = { if (it) onToggleMedia() },
         )
-        Spacer(Modifier.weight(1f))
-        Button(
-            onClick = onNext,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DefaultThemeColor,
-                contentColor = Color.Black,
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(stringResource(R.string.onboarding_next), fontWeight = FontWeight.SemiBold)
-        }
-        TextButton(
-            onClick = onSkip,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.not_now), color = Color.White.copy(alpha = 0.7f))
-        }
+        Spacer(Modifier.height(28.dp))
+        AuraGlassPillButton(
+            label = stringResource(R.string.onboarding_grant_access),
+            onClick = onGrant,
+            filled = true,
+        )
+        AuraTextLink(
+            label = stringResource(R.string.onboarding_maybe_later),
+            onClick = onMaybeLater,
+        )
     }
 }
 
 @Composable
-private fun PermissionCard(
+private fun PermissionToggleCard(
+    icon: Int,
     title: String,
     description: String,
-    granted: Boolean,
-    onAllow: () -> Unit,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color(0xFF1A1A1A))
-            .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(20.dp))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-        Text(description, color = Color.White.copy(alpha = 0.65f), style = MaterialTheme.typography.bodyMedium)
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (granted) {
-                Text(
-                    text = stringResource(R.string.permission_status_allowed),
-                    color = DefaultThemeColor,
-                    fontWeight = FontWeight.Medium,
+    AuraGlassCard {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .border(1.dp, AuraGold.copy(alpha = 0.6f), CircleShape)
+                    .clip(CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = null,
+                    tint = AuraGold,
+                    modifier = Modifier.size(22.dp),
                 )
-            } else {
-                Button(
-                    onClick = onAllow,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = DefaultThemeColor,
-                        contentColor = Color.Black,
-                    ),
-                    shape = RoundedCornerShape(12.dp),
-                ) {
-                    Text(stringResource(R.string.allow))
-                }
-                OutlinedButton(
-                    onClick = {},
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = false,
-                ) {
-                    Text(stringResource(R.string.not_now), color = Color.White.copy(alpha = 0.5f))
-                }
             }
+            Spacer(Modifier.size(14.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                Text(
+                    description,
+                    color = Color.White.copy(alpha = 0.6f),
+                    fontSize = 12.sp,
+                )
+            }
+            Switch(
+                checked = checked,
+                onCheckedChange = onCheckedChange,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.Black,
+                    checkedTrackColor = AuraGold,
+                    uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
+                    uncheckedTrackColor = Color.White.copy(alpha = 0.15f),
+                ),
+            )
         }
     }
 }
-
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun CountryPage(
-    selected: String,
-    showAll: Boolean,
-    onShowAllChange: (Boolean) -> Unit,
-    onSelect: (String) -> Unit,
-    onNext: () -> Unit,
+private fun PreferencesPage(
+    selectedCountry: String,
+    selectedLanguages: Set<String>,
+    showAllCountries: Boolean,
+    showAllLanguages: Boolean,
+    onShowAllCountries: (Boolean) -> Unit,
+    onShowAllLanguages: (Boolean) -> Unit,
+    onSelectCountry: (String) -> Unit,
+    onToggleLanguage: (String) -> Unit,
+    onSave: () -> Unit,
+    onChangeLater: () -> Unit,
 ) {
-    val countries = if (showAll) {
-        CountryCodeToName.keys.sortedBy { ContentLanguageSupport.countryName(it) }
+    val countries = if (showAllCountries) {
+        ContentLanguageSupport.popularCountries +
+            app.kelkoo.music.constants.CountryCodeToName.keys
+                .filter { it !in ContentLanguageSupport.popularCountries }
+                .sortedBy { ContentLanguageSupport.countryName(it) }
     } else {
         ContentLanguageSupport.popularCountries
     }
+    val languageCodes = if (showAllLanguages) {
+        ContentLanguageSupport.allLanguageCodes()
+    } else {
+        ContentLanguageSupport.suggestedLanguages(selectedCountry)
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(24.dp))
-        Text(
-            text = stringResource(R.string.onboarding_country_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
+        Spacer(Modifier.height(8.dp))
+        AuraWordmark(showMusicLabel = true, fontSize = 18)
+        Spacer(Modifier.height(16.dp))
+        Icon(
+            painter = painterResource(R.drawable.globe),
+            contentDescription = null,
+            tint = AuraGold,
+            modifier = Modifier.size(72.dp),
         )
+        Spacer(Modifier.height(16.dp))
+        AuraSerifTitle(
+            text = stringResource(R.string.onboarding_preferences_title),
+            color = AuraGold,
+            fontSize = 26,
+        )
+        Spacer(Modifier.height(20.dp))
+
         Text(
-            text = stringResource(R.string.onboarding_country_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f),
+            text = stringResource(R.string.onboarding_preferences_region),
+            color = AuraGold.copy(alpha = 0.85f),
+            fontSize = 12.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 6.dp),
+        )
+        val regionShape = RoundedCornerShape(28.dp)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(regionShape)
+                .background(Color(0xFF1A1A1A).copy(alpha = 0.7f))
+                .border(1.dp, AuraGold.copy(alpha = 0.45f), regionShape)
+                .clickable { onShowAllCountries(!showAllCountries) }
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.location_on),
+                contentDescription = null,
+                tint = AuraGold,
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.size(10.dp))
+            Text(
+                text = ContentLanguageSupport.countryName(selectedCountry),
+                color = Color.White,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.weight(1f),
+            )
+            Icon(
+                painter = painterResource(R.drawable.arrow_downward),
+                contentDescription = null,
+                tint = AuraGold,
+                modifier = Modifier.size(18.dp),
+            )
+        }
+        if (showAllCountries) {
+            Spacer(Modifier.height(10.dp))
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                countries.forEach { code ->
+                    PreferenceChip(
+                        label = ContentLanguageSupport.countryName(code),
+                        selected = code == selectedCountry,
+                        onClick = { onSelectCountry(code) },
+                    )
+                }
+            }
+        }
+
+        Spacer(Modifier.height(18.dp))
+        Text(
+            text = stringResource(R.string.onboarding_preferences_language),
+            color = AuraGold.copy(alpha = 0.85f),
+            fontSize = 12.sp,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 6.dp),
         )
         FlowRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            countries.forEach { code ->
-                val isSelected = code == selected
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { onSelect(code) },
-                    label = { Text(ContentLanguageSupport.countryName(code)) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = DefaultThemeColor,
-                        selectedLabelColor = Color.Black,
-                        containerColor = Color(0xFF242424),
-                        labelColor = Color.White,
-                    ),
+            languageCodes.forEach { code ->
+                PreferenceChip(
+                    label = ContentLanguageSupport.languageLabel(code),
+                    selected = code in selectedLanguages,
+                    onClick = { onToggleLanguage(code) },
                 )
             }
         }
-        TextButton(onClick = { onShowAllChange(!showAll) }) {
-            Text(
-                text = stringResource(
-                    if (showAll) R.string.onboarding_popular_countries
-                    else R.string.onboarding_more_countries
-                ),
-                color = DefaultThemeColor,
-            )
-        }
-        Spacer(Modifier.height(16.dp))
-        Button(
-            onClick = onNext,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DefaultThemeColor,
-                contentColor = Color.Black,
+        AuraTextLink(
+            label = stringResource(
+                if (showAllLanguages) R.string.onboarding_show_suggested_languages
+                else R.string.onboarding_show_all_languages
             ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(stringResource(R.string.onboarding_next), fontWeight = FontWeight.SemiBold)
-        }
+            onClick = { onShowAllLanguages(!showAllLanguages) },
+        )
+
+        Spacer(Modifier.height(20.dp))
+        AuraGlassPillButton(
+            label = stringResource(R.string.onboarding_save_preferences),
+            onClick = onSave,
+            filled = false,
+            leadingIcon = R.drawable.music_note,
+        )
+        AuraTextLink(
+            label = stringResource(R.string.onboarding_change_later),
+            onClick = onChangeLater,
+        )
+        Spacer(Modifier.height(8.dp))
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun LanguagesPage(
-    country: String,
-    selected: Set<String>,
-    showAll: Boolean,
-    onShowAllChange: (Boolean) -> Unit,
-    onToggle: (String) -> Unit,
-    onFinish: () -> Unit,
+private fun PreferenceChip(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
 ) {
-    val codes = if (showAll) {
-        ContentLanguageSupport.allLanguageCodes()
-    } else {
-        ContentLanguageSupport.suggestedLanguages(country)
-    }
-
-    Column(
+    val shape = RoundedCornerShape(22.dp)
+    Box(
         modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .clip(shape)
+            .background(if (selected) AuraGold else Color.Transparent)
+            .border(1.dp, AuraGold.copy(alpha = 0.7f), shape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
-        Spacer(Modifier.height(24.dp))
         Text(
-            text = stringResource(R.string.onboarding_languages_title),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
+            text = label,
+            color = if (selected) Color.Black else AuraGold,
+            fontWeight = FontWeight.Medium,
+            fontSize = 14.sp,
         )
-        Text(
-            text = stringResource(R.string.onboarding_languages_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f),
-        )
-        Text(
-            text = ContentLanguageSupport.countryName(country),
-            style = MaterialTheme.typography.labelLarge,
-            color = DefaultThemeColor,
-        )
-        FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            codes.forEach { code ->
-                val isSelected = code in selected
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { onToggle(code) },
-                    label = { Text(ContentLanguageSupport.languageLabel(code)) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = DefaultThemeColor,
-                        selectedLabelColor = Color.Black,
-                        containerColor = Color(0xFF242424),
-                        labelColor = Color.White,
-                    ),
-                )
-            }
-        }
-        TextButton(onClick = { onShowAllChange(!showAll) }) {
-            Text(
-                text = stringResource(
-                    if (showAll) R.string.onboarding_show_suggested_languages
-                    else R.string.onboarding_show_all_languages
-                ),
-                color = DefaultThemeColor,
-            )
-        }
-        Spacer(Modifier.height(24.dp))
-        Button(
-            onClick = onFinish,
-            enabled = selected.isNotEmpty(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = DefaultThemeColor,
-                contentColor = Color.Black,
-                disabledContainerColor = Color(0xFF333333),
-                disabledContentColor = Color.White.copy(alpha = 0.4f),
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Text(stringResource(R.string.onboarding_finish), fontWeight = FontWeight.SemiBold)
-        }
     }
 }

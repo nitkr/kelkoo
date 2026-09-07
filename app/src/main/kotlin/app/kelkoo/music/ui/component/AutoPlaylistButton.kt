@@ -1,5 +1,6 @@
 package app.kelkoo.music.ui.component
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import app.kelkoo.music.ui.theme.DefaultThemeColor
 
 @Composable
 fun AutoPlaylistButton(
@@ -25,29 +27,34 @@ fun AutoPlaylistButton(
     icon: Int,
     iconTint: Color,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
 ) {
+    val gold = DefaultThemeColor
+    val shape = RoundedCornerShape(22.dp)
     Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-        modifier = modifier.clickable(onClick = onClick)
+        shape = shape,
+        color = if (selected) gold else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        modifier = modifier
+            .border(1.dp, gold.copy(alpha = if (selected) 1f else 0.45f), shape)
+            .clickable(onClick = onClick)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Icon(
                 painter = painterResource(id = icon),
                 contentDescription = null,
-                tint = iconTint,
-                modifier = Modifier.size(24.dp)
+                tint = if (selected) Color.Black else iconTint.takeIf { it != Color.Unspecified } ?: gold,
+                modifier = Modifier.size(20.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = if (selected) Color.Black else gold
             )
         }
     }
