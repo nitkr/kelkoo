@@ -204,6 +204,8 @@ import app.kelkoo.music.ui.component.WavySlider
 import app.kelkoo.music.ui.component.rememberBottomSheetState
 import app.kelkoo.music.ui.menu.OldPlayerMenu
 import app.kelkoo.music.ui.menu.PlayerMenu
+import app.kelkoo.music.ui.menu.AddToPlaylistDialog
+import com.music.innertube.YouTube
 import app.kelkoo.music.ui.component.VolumeSlider
 import app.kelkoo.music.ui.screens.settings.DarkMode
 import app.kelkoo.music.ui.theme.PlayerColorExtractor
@@ -883,6 +885,22 @@ fun BottomSheetPlayer(
     var showChoosePlaylistDialog by rememberSaveable {
         mutableStateOf(false)
     }
+    val playlistDialogScope = rememberCoroutineScope()
+
+    AddToPlaylistDialog(
+        isVisible = showChoosePlaylistDialog,
+        onGetSong = { playlist ->
+            val meta = mediaMetadata ?: return@AddToPlaylistDialog emptyList()
+            database.transaction {
+                insert(meta)
+            }
+            playlistDialogScope.launch(Dispatchers.IO) {
+                playlist.playlist.browseId?.let { YouTube.addToPlaylist(it, meta.id) }
+            }
+            listOf(meta.id)
+        },
+        onDismiss = { showChoosePlaylistDialog = false },
+    )
 
     var showInlineLyrics by rememberSaveable {
         mutableStateOf(false)
@@ -2858,6 +2876,8 @@ fun BottomSheetPlayer(
                                         navController.navigate("equalizer")
                                         state.collapseSoft()
                                     },
+                                    onAddToPlaylist = { showChoosePlaylistDialog = true },
+                                    onMinimize = { state.collapseSoft() },
                                     modifier = Modifier.fillMaxSize(),
                                 )
                             }
@@ -2982,6 +3002,8 @@ fun BottomSheetPlayer(
                                         navController.navigate("equalizer")
                                         state.collapseSoft()
                                     },
+                                    onAddToPlaylist = { showChoosePlaylistDialog = true },
+                                    onMinimize = { state.collapseSoft() },
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .nestedScroll(state.preUpPostDownNestedScrollConnection),

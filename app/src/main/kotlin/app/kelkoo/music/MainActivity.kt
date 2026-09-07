@@ -67,7 +67,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -898,22 +897,18 @@ class MainActivity : ComponentActivity() {
                     onDispose { removeOnNewIntentListener(listener) }
                 }
 
+                // Main tabs own a page H1 — keep global top bar actions-only (no duplicate titles).
                 val currentTitle = when (navBackStackEntry?.destination?.route) {
-                    Screens.Home.route, Screens.Explore.route -> stringResource(R.string.app_name)
+                    Screens.Home.route,
+                    Screens.Explore.route,
+                    Screens.Library.route,
+                    Screens.Profile.route -> ""
                     Screens.Search.route -> stringResource(R.string.search)
-                    Screens.Library.route -> stringResource(R.string.filter_library)
-                    Screens.Profile.route -> stringResource(R.string.account)
                     Screens.ListenTogether.route -> stringResource(R.string.together)
                     else -> ""
                 }
 
 
-
-                val pauseListenHistory by rememberPreference(PauseListenHistoryKey, defaultValue = false)
-                val eventCount by database.eventCount().collectAsState(initial = 0)
-                val showHistoryButton = remember(pauseListenHistory, eventCount) {
-                    !(pauseListenHistory && eventCount == 0)
-                }
 
                 val (liquidGlassGlobalEnabled) = rememberPreference(LiquidGlassGlobalEnabledKey, defaultValue = false)
                 val (liquidGlassVibrancy) = rememberPreference(LiquidGlassVibrancyKey, defaultValue = 1f)
@@ -995,7 +990,8 @@ class MainActivity : ComponentActivity() {
                                             )
                                         },
                                         actions = {
-                                            // Search remains reachable from top bar (not a bottom tab in Aura Phase 1)
+                                            // Aura chrome: max TWO global icons — Search + Settings.
+                                            // History / Trending / People live on Explore & Account.
                                             IconButton(onClick = {
                                                 navController.navigate(Screens.Search.route) {
                                                     launchSingleTop = true
@@ -1006,46 +1002,12 @@ class MainActivity : ComponentActivity() {
                                                     contentDescription = stringResource(R.string.search)
                                                 )
                                             }
-                                            if (showHistoryButton) {
-                                                IconButton(onClick = { navController.navigate("history") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.music_history),
-                                                        contentDescription = stringResource(R.string.history)
-                                                    )
-                                                }
-                                            }
-                                            IconButton(onClick = { navController.navigate("stats") }) {
+                                            IconButton(onClick = { showSettingDialoge = true }) {
                                                 Icon(
-                                                    painter = painterResource(R.drawable.stats),
-                                                    contentDescription = stringResource(R.string.stats)
+                                                    painter = painterResource(R.drawable.settings),
+                                                    contentDescription = stringResource(R.string.settings),
+                                                    modifier = Modifier.size(24.dp)
                                                 )
-                                            }
-                                            if (listenTogetherInTopBar) {
-                                                IconButton(onClick = { navController.navigate("listen_together_from_topbar") }) {
-                                                    Icon(
-                                                        painter = painterResource(R.drawable.group_outlined),
-                                                        contentDescription = stringResource(R.string.together)
-                                                    )
-                                                }
-                                            }
-                                             IconButton(onClick = { showSettingDialoge = true }) {
-                                                BadgedBox(badge = {}) {
-                                                    if (accountImageUrl != null) {
-                                                        AsyncImage(
-                                                            model = accountImageUrl,
-                                                            contentDescription = stringResource(R.string.account),
-                                                            modifier = Modifier
-                                                                .size(24.dp)
-                                                                .clip(CircleShape)
-                                                        )
-                                                     } else {
-                                                         Icon(
-                                                             painter = painterResource(R.drawable.settings),
-                                                             contentDescription = stringResource(R.string.account),
-                                                             modifier = Modifier.size(24.dp)
-                                                         )
-                                                     }
-                                                }
                                             }
                                         },
                                         scrollBehavior = topAppBarScrollBehavior,
