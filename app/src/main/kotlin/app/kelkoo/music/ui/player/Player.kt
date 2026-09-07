@@ -322,7 +322,7 @@ fun BottomSheetPlayer(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xFF121212)),
+                .background(Color(0xFF0F0F0F)),
             contentAlignment = Alignment.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -960,7 +960,7 @@ fun BottomSheetPlayer(
     )
 
     val bottomSheetBackgroundColor = when {
-        useHighwayHalo -> Color(0xFF121212) // Drive Night charcoal — strip rainbow NP chrome
+        useHighwayHalo -> Color(0xFF0F0F0F) // Aura cinematic charcoal — strip rainbow NP chrome
         isLocalMedia -> Color.Black
         playerBackground in listOf(PlayerBackgroundStyle.BLUR, PlayerBackgroundStyle.GRADIENT, PlayerBackgroundStyle.GLOW_ANIMATED, PlayerBackgroundStyle.APPLE_MUSIC) ->
             MaterialTheme.colorScheme.surfaceContainer

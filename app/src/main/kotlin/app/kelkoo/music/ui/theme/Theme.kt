@@ -24,7 +24,7 @@ import com.materialkolor.dynamiccolor.ColorSpec
 import com.materialkolor.rememberDynamicColorScheme
 import com.materialkolor.score.Score
 
-val DefaultThemeColor = Color(0xFFE8A838) // Drive Night amber
+val DefaultThemeColor = Color(0xFFD4AF37) // Aura gold primary chrome
 
 @Composable
 fun echomusicTheme(
@@ -58,16 +58,16 @@ fun echomusicTheme(
         } else {
             baseColorScheme
         }
-        // Drive Night: deep charcoal surfaces in dark mode
+        // Aura Phase 1: cinematic charcoal surfaces
         if (darkTheme) {
             scheme.copy(
-                background = Color(0xFF121212),
-                surface = Color(0xFF1A1A1A),
-                surfaceContainer = Color(0xFF242424),
-                surfaceContainerHigh = Color(0xFF2A2A2A),
-                surfaceContainerHighest = Color(0xFF303030),
-                surfaceContainerLow = Color(0xFF1E1E1E),
-                surfaceContainerLowest = Color(0xFF161616),
+                background = Color(0xFF0F0F0F),
+                surface = Color(0xFF141414),
+                surfaceContainer = Color(0xFF1A1A1A),
+                surfaceContainerHigh = Color(0xFF222222),
+                surfaceContainerHighest = Color(0xFF2A2A2A),
+                surfaceContainerLow = Color(0xFF161616),
+                surfaceContainerLowest = Color(0xFF121212),
             )
         } else {
             scheme

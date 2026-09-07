@@ -49,7 +49,17 @@ sealed class Screens(
         route = "library"
     )
 
+    /** Aura Phase 1 Profile tab — Account screen; Dial is NOT a tab. */
+    object Profile : Screens(
+        titleId = R.string.account,
+        iconIdInactive = R.drawable.person,
+        iconIdActive = R.drawable.person,
+        route = "account"
+    )
+
     companion object {
-        val MainScreens = listOf(Home, Explore, Search, Library) // Hybrid UX: Home | Explore | Search | Library
+        // Aura Phase 1 glass nav: Home | Explore | Library | Profile
+        // Search remains reachable from Explore / top bar (Screens.Search).
+        val MainScreens = listOf(Home, Explore, Library, Profile)
     }
 }

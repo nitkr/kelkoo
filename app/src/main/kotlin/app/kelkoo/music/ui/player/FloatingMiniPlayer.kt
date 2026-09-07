@@ -251,8 +251,8 @@ fun FloatingMiniPlayer(
                 Icon(
                     painter = painterResource(if (isPlaying) R.drawable.pause else R.drawable.play),
                     contentDescription = null,
-                    // Highway Halo: amber glyph while playing
-                    tint = if (isPlaying) Color(0xFFE8A838) else contentColor,
+                    // Aura: gold glyph while playing
+                    tint = if (isPlaying) Color(0xFFD4AF37) else contentColor,
                 )
             }
 
