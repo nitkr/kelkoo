@@ -604,20 +604,24 @@ private fun PreferencesPage(
             horizontalAlignment = Alignment.Start,
         ) {
             Spacer(Modifier.height(12.dp))
+            // Shared leading edge: globe left = title = Region "R" = dropdown border.
             Icon(
                 painter = painterResource(R.drawable.globe),
                 contentDescription = null,
                 tint = AuraGold,
-                modifier = Modifier.size(40.dp),
+                modifier = Modifier
+                    .size(40.dp)
+                    .align(Alignment.Start),
             )
             Spacer(Modifier.height(10.dp))
-            // Left-aligned with Region/Language labels and dropdown leading edge.
             AuraReadableTitle(
                 text = "Choose your\npreferences",
                 color = Color.White,
                 fontSize = 26,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.Start),
             )
             Spacer(Modifier.height(20.dp))
 
@@ -627,6 +631,7 @@ private fun PreferencesPage(
                 fontSize = 12.sp,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .align(Alignment.Start)
                     .padding(bottom = 6.dp),
             )
             val regionShape = RoundedCornerShape(28.dp)
@@ -677,6 +682,7 @@ private fun PreferencesPage(
                 fontSize = 12.sp,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .align(Alignment.Start)
                     .padding(bottom = 6.dp),
             )
             PreferenceChipGrid(
@@ -685,15 +691,16 @@ private fun PreferencesPage(
                 onClick = { idx -> onToggleLanguage(languageCodes[idx]) },
                 columns = 3,
             )
-            // Breathing room under chip grid before show-all link.
-            Spacer(Modifier.height(14.dp))
+            // ~20dp under language chip grid so "Show all languages" is not cramped.
+            Spacer(Modifier.height(20.dp))
             AuraTextLink(
                 label = stringResource(
                     if (showAllLanguages) R.string.onboarding_show_suggested_languages
                     else R.string.onboarding_show_all_languages
                 ),
                 onClick = { onShowAllLanguages(!showAllLanguages) },
-                modifier = Modifier.padding(start = 0.dp),
+                flushStart = true,
+                modifier = Modifier.align(Alignment.Start),
             )
             Spacer(Modifier.height(8.dp))
         }

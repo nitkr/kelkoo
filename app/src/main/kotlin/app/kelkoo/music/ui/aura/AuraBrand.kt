@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -214,8 +217,22 @@ fun AuraTextLink(
     label: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** When true, strip TextButton start inset so label snaps to the shared leading edge. */
+    flushStart: Boolean = false,
 ) {
-    TextButton(onClick = onClick, modifier = modifier) {
+    TextButton(
+        onClick = onClick,
+        modifier = if (flushStart) {
+            modifier.defaultMinSize(minWidth = 0.dp, minHeight = 0.dp)
+        } else {
+            modifier
+        },
+        contentPadding = if (flushStart) {
+            PaddingValues(0.dp)
+        } else {
+            ButtonDefaults.TextButtonContentPadding
+        },
+    ) {
         Text(text = label, color = AuraGold.copy(alpha = 0.9f), fontSize = 14.sp)
     }
 }
