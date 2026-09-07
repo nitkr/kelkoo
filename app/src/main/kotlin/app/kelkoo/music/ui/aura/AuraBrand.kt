@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -108,6 +109,7 @@ fun AuraReadableTitle(
     color: Color = Color.White,
     fontSize: Int = 26,
     fontWeight: FontWeight = FontWeight.SemiBold,
+    textAlign: TextAlign = TextAlign.Center,
 ) {
     Text(
         text = text,
@@ -117,7 +119,7 @@ fun AuraReadableTitle(
         fontWeight = fontWeight,
         fontSize = fontSize.sp,
         letterSpacing = 0.sp,
-        textAlign = TextAlign.Center,
+        textAlign = textAlign,
         lineHeight = (fontSize + 6).sp,
     )
 }
@@ -235,6 +237,40 @@ fun AuraGlassCard(
     }
 }
 
+
+/**
+ * Shared P1/P2 rhythm: hero cluster vertically centered in the space above a
+ * fixed bottom CTA slot (thumb-consistent with Welcome Get Started).
+ * Does not alter scroll-heavy P3–P5 pages.
+ */
+@Composable
+fun AuraBottomAnchoredHero(
+    modifier: Modifier = Modifier,
+    cta: @Composable () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                content()
+            }
+        }
+        cta()
+        Spacer(Modifier.height(4.dp))
+    }
+}
+
 /** Gold waveform illustration for Welcome / Sync / Sonic screens. */
 @Composable
 fun AuraWaveform(
@@ -266,60 +302,121 @@ fun AuraWaveform(
     }
 }
 
-/** Phone ↔ car sync line-art (Compose approximation). */
+/** Phone ↔ car sync — refined modern outline icons, Aura gold stroke. */
 @Composable
 fun AuraSyncIllustration(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier.fillMaxWidth().height(150.dp)) {
+    Canvas(modifier = modifier.fillMaxWidth().height(156.dp)) {
         val gold = AuraGold
-        val stroke = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
-        // Phone
-        val phoneL = size.width * 0.12f
-        val phoneT = size.height * 0.18f
-        val phoneW = size.width * 0.18f
-        val phoneH = size.height * 0.64f
+        val strokeThin = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round)
+        val stroke = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        val strokeBold = Stroke(width = 3.4.dp.toPx(), cap = StrokeCap.Round)
+
+        // —— Phone (left): modern rounded device with speaker + screen ——
+        val phoneW = size.width * 0.16f
+        val phoneH = size.height * 0.72f
+        val phoneL = size.width * 0.10f
+        val phoneT = (size.height - phoneH) / 2f
+        val phoneRadius = 14.dp.toPx()
         drawRoundRect(
             color = gold,
             topLeft = Offset(phoneL, phoneT),
             size = androidx.compose.ui.geometry.Size(phoneW, phoneH),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx()),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(phoneRadius),
             style = stroke,
         )
-        // Car body (simplified)
-        val carL = size.width * 0.62f
-        val carPath = Path().apply {
-            moveTo(carL, size.height * 0.55f)
-            lineTo(carL + size.width * 0.08f, size.height * 0.35f)
-            lineTo(carL + size.width * 0.22f, size.height * 0.35f)
-            lineTo(carL + size.width * 0.28f, size.height * 0.55f)
+        // Speaker pill
+        val speakerW = phoneW * 0.34f
+        drawRoundRect(
+            color = gold.copy(alpha = 0.85f),
+            topLeft = Offset(phoneL + (phoneW - speakerW) / 2f, phoneT + phoneH * 0.08f),
+            size = androidx.compose.ui.geometry.Size(speakerW, 4.dp.toPx()),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(2.dp.toPx()),
+            style = Stroke(width = 1.6.dp.toPx(), cap = StrokeCap.Round),
+        )
+        // Inner screen
+        val inset = 7.dp.toPx()
+        drawRoundRect(
+            color = gold.copy(alpha = 0.55f),
+            topLeft = Offset(phoneL + inset, phoneT + phoneH * 0.16f),
+            size = androidx.compose.ui.geometry.Size(phoneW - inset * 2f, phoneH * 0.68f),
+            cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx()),
+            style = strokeThin,
+        )
+
+        // —— Car (right): recognizable side-profile silhouette ——
+        val carL = size.width * 0.58f
+        val carR = size.width * 0.90f
+        val groundY = size.height * 0.72f
+        val bodyY = size.height * 0.52f
+        val roofY = size.height * 0.28f
+        val wheelR = 9.dp.toPx()
+
+        val carBody = Path().apply {
+            // Bumper → hood → windshield → roof → rear → bumper
+            moveTo(carL, bodyY)
+            lineTo(carL + (carR - carL) * 0.12f, bodyY)
+            lineTo(carL + (carR - carL) * 0.28f, roofY)
+            lineTo(carL + (carR - carL) * 0.72f, roofY)
+            lineTo(carL + (carR - carL) * 0.88f, bodyY)
+            lineTo(carR, bodyY)
+            lineTo(carR, groundY - wheelR * 0.35f)
+            lineTo(carL, groundY - wheelR * 0.35f)
             close()
         }
-        drawPath(carPath, gold, style = stroke)
-        drawCircle(gold, radius = 8.dp.toPx(), center = Offset(carL + size.width * 0.08f, size.height * 0.62f), style = stroke)
-        drawCircle(gold, radius = 8.dp.toPx(), center = Offset(carL + size.width * 0.22f, size.height * 0.62f), style = stroke)
-        // Wave between
-        val midY = size.height * 0.5f
-        val path = Path()
-        val startX = phoneL + phoneW + 8.dp.toPx()
-        val endX = carL - 8.dp.toPx()
-        path.moveTo(startX, midY)
-        var x = startX
-        var up = true
-        while (x < endX) {
-            val next = (x + 14.dp.toPx()).coerceAtMost(endX)
-            path.quadraticTo(
-                (x + next) / 2f,
-                midY + if (up) -18.dp.toPx() else 18.dp.toPx(),
-                next,
-                midY,
-            )
-            x = next
-            up = !up
+        drawPath(carBody, gold, style = strokeBold)
+        // Cabin window
+        val win = Path().apply {
+            moveTo(carL + (carR - carL) * 0.32f, bodyY - 4.dp.toPx())
+            lineTo(carL + (carR - carL) * 0.38f, roofY + 8.dp.toPx())
+            lineTo(carL + (carR - carL) * 0.68f, roofY + 8.dp.toPx())
+            lineTo(carL + (carR - carL) * 0.78f, bodyY - 4.dp.toPx())
+            close()
         }
-        drawPath(path, gold.copy(alpha = 0.95f), style = Stroke(width = 3.5.dp.toPx(), cap = StrokeCap.Round))
+        drawPath(win, gold.copy(alpha = 0.7f), style = strokeThin)
+        // Wheels
+        val wheelY = groundY
+        val frontWheelX = carL + (carR - carL) * 0.26f
+        val rearWheelX = carL + (carR - carL) * 0.74f
+        drawCircle(gold, radius = wheelR, center = Offset(frontWheelX, wheelY), style = stroke)
+        drawCircle(gold, radius = wheelR * 0.42f, center = Offset(frontWheelX, wheelY), style = strokeThin)
+        drawCircle(gold, radius = wheelR, center = Offset(rearWheelX, wheelY), style = stroke)
+        drawCircle(gold, radius = wheelR * 0.42f, center = Offset(rearWheelX, wheelY), style = strokeThin)
+
+        // —— Center: smooth dual sync arrows (cycle) ——
+        val cx = size.width * 0.455f
+        val cy = size.height * 0.42f
+        val r = 18.dp.toPx()
+        // Top arc → rightward
+        drawArc(
+            color = gold,
+            startAngle = 200f,
+            sweepAngle = 140f,
+            useCenter = false,
+            topLeft = Offset(cx - r, cy - r),
+            size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
+            style = Stroke(width = 2.8.dp.toPx(), cap = StrokeCap.Round),
+        )
+        // Bottom arc → leftward
+        drawArc(
+            color = gold,
+            startAngle = 20f,
+            sweepAngle = 140f,
+            useCenter = false,
+            topLeft = Offset(cx - r, cy - r),
+            size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
+            style = Stroke(width = 2.8.dp.toPx(), cap = StrokeCap.Round),
+        )
+        // Arrowheads
+        val tipTop = Offset(cx + r * 0.72f, cy - r * 0.55f)
+        drawLine(gold, tipTop, Offset(tipTop.x - 7.dp.toPx(), tipTop.y - 5.dp.toPx()), strokeWidth = 2.8.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(gold, tipTop, Offset(tipTop.x - 7.dp.toPx(), tipTop.y + 5.dp.toPx()), strokeWidth = 2.8.dp.toPx(), cap = StrokeCap.Round)
+        val tipBot = Offset(cx - r * 0.72f, cy + r * 0.55f)
+        drawLine(gold, tipBot, Offset(tipBot.x + 7.dp.toPx(), tipBot.y - 5.dp.toPx()), strokeWidth = 2.8.dp.toPx(), cap = StrokeCap.Round)
+        drawLine(gold, tipBot, Offset(tipBot.x + 7.dp.toPx(), tipBot.y + 5.dp.toPx()), strokeWidth = 2.8.dp.toPx(), cap = StrokeCap.Round)
     }
 }
 
-/** Head + waves sonic profile illustration. */
+/** Head + waves sonic profile — symmetric arcs left and right of centered oval. */
 @Composable
 fun AuraSonicIllustration(
     modifier: Modifier = Modifier,
@@ -327,30 +424,39 @@ fun AuraSonicIllustration(
 ) {
     Canvas(modifier = modifier.fillMaxWidth().height(height)) {
         val gold = AuraGold
-        val cx = size.width * 0.42f
+        val cx = size.width * 0.5f
         val cy = size.height * 0.5f
-        // Head profile oval
+        val ovalW = 70.dp.toPx()
+        val ovalH = 110.dp.toPx()
         drawOval(
             color = gold,
-            topLeft = Offset(cx - 40.dp.toPx(), cy - 55.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(70.dp.toPx(), 110.dp.toPx()),
+            topLeft = Offset(cx - ovalW / 2f, cy - ovalH / 2f),
+            size = androidx.compose.ui.geometry.Size(ovalW, ovalH),
             style = Stroke(width = 2.5.dp.toPx()),
         )
-        // Concentric arcs (sound)
         for (i in 1..4) {
-            val r = 50.dp.toPx() + i * 18.dp.toPx()
+            val r = 48.dp.toPx() + i * 16.dp.toPx()
+            val alpha = 0.75f - i * 0.12f
             drawArc(
-                color = gold.copy(alpha = 0.75f - i * 0.12f),
+                color = gold.copy(alpha = alpha),
                 startAngle = -55f,
                 sweepAngle = 110f,
                 useCenter = false,
-                topLeft = Offset(cx - r * 0.2f, cy - r),
+                topLeft = Offset(cx - r * 0.15f, cy - r),
+                size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
+                style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round),
+            )
+            drawArc(
+                color = gold.copy(alpha = alpha),
+                startAngle = 125f,
+                sweepAngle = 110f,
+                useCenter = false,
+                topLeft = Offset(cx - r * 1.85f, cy - r),
                 size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
                 style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round),
             )
         }
-        // Mini waveform inside head
-        val wx = cx - 10.dp.toPx()
+        val wx = cx - 15.dp.toPx()
         for (i in 0 until 7) {
             val h = (8 + (i % 4) * 6).dp.toPx()
             drawLine(

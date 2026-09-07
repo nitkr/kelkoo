@@ -3,10 +3,10 @@
     <!-- Aura Phase 2 onboarding — display wordmark Kelkoo / kelkoo / KELKOO -->
     <string name="welcome_to_kelkoo">Welcome to KELKOO</string>
     <string name="onboarding_welcome_subtitle">Your curated music, ready for every journey.</string>
-    <string name="onboarding_sync_title">Seamlessly Sync to Phone and Car</string>
+    <string name="onboarding_sync_title">Sync Between Phone and Car</string>
     <string name="onboarding_sync_subtitle">Enjoy your music from driveway to highway.</string>
     <string name="onboarding_sonic_title">Discover Your Sonic Profile</string>
-    <string name="onboarding_sonic_subtitle">Unlock music that matches your unique taste and vibe.</string>
+    <string name="onboarding_sonic_subtitle">Unlock music that perfectly matches your vibe.</string>
     <string name="onboarding_sonic_skip">Skip for now</string>
     <string name="onboarding_permissions_title">Enable Your Journey</string>
     <string name="onboarding_permissions_subtitle">We need a few permissions to power your curated experience.</string>
