@@ -69,13 +69,13 @@ import app.kelkoo.music.ui.aura.AuraGlassCard
 import app.kelkoo.music.ui.aura.AuraGlassPillButton
 import app.kelkoo.music.ui.aura.AuraGold
 import app.kelkoo.music.ui.aura.AuraPageDots
+import app.kelkoo.music.ui.aura.AuraReadableTitle
 import app.kelkoo.music.ui.aura.AuraSerifTitle
 import app.kelkoo.music.ui.aura.AuraSonicIllustration
 import app.kelkoo.music.ui.aura.AuraSyncIllustration
 import app.kelkoo.music.ui.aura.AuraTextLink
 import app.kelkoo.music.ui.aura.AuraVoidBackground
 import app.kelkoo.music.ui.aura.AuraWaveform
-import app.kelkoo.music.ui.aura.AuraWordmark
 import app.kelkoo.music.utils.ContentLanguageSupport
 import app.kelkoo.music.utils.dataStore
 import app.kelkoo.music.utils.setAppLocale
@@ -121,7 +121,7 @@ fun OnboardingScreen(
     var mediaAllowed by remember { mutableStateOf(mediaGranted) }
 
     // Soft "Location" preference for boards (region personalization) — no undeclared ACCESS_* permission.
-    var locationAllowed by remember { mutableStateOf(true) }
+    var locationAllowed by remember { mutableStateOf(false) }
     var sonicMoods by remember { mutableStateOf(setOf<String>()) }
     var locationFocus by remember { mutableStateOf("metro") } // metro | city | travel
 
@@ -244,14 +244,12 @@ fun OnboardingScreen(
                 }
             }
 
-            if (page <= 1) {
-                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
-            } else if (page == 2) {
-                // Sonic has its own CTAs; still show dots for continuity
-                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 4.dp, bottom = 4.dp))
-            } else {
-                AuraPageDots(pageCount = PAGE_COUNT, current = page, modifier = Modifier.padding(top = 8.dp, bottom = 4.dp))
-            }
+            // Breathing room above pager so CTAs / Skip / Maybe Later never jam the home indicator.
+            AuraPageDots(
+                pageCount = PAGE_COUNT,
+                current = page,
+                modifier = Modifier.padding(top = 12.dp, bottom = 10.dp),
+            )
         }
     }
 }
@@ -260,31 +258,30 @@ fun OnboardingScreen(
 private fun WelcomePage(onGetStarted: () -> Unit) {
     val config = LocalConfiguration.current
     val compact = config.screenHeightDp < 720 || config.fontScale > 1.1f
-    val titleSp = if (compact) 30 else 34
-    val waveH = if (compact) 64.dp else 80.dp
+    val titleSp = if (compact) 34 else 40
+    val waveH = if (compact) 64.dp else 76.dp
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(if (compact) 12.dp else 20.dp))
-        AuraWordmark(showMusicLabel = false, fontSize = if (compact) 18 else 20)
-        Spacer(Modifier.height(if (compact) 16.dp else 24.dp))
+        // Single hero brand path — no sticky top wordmark chrome.
+        Spacer(Modifier.height(if (compact) 28.dp else 40.dp))
         Text(
             text = "Welcome to",
             color = Color.White.copy(alpha = 0.85f),
             fontSize = if (compact) 15.sp else 16.sp,
             textAlign = TextAlign.Center,
         )
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(6.dp))
         AuraSerifTitle(
-            text = "KELKOO",
+            text = "Kelkoo",
             color = AuraGold,
             fontSize = titleSp,
-            letterSpacing = 4f,
+            letterSpacing = 1.2f,
         )
-        Spacer(Modifier.height(if (compact) 20.dp else 28.dp))
+        Spacer(Modifier.height(if (compact) 18.dp else 24.dp))
         AuraWaveform(height = waveH)
         Spacer(Modifier.height(8.dp))
         Icon(
@@ -296,7 +293,7 @@ private fun WelcomePage(onGetStarted: () -> Unit) {
         Spacer(Modifier.height(if (compact) 12.dp else 16.dp))
         Text(
             text = stringResource(R.string.onboarding_welcome_subtitle),
-            color = Color.White.copy(alpha = 0.7f),
+            color = Color.White.copy(alpha = 0.72f),
             fontSize = if (compact) 13.sp else 14.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -305,12 +302,12 @@ private fun WelcomePage(onGetStarted: () -> Unit) {
         AuraGlassPillButton(
             label = stringResource(R.string.get_started),
             onClick = onGetStarted,
-            filled = false,
-            leadingIcon = R.drawable.navigate_next,
+            filled = true,
+            trailingIcon = R.drawable.navigate_next,
             compact = true,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -319,36 +316,36 @@ private fun SyncPage(onNext: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
     ) {
-        Spacer(Modifier.height(16.dp))
-        AuraWordmark(showMusicLabel = true, fontSize = 20)
-        Spacer(Modifier.height(28.dp))
-        Text(
-            text = stringResource(R.string.onboarding_sync_title),
+        Spacer(Modifier.height(12.dp))
+        // Balanced wrap — never leave "Car" orphaned alone on line 2.
+        AuraReadableTitle(
+            text = "Seamlessly Sync to\nPhone and Car",
             color = Color.White,
-            fontWeight = FontWeight.Bold,
-            fontSize = 24.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 8.dp),
+            fontSize = 24,
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
-        Spacer(Modifier.height(28.dp))
+        Spacer(Modifier.height(24.dp))
         AuraSyncIllustration()
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.onboarding_sync_subtitle),
             color = Color.White.copy(alpha = 0.65f),
             fontSize = 15.sp,
             textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
-        Spacer(Modifier.weight(1f))
+        Spacer(Modifier.height(28.dp))
         AuraGlassPillButton(
             label = stringResource(R.string.onboarding_next),
             onClick = onNext,
             filled = true,
+            trailingIcon = R.drawable.navigate_next,
             compact = true,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -372,25 +369,16 @@ private fun SonicProfilePage(
             .padding(horizontal = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(if (compact) 8.dp else 12.dp))
-        AuraWordmark(showMusicLabel = true, fontSize = if (compact) 18 else 20)
-        Spacer(Modifier.height(if (compact) 12.dp else 16.dp))
-        Text(
-            text = "Discover Your",
+        Spacer(Modifier.height(if (compact) 12.dp else 20.dp))
+        AuraReadableTitle(
+            text = "Discover your\nsonic profile",
             color = Color.White,
-            fontSize = if (compact) 18.sp else 20.sp,
-            textAlign = TextAlign.Center,
+            fontSize = if (compact) 24 else 28,
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
-        AuraSerifTitle(
-            text = "Sonic Profile",
-            color = AuraGold,
-            fontSize = if (compact) 26 else 30,
-        )
+        Spacer(Modifier.height(if (compact) 8.dp else 12.dp))
+        AuraSonicIllustration(height = if (compact) 120.dp else 160.dp)
         Spacer(Modifier.height(8.dp))
-        if (!compact) {
-            AuraSonicIllustration()
-            Spacer(Modifier.height(8.dp))
-        }
         Text(
             text = stringResource(R.string.onboarding_sonic_subtitle),
             color = Color.White.copy(alpha = 0.7f),
@@ -398,18 +386,18 @@ private fun SonicProfilePage(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 12.dp),
         )
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(16.dp))
         Text(
             text = "Pick moods that feel like you",
             color = AuraGold.copy(alpha = 0.9f),
             fontSize = 12.sp,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 10.dp),
         )
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth(),
         ) {
             moods.forEach { mood ->
@@ -420,20 +408,21 @@ private fun SonicProfilePage(
                 )
             }
         }
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(22.dp))
         AuraGlassPillButton(
-            label = stringResource(R.string.get_started),
+            label = stringResource(R.string.continue_listening),
             onClick = onGetStarted,
-            filled = false,
-            leadingIcon = R.drawable.music_note,
+            filled = true,
+            trailingIcon = R.drawable.navigate_next,
             compact = true,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
+        Spacer(Modifier.height(4.dp))
         AuraTextLink(
-            label = stringResource(R.string.onboarding_sonic_skip) + " ›",
+            label = stringResource(R.string.onboarding_sonic_skip),
             onClick = onSkip,
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -456,19 +445,20 @@ private fun PermissionsPage(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(8.dp))
-        AuraWordmark(showMusicLabel = true, fontSize = 18)
-        Spacer(Modifier.height(20.dp))
-        AuraSerifTitle(
-            text = stringResource(R.string.onboarding_permissions_title),
-            fontSize = 28,
+        Spacer(Modifier.height(16.dp))
+        AuraReadableTitle(
+            text = "Enable your journey",
+            color = Color.White,
+            fontSize = 26,
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
         Spacer(Modifier.height(8.dp))
         Text(
             text = stringResource(R.string.onboarding_permissions_subtitle),
-            color = Color.White.copy(alpha = 0.7f),
+            color = Color.White.copy(alpha = 0.72f),
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp),
         )
         Spacer(Modifier.height(20.dp))
         PermissionToggleCard(
@@ -477,35 +467,35 @@ private fun PermissionsPage(
             description = stringResource(R.string.permission_location_desc),
             checked = locationAllowed,
             onCheckedChange = { onToggleLocation() },
-        )
-        if (locationAllowed) {
-            Spacer(Modifier.height(8.dp))
-            Text(
-                text = "Location focus",
-                color = AuraGold.copy(alpha = 0.85f),
-                fontSize = 12.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 6.dp),
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                listOf(
-                    "metro" to "Metro area",
-                    "city" to "City charts",
-                    "travel" to "Travel mode",
-                ).forEach { (code, label) ->
-                    PreferenceChip(
-                        label = label,
-                        selected = locationFocus == code,
-                        onClick = { onLocationFocus(code) },
+            belowToggle = {
+                if (locationAllowed) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = "Location focus",
+                        color = AuraGold.copy(alpha = 0.9f),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(bottom = 8.dp),
                     )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        listOf(
+                            "metro" to "Metro area",
+                            "city" to "City charts",
+                            "travel" to "Travel mode",
+                        ).forEach { (code, label) ->
+                            PreferenceChip(
+                                label = label,
+                                selected = locationFocus == code,
+                                onClick = { onLocationFocus(code) },
+                            )
+                        }
+                    }
                 }
-            }
-        }
+            },
+        )
         Spacer(Modifier.height(12.dp))
         PermissionToggleCard(
             icon = R.drawable.notification,
@@ -528,12 +518,14 @@ private fun PermissionsPage(
             onClick = onGrant,
             filled = true,
             compact = true,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
+        Spacer(Modifier.height(2.dp))
         AuraTextLink(
             label = stringResource(R.string.onboarding_maybe_later),
             onClick = onMaybeLater,
         )
+        Spacer(Modifier.height(8.dp))
     }
 }
 
@@ -544,45 +536,49 @@ private fun PermissionToggleCard(
     description: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    belowToggle: @Composable () -> Unit = {},
 ) {
     AuraGlassCard {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .border(1.dp, AuraGold.copy(alpha = 0.6f), CircleShape)
-                    .clip(CircleShape),
-                contentAlignment = Alignment.Center,
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = null,
-                    tint = AuraGold,
-                    modifier = Modifier.size(22.dp),
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .border(1.dp, AuraGold.copy(alpha = 0.6f), CircleShape)
+                        .clip(CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = null,
+                        tint = AuraGold,
+                        modifier = Modifier.size(22.dp),
+                    )
+                }
+                Spacer(Modifier.size(14.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                    Text(
+                        description,
+                        color = Color.White.copy(alpha = 0.72f),
+                        fontSize = 12.sp,
+                    )
+                }
+                Switch(
+                    checked = checked,
+                    onCheckedChange = onCheckedChange,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.Black,
+                        checkedTrackColor = AuraGold,
+                        uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
+                        uncheckedTrackColor = Color.White.copy(alpha = 0.15f),
+                    ),
                 )
             }
-            Spacer(Modifier.size(14.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(title, color = Color.White, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                Text(
-                    description,
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontSize = 12.sp,
-                )
-            }
-            Switch(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.Black,
-                    checkedTrackColor = AuraGold,
-                    uncheckedThumbColor = Color.White.copy(alpha = 0.7f),
-                    uncheckedTrackColor = Color.White.copy(alpha = 0.15f),
-                ),
-            )
+            belowToggle()
         }
     }
 }
@@ -621,20 +617,20 @@ private fun PreferencesPage(
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(8.dp))
-        AuraWordmark(showMusicLabel = true, fontSize = 18)
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         Icon(
             painter = painterResource(R.drawable.globe),
             contentDescription = null,
             tint = AuraGold,
-            modifier = Modifier.size(72.dp),
+            modifier = Modifier.size(44.dp),
         )
-        Spacer(Modifier.height(16.dp))
-        AuraSerifTitle(
-            text = stringResource(R.string.onboarding_preferences_title),
-            color = AuraGold,
+        Spacer(Modifier.height(12.dp))
+        // Title case + balanced wrap — never orphan a trailing single letter.
+        AuraReadableTitle(
+            text = "Choose your\npreferences",
+            color = Color.White,
             fontSize = 26,
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
         Spacer(Modifier.height(20.dp))
 
@@ -651,8 +647,8 @@ private fun PreferencesPage(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(regionShape)
-                .background(Color(0xFF1A1A1A).copy(alpha = 0.7f))
-                .border(1.dp, AuraGold.copy(alpha = 0.45f), regionShape)
+                .background(Color(0xFF1A1A1A).copy(alpha = 0.55f))
+                .border(1.dp, AuraGold.copy(alpha = 0.5f), regionShape)
                 .clickable { onShowAllCountries(!showAllCountries) }
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -703,8 +699,8 @@ private fun PreferencesPage(
                 .padding(bottom = 6.dp),
         )
         FlowRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             languageCodes.forEach { code ->
                 PreferenceChip(
@@ -722,15 +718,15 @@ private fun PreferencesPage(
             onClick = { onShowAllLanguages(!showAllLanguages) },
         )
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(24.dp))
         AuraGlassPillButton(
             label = stringResource(R.string.onboarding_save_preferences),
             onClick = onSave,
-            filled = false,
-            leadingIcon = R.drawable.music_note,
+            filled = true,
             compact = true,
-            modifier = Modifier.widthIn(max = 280.dp),
+            modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
         )
+        Spacer(Modifier.height(2.dp))
         AuraTextLink(
             label = stringResource(R.string.onboarding_change_later),
             onClick = onChangeLater,
@@ -752,7 +748,7 @@ private fun PreferenceChip(
             .background(if (selected) AuraGold else Color.Transparent)
             .border(1.dp, AuraGold.copy(alpha = 0.7f), shape)
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 10.dp),
+            .padding(horizontal = 18.dp, vertical = 12.dp),
     ) {
         Text(
             text = label,

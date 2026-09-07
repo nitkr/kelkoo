@@ -21,7 +21,7 @@
     <string name="onboarding_preferences_title">Choose Your Preferences</string>
     <string name="onboarding_preferences_region">Region</string>
     <string name="onboarding_preferences_language">Language</string>
-    <string name="onboarding_save_preferences">Save Preferences</string>
+    <string name="onboarding_save_preferences">Save preferences</string>
     <string name="onboarding_change_later">Change Later</string>
     <string name="onboarding_languages_title">Music languages</string>
     <string name="onboarding_languages_subtitle">Suggested for your country. Add more if you like. Change later in Settings.</string>
