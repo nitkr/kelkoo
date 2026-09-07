@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -307,9 +308,16 @@ fun AuraWaveform(
 fun AuraSyncIllustration(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.fillMaxWidth().height(156.dp)) {
         val gold = AuraGold
-        val strokeThin = Stroke(width = 2.4.dp.toPx(), cap = StrokeCap.Round)
-        val stroke = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
-        val strokeBold = Stroke(width = 3.4.dp.toPx(), cap = StrokeCap.Round)
+        val strokeThin = Stroke(
+            width = 2.4.dp.toPx(),
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round,
+        )
+        val stroke = Stroke(
+            width = 3.dp.toPx(),
+            cap = StrokeCap.Round,
+            join = StrokeJoin.Round,
+        )
 
         // —— Phone (left): modern rounded device with speaker + screen ——
         val phoneW = size.width * 0.16f
@@ -343,44 +351,127 @@ fun AuraSyncIllustration(modifier: Modifier = Modifier) {
             style = strokeThin,
         )
 
-        // —— Car (right): recognizable side-profile silhouette ——
-        val carL = size.width * 0.58f
-        val carR = size.width * 0.90f
-        val groundY = size.height * 0.72f
-        val bodyY = size.height * 0.52f
-        val roofY = size.height * 0.28f
-        val wheelR = 9.dp.toPx()
+        // —— Car (right): aerodynamic side profile, soft curves matching phone ——
+        val carL = size.width * 0.56f
+        val carR = size.width * 0.92f
+        val carW = carR - carL
+        val groundY = size.height * 0.76f
+        val sillY = size.height * 0.56f
+        val roofY = size.height * 0.24f
+        val hoodY = size.height * 0.46f
+        val wheelR = 9.5.dp.toPx()
+        val wellR = wheelR + 2.5.dp.toPx()
+        val frontWx = carL + carW * 0.27f
+        val rearWx = carL + carW * 0.73f
+        val bodyBottom = groundY - wheelR * 0.15f
 
+        // Continuous coupe silhouette with cubic sweeps + integrated wheel wells
         val carBody = Path().apply {
-            // Bumper → hood → windshield → roof → rear → bumper
-            moveTo(carL, bodyY)
-            lineTo(carL + (carR - carL) * 0.12f, bodyY)
-            lineTo(carL + (carR - carL) * 0.28f, roofY)
-            lineTo(carL + (carR - carL) * 0.72f, roofY)
-            lineTo(carL + (carR - carL) * 0.88f, bodyY)
-            lineTo(carR, bodyY)
-            lineTo(carR, groundY - wheelR * 0.35f)
-            lineTo(carL, groundY - wheelR * 0.35f)
+            // Front bumper → soft nose into hood
+            moveTo(carL + carW * 0.04f, sillY)
+            cubicTo(
+                carL - carW * 0.02f, sillY + 2.dp.toPx(),
+                carL + carW * 0.01f, hoodY + 6.dp.toPx(),
+                carL + carW * 0.16f, hoodY,
+            )
+            // Hood sweep into windshield
+            cubicTo(
+                carL + carW * 0.24f, hoodY - 4.dp.toPx(),
+                carL + carW * 0.28f, roofY + 20.dp.toPx(),
+                carL + carW * 0.36f, roofY + 2.dp.toPx(),
+            )
+            // Soft roof arc
+            cubicTo(
+                carL + carW * 0.44f, roofY - 5.dp.toPx(),
+                carL + carW * 0.60f, roofY - 5.dp.toPx(),
+                carL + carW * 0.70f, roofY + 4.dp.toPx(),
+            )
+            // Rear glass → deck → soft rear bumper
+            cubicTo(
+                carL + carW * 0.80f, roofY + 18.dp.toPx(),
+                carL + carW * 0.86f, hoodY,
+                carL + carW * 0.96f, sillY,
+            )
+            cubicTo(
+                carR + carW * 0.03f, sillY + 4.dp.toPx(),
+                carR, bodyBottom - 8.dp.toPx(),
+                carR - carW * 0.05f, bodyBottom,
+            )
+            // Underbody with rear wheel well (arc into chassis)
+            lineTo(rearWx + wellR, bodyBottom)
+            arcTo(
+                rect = androidx.compose.ui.geometry.Rect(
+                    rearWx - wellR,
+                    bodyBottom - wellR * 1.55f,
+                    rearWx + wellR,
+                    bodyBottom + wellR * 0.45f,
+                ),
+                startAngleDegrees = 12f,
+                sweepAngleDegrees = -204f,
+                forceMoveTo = false,
+            )
+            // Sill between wells
+            lineTo(frontWx + wellR, bodyBottom)
+            arcTo(
+                rect = androidx.compose.ui.geometry.Rect(
+                    frontWx - wellR,
+                    bodyBottom - wellR * 1.55f,
+                    frontWx + wellR,
+                    bodyBottom + wellR * 0.45f,
+                ),
+                startAngleDegrees = 12f,
+                sweepAngleDegrees = -204f,
+                forceMoveTo = false,
+            )
+            // Front underbody closes into bumper
+            lineTo(carL + carW * 0.08f, bodyBottom)
+            cubicTo(
+                carL + carW * 0.02f, bodyBottom,
+                carL - carW * 0.01f, sillY + 10.dp.toPx(),
+                carL + carW * 0.04f, sillY,
+            )
             close()
         }
-        drawPath(carBody, gold, style = strokeBold)
-        // Cabin window
+        drawPath(carBody, gold, style = stroke)
+
+        // Cabin glass — soft parallelogram with rounded joins
         val win = Path().apply {
-            moveTo(carL + (carR - carL) * 0.32f, bodyY - 4.dp.toPx())
-            lineTo(carL + (carR - carL) * 0.38f, roofY + 8.dp.toPx())
-            lineTo(carL + (carR - carL) * 0.68f, roofY + 8.dp.toPx())
-            lineTo(carL + (carR - carL) * 0.78f, bodyY - 4.dp.toPx())
+            moveTo(carL + carW * 0.34f, sillY - 2.dp.toPx())
+            cubicTo(
+                carL + carW * 0.36f, roofY + 18.dp.toPx(),
+                carL + carW * 0.40f, roofY + 8.dp.toPx(),
+                carL + carW * 0.46f, roofY + 8.dp.toPx(),
+            )
+            cubicTo(
+                carL + carW * 0.58f, roofY + 6.dp.toPx(),
+                carL + carW * 0.64f, roofY + 8.dp.toPx(),
+                carL + carW * 0.70f, roofY + 14.dp.toPx(),
+            )
+            cubicTo(
+                carL + carW * 0.74f, roofY + 22.dp.toPx(),
+                carL + carW * 0.76f, sillY - 6.dp.toPx(),
+                carL + carW * 0.72f, sillY - 2.dp.toPx(),
+            )
             close()
         }
         drawPath(win, gold.copy(alpha = 0.7f), style = strokeThin)
-        // Wheels
+
+        // Wheels sit inside wells (same stroke family as phone)
         val wheelY = groundY
-        val frontWheelX = carL + (carR - carL) * 0.26f
-        val rearWheelX = carL + (carR - carL) * 0.74f
-        drawCircle(gold, radius = wheelR, center = Offset(frontWheelX, wheelY), style = stroke)
-        drawCircle(gold, radius = wheelR * 0.42f, center = Offset(frontWheelX, wheelY), style = strokeThin)
-        drawCircle(gold, radius = wheelR, center = Offset(rearWheelX, wheelY), style = stroke)
-        drawCircle(gold, radius = wheelR * 0.42f, center = Offset(rearWheelX, wheelY), style = strokeThin)
+        drawCircle(gold, radius = wheelR, center = Offset(frontWx, wheelY), style = stroke)
+        drawCircle(
+            gold.copy(alpha = 0.75f),
+            radius = wheelR * 0.38f,
+            center = Offset(frontWx, wheelY),
+            style = strokeThin,
+        )
+        drawCircle(gold, radius = wheelR, center = Offset(rearWx, wheelY), style = stroke)
+        drawCircle(
+            gold.copy(alpha = 0.75f),
+            radius = wheelR * 0.38f,
+            center = Offset(rearWx, wheelY),
+            style = strokeThin,
+        )
 
         // —— Center: smooth dual sync arrows (cycle) ——
         val cx = size.width * 0.455f
@@ -416,7 +507,7 @@ fun AuraSyncIllustration(modifier: Modifier = Modifier) {
     }
 }
 
-/** Head + waves sonic profile — symmetric arcs left and right of centered oval. */
+/** Sonic profile — circular sound burst (waveform + tight arcs), not biometric. */
 @Composable
 fun AuraSonicIllustration(
     modifier: Modifier = Modifier,
@@ -426,45 +517,58 @@ fun AuraSonicIllustration(
         val gold = AuraGold
         val cx = size.width * 0.5f
         val cy = size.height * 0.5f
-        val ovalW = 70.dp.toPx()
-        val ovalH = 110.dp.toPx()
-        drawOval(
+        // Match mood-chip border weight (~1.dp UI → ~2.8–3.dp canvas stroke)
+        val strokeBold = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round)
+        val strokeMid = Stroke(width = 2.6.dp.toPx(), cap = StrokeCap.Round)
+
+        // Perfect circle container — music/speaker, not fingerprint oval
+        val radius = minOf(size.height * 0.28f, 48.dp.toPx())
+        drawCircle(
             color = gold,
-            topLeft = Offset(cx - ovalW / 2f, cy - ovalH / 2f),
-            size = androidx.compose.ui.geometry.Size(ovalW, ovalH),
-            style = Stroke(width = 2.5.dp.toPx()),
+            radius = radius,
+            center = Offset(cx, cy),
+            style = strokeBold,
         )
-        for (i in 1..4) {
-            val r = 48.dp.toPx() + i * 16.dp.toPx()
-            val alpha = 0.75f - i * 0.12f
-            drawArc(
-                color = gold.copy(alpha = alpha),
-                startAngle = -55f,
-                sweepAngle = 110f,
-                useCenter = false,
-                topLeft = Offset(cx - r * 0.15f, cy - r),
-                size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
-                style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round),
-            )
-            drawArc(
-                color = gold.copy(alpha = alpha),
-                startAngle = 125f,
-                sweepAngle = 110f,
-                useCenter = false,
-                topLeft = Offset(cx - r * 1.85f, cy - r),
-                size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
-                style = Stroke(width = 1.8.dp.toPx(), cap = StrokeCap.Round),
+
+        // Bold waveform bars filling the circle
+        val barCount = 9
+        val barGap = radius * 1.35f / barCount
+        val barLeft = cx - (barCount - 1) * barGap / 2f
+        val heights = floatArrayOf(0.28f, 0.48f, 0.72f, 0.92f, 1.0f, 0.92f, 0.72f, 0.48f, 0.28f)
+        for (i in 0 until barCount) {
+            val h = radius * 1.15f * heights[i]
+            val x = barLeft + i * barGap
+            drawLine(
+                color = gold,
+                start = Offset(x, cy - h / 2f),
+                end = Offset(x, cy + h / 2f),
+                strokeWidth = 3.2.dp.toPx(),
+                cap = StrokeCap.Round,
             )
         }
-        val wx = cx - 15.dp.toPx()
-        for (i in 0 until 7) {
-            val h = (8 + (i % 4) * 6).dp.toPx()
-            drawLine(
-                gold,
-                Offset(wx + i * 5.dp.toPx(), cy - h / 2),
-                Offset(wx + i * 5.dp.toPx(), cy + h / 2),
-                strokeWidth = 2.dp.toPx(),
-                cap = StrokeCap.Round,
+
+        // Tight radiating arcs — one burst hugging the circle (not distant rings)
+        for (i in 1..3) {
+            val r = radius + 8.dp.toPx() + (i - 1) * 10.dp.toPx()
+            val alpha = 0.85f - (i - 1) * 0.18f
+            val sweep = 56f - (i - 1) * 6f
+            drawArc(
+                color = gold.copy(alpha = alpha),
+                startAngle = -sweep / 2f,
+                sweepAngle = sweep,
+                useCenter = false,
+                topLeft = Offset(cx - r, cy - r),
+                size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
+                style = strokeMid,
+            )
+            drawArc(
+                color = gold.copy(alpha = alpha),
+                startAngle = 180f - sweep / 2f,
+                sweepAngle = sweep,
+                useCenter = false,
+                topLeft = Offset(cx - r, cy - r),
+                size = androidx.compose.ui.geometry.Size(r * 2f, r * 2f),
+                style = strokeMid,
             )
         }
     }
