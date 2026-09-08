@@ -41,13 +41,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,12 +73,9 @@ import app.kelkoo.music.ui.aura.AuraGlassPillButton
 import app.kelkoo.music.ui.aura.AuraGold
 import app.kelkoo.music.ui.aura.AuraPageDots
 import app.kelkoo.music.ui.aura.AuraReadableTitle
-import app.kelkoo.music.ui.aura.AuraSerifTitle
 import app.kelkoo.music.ui.aura.AuraSonicIllustration
 import app.kelkoo.music.ui.aura.AuraSyncIllustration
 import app.kelkoo.music.ui.aura.AuraTextLink
-import app.kelkoo.music.ui.aura.AuraVoidBackground
-import app.kelkoo.music.ui.aura.AuraWaveform
 import app.kelkoo.music.utils.ContentLanguageSupport
 import app.kelkoo.music.utils.dataStore
 import app.kelkoo.music.utils.setAppLocale
@@ -197,14 +198,18 @@ fun OnboardingScreen(
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        AuraVoidBackground(Modifier.fillMaxSize())
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            // bg_gold_waves asset not available — Color.Black full-screen placeholder
+            .background(Color.Black)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .padding(horizontal = 20.dp, vertical = 10.dp)
+                .padding(horizontal = 24.dp, vertical = 10.dp)
         ) {
             AnimatedContent(
                 targetState = page,
@@ -255,11 +260,11 @@ fun OnboardingScreen(
                 }
             }
 
-            // Breathing room above pager so CTAs / Skip / Maybe Later never jam the home indicator.
+            // 24.dp between CTA cluster and pager; safe-area already via navBarsPadding.
             AuraPageDots(
                 pageCount = PAGE_COUNT,
                 current = page,
-                modifier = Modifier.padding(top = 12.dp, bottom = 10.dp),
+                modifier = Modifier.padding(top = 24.dp, bottom = 10.dp),
             )
         }
     }
@@ -267,55 +272,79 @@ fun OnboardingScreen(
 
 @Composable
 private fun WelcomePage(onGetStarted: () -> Unit) {
-    val config = LocalConfiguration.current
-    val compact = config.screenHeightDp < 720 || config.fontScale > 1.1f
-    // ~25% smaller than prior 34/40 — less wide/heavy; more L/R margin via padding.
-    val titleSp = if (compact) 26 else 30
-    val waveH = if (compact) 58.dp else 68.dp
-    AuraBottomAnchoredHero(
-        modifier = Modifier.padding(horizontal = 16.dp),
-        cta = {
-            AuraGlassPillButton(
-                label = stringResource(R.string.get_started),
-                onClick = onGetStarted,
-                filled = true,
-                trailingIcon = R.drawable.navigate_next,
-                compact = true,
-                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
-            )
-        },
+    val gold = Color(0xFFD4AF37)
+    val ctaGold = Color(0xFFE4B53D)
+    val bodyGray = Color(0xFFB0B0B0)
+    val ctaShape = RoundedCornerShape(50)
+
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // One vertical cluster: Welcome to + wordmark + waveform + subtitle.
+        // ~top 40% empty (weight 0.8 vs 1.0 below content)
+        Spacer(Modifier.weight(0.8f))
+
         Text(
-            text = "Welcome to",
-            color = Color.White.copy(alpha = 0.85f),
-            fontSize = if (compact) 15.sp else 16.sp,
+            text = "KELKOO",
+            color = gold,
+            fontWeight = FontWeight.Bold,
+            fontSize = 42.sp,
+            fontFamily = FontFamily.Default,
+            letterSpacing = 2.sp,
             textAlign = TextAlign.Center,
+            style = TextStyle(
+                shadow = Shadow(
+                    color = Color.Black.copy(alpha = 0.55f),
+                    offset = Offset(0f, 4f),
+                    blurRadius = 16f,
+                ),
+            ),
         )
-        Spacer(Modifier.height(if (compact) 10.dp else 12.dp))
-        AuraSerifTitle(
-            text = "Kelkoo",
-            color = AuraGold,
-            fontSize = titleSp,
-            letterSpacing = 0.8f,
-            modifier = Modifier.padding(horizontal = 12.dp),
+        Spacer(Modifier.height(16.dp))
+        Text(
+            text = "Every Mile. Every Rhythm.\nCurated for the Journey.",
+            color = gold,
+            fontWeight = FontWeight.Medium,
+            fontSize = 22.sp,
+            fontFamily = FontFamily.Default,
+            textAlign = TextAlign.Center,
+            lineHeight = 28.sp,
         )
-        Spacer(Modifier.height(if (compact) 16.dp else 20.dp))
-        AuraWaveform(
-            height = waveH,
+        Spacer(Modifier.height(24.dp))
+        Text(
+            text = "Unlock curated soundtracks designed\nto perfectly score your path.",
+            color = bodyGray,
+            fontWeight = FontWeight.Light,
+            fontSize = 14.sp,
+            fontFamily = FontFamily.Default,
+            textAlign = TextAlign.Center,
+            lineHeight = 20.sp,
             modifier = Modifier.padding(horizontal = 8.dp),
         )
-        // Waveform alone signals music — no decorative note.
-        Spacer(Modifier.height(if (compact) 10.dp else 12.dp))
-        Text(
-            text = stringResource(R.string.onboarding_welcome_subtitle),
-            color = Color.White.copy(alpha = 0.72f),
-            fontSize = if (compact) 13.sp else 14.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 20.dp),
-        )
+
+        Spacer(Modifier.weight(1f))
+
+        // Pill CTA: full width within 24.dp horizontal safe pad (parent inset).
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .clip(ctaShape)
+                .background(ctaGold)
+                .clickable(onClick = onGetStarted),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = "Get Started >",
+                color = Color.Black,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                fontFamily = FontFamily.Default,
+            )
+        }
     }
 }
+
 
 @Composable
 private fun SyncPage(onNext: () -> Unit) {
