@@ -31,6 +31,14 @@
     <string name="pin_from_library">Pin from Library</string>
     <string name="nothing_playing_pick">Nothing playing — pick from Home or Search</string>
     <string name="home_empty_explore_tip">Nothing here yet — open Explore to find music</string>
+    <string name="discover_new_music">Discover New Music</string>
+    <string name="home_warm_start_subtitle">Your library is empty — start with something fresh</string>
+    <string name="made_for_you">Made for You</string>
+    <string name="trending_now">Trending Now</string>
+    <string name="mood_morning_energy">Morning Energy</string>
+    <string name="mood_afternoon_chill">Afternoon Chill</string>
+    <string name="mood_focus">Focus</string>
+    <string name="mood_night_drive">Night Drive</string>
     <string name="good_morning">Good morning</string>
     <string name="good_afternoon">Good afternoon</string>
     <string name="good_evening">Good evening</string>

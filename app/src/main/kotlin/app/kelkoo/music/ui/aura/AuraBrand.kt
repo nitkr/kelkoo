@@ -1,5 +1,13 @@
 package app.kelkoo.music.ui.aura
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -592,6 +600,80 @@ fun AuraSonicIllustration(
                 style = strokeMid,
             )
         }
+    }
+}
+
+
+/**
+ * Minimal Home warm-start flair — soft spinning gold disc + music note.
+ * No Lottie; Compose-only Aura chrome.
+ */
+@Composable
+fun AuraWarmStartDisc(
+    modifier: Modifier = Modifier,
+    size: Dp = 88.dp,
+) {
+    val infinite = rememberInfiniteTransition(label = "warmStartDisc")
+    val rotation by infinite.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 12_000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "discSpin",
+    )
+    Box(
+        modifier = modifier.size(size),
+        contentAlignment = Alignment.Center,
+    ) {
+        Canvas(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer { rotationZ = rotation },
+        ) {
+            val gold = AuraGold
+            val cx = this.size.width / 2f
+            val cy = this.size.height / 2f
+            val outer = this.size.minDimension * 0.46f
+            drawCircle(
+                color = gold.copy(alpha = 0.18f),
+                radius = outer,
+                center = Offset(cx, cy),
+            )
+            drawCircle(
+                color = gold.copy(alpha = 0.55f),
+                radius = outer,
+                center = Offset(cx, cy),
+                style = Stroke(width = 2.2.dp.toPx()),
+            )
+            drawCircle(
+                color = gold.copy(alpha = 0.35f),
+                radius = outer * 0.62f,
+                center = Offset(cx, cy),
+                style = Stroke(width = 1.6.dp.toPx()),
+            )
+            // Groove rings
+            for (i in 1..3) {
+                drawCircle(
+                    color = gold.copy(alpha = 0.12f),
+                    radius = outer * (0.28f + i * 0.1f),
+                    center = Offset(cx, cy),
+                    style = Stroke(width = 1.dp.toPx()),
+                )
+            }
+            drawCircle(
+                color = gold.copy(alpha = 0.85f),
+                radius = outer * 0.14f,
+                center = Offset(cx, cy),
+            )
+        }
+        Icon(
+            painter = painterResource(R.drawable.music_note),
+            contentDescription = null,
+            tint = AuraGold,
+            modifier = Modifier.size((size.value * 0.34f).dp),
+        )
     }
 }
 
