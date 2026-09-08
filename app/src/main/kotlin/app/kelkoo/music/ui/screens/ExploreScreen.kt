@@ -195,6 +195,7 @@ fun ExploreScreen(
             } else {
                 BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
                     val dualRail = maxWidth >= 600.dp
+                    Column(modifier = Modifier.fillMaxWidth()) {
                     if (dualRail) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -338,6 +339,7 @@ fun ExploreScreen(
                         },
                         onRefresh = ::refreshAll,
                     )
+                    }
                 }
             }
 
