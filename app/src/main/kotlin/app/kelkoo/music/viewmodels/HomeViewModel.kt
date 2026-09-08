@@ -95,6 +95,12 @@ class HomeViewModel @Inject constructor(
     val accountPlaylists = MutableStateFlow<List<PlaylistItem>?>(null)
     val homePage = MutableStateFlow<HomePage?>(null)
     val explorePage = MutableStateFlow<ExplorePage?>(null)
+    /** Home warm-start: Explore-style albums/playlists even with empty library. */
+    val warmStartTrending = MutableStateFlow<List<YTItem>>(emptyList())
+    /** Seeded from onboarding ContentLanguagesKey language shelves. */
+    val warmStartMadeForYou = MutableStateFlow<List<YTItem>>(emptyList())
+    val warmStartMoodTitle = MutableStateFlow("")
+    val warmStartMoodItems = MutableStateFlow<List<YTItem>>(emptyList())
     val communityPlaylists = MutableStateFlow<List<CommunityPlaylistItem>?>(null)
     val selectedChip = MutableStateFlow<HomePage.Chip?>(null)
     private val previousHomePage = MutableStateFlow<HomePage?>(null)
@@ -574,6 +580,75 @@ class HomeViewModel @Inject constructor(
         return sections
     }
 
+
+    private fun timeBasedMood(): Pair<String, String> {
+        val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+        return when (hour) {
+            in 5..11 -> "Morning Energy" to "morning energy playlist"
+            in 12..16 -> "Afternoon Chill" to "afternoon chill playlist"
+            in 17..20 -> "Focus" to "focus music playlist"
+            else -> "Night Drive" to "night drive playlist"
+        }
+    }
+
+    private fun publishTrendingFromPrimary() {
+        val fromHome = homePage.value?.sections
+            ?.asSequence()
+            ?.filterNot { it.title.endsWith(" for you") }
+            ?.flatMap { it.items.asSequence() }
+            ?.filter { it is AlbumItem || it is PlaylistItem || it is SongItem }
+            ?.distinctBy { it.id }
+            ?.take(20)
+            ?.toList()
+            .orEmpty()
+        val fromExplore = explorePage.value?.newReleaseAlbums.orEmpty()
+        val merged = (fromHome + fromExplore).distinctBy { it.id }.take(20)
+        if (merged.isNotEmpty()) {
+            warmStartTrending.value = merged
+        }
+    }
+
+    private fun publishMadeForYouFromLanguageSections(sections: List<HomePage.Section>) {
+        val items = sections
+            .filter { it.title.endsWith(" for you") }
+            .flatMap { it.items }
+            .distinctBy { it.id }
+            .take(20)
+        warmStartMadeForYou.value = items
+    }
+
+    private suspend fun loadMoodWarmStart(
+        hideExplicit: Boolean,
+        hideVideoSongs: Boolean,
+        hideYoutubeShorts: Boolean,
+    ) {
+        val (title, query) = timeBasedMood()
+        warmStartMoodTitle.value = title
+        YouTube.search(query, YouTube.SearchFilter.FILTER_FEATURED_PLAYLIST)
+            .onSuccess { result ->
+                val items = result.items
+                    .filterExplicit(hideExplicit)
+                    .filterVideoSongs(hideVideoSongs)
+                    .filterYoutubeShorts(hideYoutubeShorts)
+                    .take(16)
+                if (items.isNotEmpty()) {
+                    warmStartMoodItems.value = items
+                }
+            }
+            .onFailure {
+                // Fallback to song search — still a warm row, never crash.
+                YouTube.search(query, YouTube.SearchFilter.FILTER_SONG)
+                    .onSuccess { result ->
+                        warmStartMoodItems.value = result.items
+                            .filterExplicit(hideExplicit)
+                            .filterVideoSongs(hideVideoSongs)
+                            .filterYoutubeShorts(hideYoutubeShorts)
+                            .take(16)
+                    }
+                    .onFailure { reportException(it) }
+            }
+    }
+
     private suspend fun loadNetworkDataPhase() {
         val hideExplicit = context.dataStore.get(HideExplicitKey, false)
         val hideVideoSongs = context.dataStore.get(HideVideoSongsKey, false)
@@ -607,6 +682,9 @@ class HomeViewModel @Inject constructor(
             }
         }
 
+        // Warm-start Trending from primary Explore/home data (empty library OK).
+        publishTrendingFromPrimary()
+
         // Primary shelves ready (or failed) — stop Explore full-screen wait.
         isLoading.value = false
 
@@ -623,6 +701,10 @@ class HomeViewModel @Inject constructor(
             } else {
                 HomePage(chips = null, sections = languageSections)
             }
+            // Made for You from onboarding languages (ContentLanguagesKey path).
+            publishMadeForYouFromLanguageSections(languageSections)
+        } else {
+            warmStartMadeForYou.value = emptyList()
         }
 
         // Secondary enrichment (can be slow; UI already has shelves).
@@ -630,6 +712,9 @@ class HomeViewModel @Inject constructor(
             launch(Dispatchers.IO) { getDailyDiscover() }
             launch(Dispatchers.IO) { getCommunityPlaylists() }
             launch(Dispatchers.IO) { loadSimilarRecommendations() }
+            launch(Dispatchers.IO) {
+                loadMoodWarmStart(hideExplicit, hideVideoSongs, hideYoutubeShorts)
+            }
             if (YouTube.cookie != null) {
                 launch(Dispatchers.IO) { loadAccountPlaylists() }
             }
