@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -70,10 +69,14 @@ private val SecondaryIcon = 24.dp
  * Highway Halo fullscreen Now Playing — Drive Night charcoal field,
  * full square/rounded-rect album art hero, classic horizontal wave seek bar.
  *
- * Vertical balance: art near top with air; transport lower; secondary row
- * anchored near bottom above safe area / Dial.
+ * Vertical balance (immersive polish):
+ * - Maximize album art (square near L/R edges ~16dp); content flows down.
+ * - Waveform scrubber + timestamps grouped tightly ABOVE transport (not title).
+ * - Flexible Spacer/weight between title and scrubber kills mid-screen void
+ *   and scales on tall folds without hard-coded one-height.
+ * - Extra air between transport and Queue|Heart|Add utility row.
  *
- * Dash triad Option A (immersive polish):
+ * Dash triad Option A:
  * - Transport: shuffle · prev · play · next · repeat (gold when on)
  * - Footer: Queue | Heart | Add to playlist — Lyrics in ⋮ overflow
  * - Top-left minimize chevron; top-right ⋮ overflow
@@ -125,7 +128,7 @@ fun HighwayHaloNowPlaying(
             .fillMaxSize()
             .background(HaloCharcoal)
             .windowInsetsPadding(WindowInsets.systemBars)
-            .padding(horizontal = 24.dp),
+            .padding(horizontal = 16.dp),
     ) {
         // Top row — minimize (v) left + ⋮ overflow right
         Row(
@@ -255,13 +258,13 @@ fun HighwayHaloNowPlaying(
             }
         }
 
-        // Art near top — capped so controls are not jammed into upper 60%
+        // Maximize album art — largest square in available slot (~16dp L/R)
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(0.48f, fill = true)
-                .padding(top = 8.dp),
+                .weight(0.56f, fill = true)
+                .padding(top = 4.dp),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
@@ -270,14 +273,15 @@ fun HighwayHaloNowPlaying(
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxHeight()
+                    .fillMaxSize()
                     .aspectRatio(1f)
                     .clip(HeroCorner)
                     .background(HaloCharcoalElevated),
             )
         }
 
-        Spacer(Modifier.height(16.dp))
+        // (a) art → title/artist
+        Spacer(Modifier.height(12.dp))
 
         Text(
             text = mediaMetadata.title,
@@ -309,8 +313,10 @@ fun HighwayHaloNowPlaying(
                 .padding(horizontal = 16.dp),
         )
 
-        Spacer(Modifier.height(14.dp))
+        // (b) title/artist → scrubber — flexible; kills mid void & scales on tall folds
+        Spacer(Modifier.weight(0.22f))
 
+        // Scrubber + timestamps grouped with transport (not title)
         WaveSeekBar(
             progress = progress,
             isPlaying = isPlaying,
@@ -348,8 +354,8 @@ fun HighwayHaloNowPlaying(
             )
         }
 
-        // Push transport + secondary toward bottom
-        Spacer(Modifier.weight(0.28f))
+        // (c) scrubber → transport — tight cluster
+        Spacer(Modifier.height(10.dp))
 
         // Transport — shuffle · prev · play · next · repeat
         Row(
@@ -443,9 +449,10 @@ fun HighwayHaloNowPlaying(
             }
         }
 
-        Spacer(Modifier.height(10.dp))
+        // (d) transport → utility — breathing room (not cramped under play)
+        Spacer(Modifier.height(22.dp))
 
-        // Secondary Dash triad — Queue | Heart | Add to playlist (anchored near bottom)
+        // Secondary Dash triad — Queue | Heart | Add to playlist
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -490,7 +497,8 @@ fun HighwayHaloNowPlaying(
             }
         }
 
-        Spacer(Modifier.height(8.dp))
+        // (e) utility → bottom safe inset (systemBars already applied)
+        Spacer(Modifier.height(14.dp))
     }
 }
 
