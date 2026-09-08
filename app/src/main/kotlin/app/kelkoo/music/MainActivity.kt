@@ -853,6 +853,7 @@ class MainActivity : ComponentActivity() {
                     shouldShowTopBar = currentRoute in topLevelScreens &&
                         currentRoute != "settings" &&
                         currentRoute != Screens.Search.route &&
+                        currentRoute != Screens.Explore.route &&
                         !(isListenTogetherScreen && listenTogetherInTopBar)
                 }
 

@@ -63,4 +63,12 @@
     <string name="capsule_exported">Exported</string>
     <string name="capsule_local">Local</string>
     <string name="mood_energize">Energize</string>
+
+    <!-- E2 Clear Shelves Explore -->
+    <string name="see_all">See all</string>
+    <string name="moods">Moods</string>
+    <string name="genres">Genres</string>
+    <string name="new_releases">New Releases</string>
+    <string name="nothing_here_yet">Nothing here yet</string>
+    <string name="search_music">Search music</string>
 </resources>
