@@ -74,7 +74,7 @@ fun NavGraphBuilder.navigationBuilder(
     }
 
     composable(Screens.Explore.route) {
-        HomeScreen(navController = navController, snackbarHostState = snackbarHostState)
+        ExploreScreen(navController = navController)
     }
 
     composable(Screens.Search.route) {
