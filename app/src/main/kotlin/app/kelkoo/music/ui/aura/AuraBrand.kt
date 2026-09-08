@@ -137,16 +137,20 @@ fun AuraPageDots(
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(pageCount) { index ->
+            val active = index == current
             Box(
                 modifier = Modifier
                     .padding(horizontal = 4.dp)
-                    .size(if (index == current) 10.dp else 8.dp)
-                    .clip(CircleShape)
+                    .height(8.dp)
+                    .width(if (active) 20.dp else 8.dp)
+                    .clip(RoundedCornerShape(50))
                     .background(
-                        if (index == current) AuraGold
-                        else Color.White.copy(alpha = 0.22f)
+                        // Welcome = page index 0 → FIRST dot gold pill; inactive #333333
+                        if (active) Color(0xFFD4AF37)
+                        else Color(0xFF333333)
                     )
             )
         }
