@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -46,6 +47,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -87,8 +89,11 @@ private val ExplorePagePad = 18.dp
 private val ExploreShelfGap = 30.dp
 private val ChartRowHeight = 68.dp
 private val ChartRowGap = 8.dp
-private val MoodCardWidth = 160.dp
-private val MoodCardHeight = 200.dp
+private val MoodCardWidth = 150.dp
+private val MoodCardHeight = 180.dp
+private val MoodStripeWidth = 6.dp
+private val ExploreVisibleGenres = 10
+private val ExploreVisibleCharts = 10
 private val NewReleaseArt = 120.dp
 private val GenreTileMinHeight = 72.dp
 private val MetaGrey = Color(0xFFA0A0A0)
@@ -121,6 +126,7 @@ fun ExploreScreen(
     val isExploreLoading by exploreViewModel.isLoading.collectAsState()
     val chartsPage by chartsViewModel.chartsPage.collectAsState()
     val isChartsLoading by chartsViewModel.isLoading.collectAsState()
+    val chartsError by chartsViewModel.error.collectAsState()
 
     val scrollState = rememberScrollState()
 
@@ -141,14 +147,17 @@ fun ExploreScreen(
         }
     }
 
+    // Walk chart sections in order (same idea as ChartsScreen) — first section can be empty.
     val chartSongs = remember(chartsPage) {
         chartsPage?.sections
-            ?.firstOrNull { it.title != "Top music videos" }
-            ?.items
-            ?.filterIsInstance<SongItem>()
-            ?.distinctBy { it.id }
-            ?.take(8)
             .orEmpty()
+            .asSequence()
+            .filter { it.title != "Top music videos" }
+            .flatMap { it.items.asSequence() }
+            .filterIsInstance<SongItem>()
+            .distinctBy { it.id }
+            .take(ExploreVisibleCharts)
+            .toList()
     }
 
     val moods = moodItems.ifEmpty { explorePage?.moodAndGenres.orEmpty() }
@@ -206,6 +215,7 @@ fun ExploreScreen(
                                     songs = chartSongs,
                                     isPlaying = isPlaying,
                                     activeId = mediaMetadata?.id,
+                                    errorMessage = chartsError,
                                     onSeeAll = { navController.navigate("charts_screen") },
                                     onRefresh = ::refreshAll,
                                     onPlay = { song ->
@@ -260,6 +270,7 @@ fun ExploreScreen(
                             songs = chartSongs,
                             isPlaying = isPlaying,
                             activeId = mediaMetadata?.id,
+                            errorMessage = chartsError,
                             onSeeAll = { navController.navigate("charts_screen") },
                             onRefresh = ::refreshAll,
                             onPlay = { song ->
@@ -337,6 +348,7 @@ fun ExploreScreen(
                                 "youtube_browse/${genre.endpoint.browseId}?params=${genre.endpoint.params}",
                             )
                         },
+                        onSeeAll = { navController.navigate("mood_and_genres") },
                         onRefresh = ::refreshAll,
                     )
                     }
@@ -411,7 +423,7 @@ private fun ExploreShelfHeader(
             text = title,
             color = AuraGold,
             fontFamily = bbhBartle,
-            fontSize = 24.sp,
+            fontSize = 19.sp,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.weight(1f),
             maxLines = 1,
@@ -433,7 +445,10 @@ private fun ExploreShelfHeader(
 }
 
 @Composable
-private fun ExploreEmptyShelf(onRefresh: () -> Unit) {
+private fun ExploreEmptyShelf(
+    onRefresh: () -> Unit,
+    errorMessage: String? = null,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -445,6 +460,16 @@ private fun ExploreEmptyShelf(onRefresh: () -> Unit) {
             color = MetaGrey,
             fontSize = 14.sp,
         )
+        if (!errorMessage.isNullOrBlank()) {
+            Text(
+                text = errorMessage,
+                color = MetaGrey.copy(alpha = 0.85f),
+                fontSize = 12.sp,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 4.dp),
+            )
+        }
         TextButton(onClick = onRefresh) {
             Text(
                 text = stringResource(R.string.refresh),
@@ -487,6 +512,7 @@ private fun ChartsShelf(
     songs: List<SongItem>,
     isPlaying: Boolean,
     activeId: String?,
+    errorMessage: String? = null,
     onSeeAll: () -> Unit,
     onRefresh: () -> Unit,
     onPlay: (SongItem) -> Unit,
@@ -500,7 +526,7 @@ private fun ChartsShelf(
                 onSeeAll = onSeeAll,
             )
             if (songs.isEmpty()) {
-                ExploreEmptyShelf(onRefresh = onRefresh)
+                ExploreEmptyShelf(onRefresh = onRefresh, errorMessage = errorMessage)
             } else {
                 Column(verticalArrangement = Arrangement.spacedBy(ChartRowGap)) {
                     songs.forEachIndexed { index, song ->
@@ -624,6 +650,16 @@ private fun MoodsShelf(
     }
 }
 
+/** Resolve a readable accent from Innertube stripe; gold when stripe is near-black/zero. */
+private fun moodAccentColor(stripeColor: Long): Color {
+    val rgb = (stripeColor and 0xFFFFFFL).toInt()
+    val r = (rgb shr 16) and 0xFF
+    val g = (rgb shr 8) and 0xFF
+    val b = rgb and 0xFF
+    val luminance = 0.299f * r + 0.587f * g + 0.114f * b
+    return if (luminance < 28f) AuraGold else Color(0xFF000000.toInt() or rgb)
+}
+
 @Composable
 private fun MoodCinematicCard(
     title: String,
@@ -636,7 +672,10 @@ private fun MoodCinematicCard(
         animationSpec = tween(120),
         label = "moodPress",
     )
-    val base = Color(stripeColor.toInt() or 0xFF000000.toInt())
+    val accent = moodAccentColor(stripeColor)
+    // Visible surface — never near-black empty glass. Soft tint from accent.
+    val surface = Color(0xFF1C222A)
+    val tinted = lerp(surface, accent, 0.28f)
     Box(
         modifier = Modifier
             .size(width = MoodCardWidth, height = MoodCardHeight)
@@ -659,30 +698,48 @@ private fun MoodCinematicCard(
                 )
             },
     ) {
+        // Surface fill (readable tile, not blank black)
         Box(
             Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
                         listOf(
-                            base.copy(alpha = 0.85f),
-                            Color(0xFF1A2228),
-                            Color(0xFF0A0A0A),
+                            tinted,
+                            surface,
+                            Color(0xFF141820),
                         ),
                     ),
                 ),
         )
+        // Strong left stripe accent (MoodAndGenresButton spirit, cinematic size)
+        Box(
+            Modifier
+                .align(Alignment.CenterStart)
+                .fillMaxHeight()
+                .width(MoodStripeWidth)
+                .background(accent),
+        )
+        // Subtle top-right icon — no fake AsyncImage album art
+        Icon(
+            painter = painterResource(R.drawable.music_note),
+            contentDescription = null,
+            tint = accent.copy(alpha = 0.22f),
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(12.dp)
+                .size(28.dp),
+        )
         Text(
             text = title,
             color = Color.White,
-            fontFamily = bbhBartle,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(12.dp),
+                .padding(start = 14.dp, end = 12.dp, bottom = 14.dp),
         )
     }
 }
@@ -767,15 +824,20 @@ private fun GenresShelf(
     genres: List<MoodAndGenres.Item>,
     columns: Int,
     onClick: (MoodAndGenres.Item) -> Unit,
+    onSeeAll: () -> Unit,
     onRefresh: () -> Unit,
 ) {
     ShelfEnter {
         Column(modifier = Modifier.fillMaxWidth()) {
-            ExploreShelfHeader(title = stringResource(R.string.genres))
+            ExploreShelfHeader(
+                title = stringResource(R.string.genres),
+                onSeeAll = onSeeAll,
+            )
             if (genres.isEmpty()) {
                 ExploreEmptyShelf(onRefresh = onRefresh)
             } else {
-                val rows = genres.chunked(columns)
+                val visible = genres.take(ExploreVisibleGenres)
+                val rows = visible.chunked(columns)
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     rows.forEach { rowItems ->
                         Row(
@@ -783,7 +845,7 @@ private fun GenresShelf(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             rowItems.forEachIndexed { indexInRow, genre ->
-                                val globalIndex = genres.indexOf(genre).coerceAtLeast(0)
+                                val globalIndex = visible.indexOf(genre).coerceAtLeast(0)
                                 GenreTile(
                                     title = scrubMoodTitle(genre.title),
                                     iconRes = GenreIcons[globalIndex % GenreIcons.size],
@@ -845,7 +907,7 @@ private fun ExploreClearShelvesSkeleton() {
             text = stringResource(R.string.charts),
             color = AuraGold.copy(alpha = 0.35f),
             fontFamily = bbhBartle,
-            fontSize = 24.sp,
+            fontSize = 19.sp,
             modifier = Modifier.padding(bottom = 12.dp),
         )
         repeat(4) {
@@ -863,7 +925,7 @@ private fun ExploreClearShelvesSkeleton() {
             text = stringResource(R.string.moods),
             color = AuraGold.copy(alpha = 0.35f),
             fontFamily = bbhBartle,
-            fontSize = 24.sp,
+            fontSize = 19.sp,
             modifier = Modifier.padding(bottom = 12.dp),
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
