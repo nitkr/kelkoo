@@ -83,6 +83,7 @@ constructor(
             }
 
         // Prefer sectioned moods/genres page when available (E2 Moods vs Genres shelves).
+        // Do not wipe explore-derived shelves with empty halves; keep explore fallback for Moods.
         YouTube.moodAndGenres()
             .onSuccess { sections ->
                 val moods = sections.firstOrNull {
@@ -91,9 +92,18 @@ constructor(
                 val genres = sections.firstOrNull {
                     it.title.contains("genre", ignoreCase = true)
                 }?.items.orEmpty()
-                if (moods.isNotEmpty() || genres.isNotEmpty()) {
-                    _moodItems.value = moods.ifEmpty { genres }
-                    _genreItems.value = genres.ifEmpty { moods }
+                if (moods.isNotEmpty()) {
+                    _moodItems.value = moods
+                }
+                if (genres.isNotEmpty()) {
+                    _genreItems.value = genres
+                }
+                // If Moods still empty after split, fall back to explore moodAndGenres carousel.
+                if (_moodItems.value.isEmpty()) {
+                    val exploreItems = explorePage.value?.moodAndGenres.orEmpty()
+                    if (exploreItems.isNotEmpty()) {
+                        _moodItems.value = exploreItems
+                    }
                 }
             }
             .onFailure {
