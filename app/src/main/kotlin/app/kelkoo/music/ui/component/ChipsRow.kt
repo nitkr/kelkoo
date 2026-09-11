@@ -74,7 +74,8 @@ fun <E> ChipsRow(
             .horizontalScroll(rememberScrollState())
             .windowInsetsPadding(WindowInsets.systemBars.only(WindowInsetsSides.Horizontal)),
     ) {
-        Spacer(Modifier.width(12.dp))
+        // Match Home/Library/Account page gutter (16.dp).
+        Spacer(Modifier.width(16.dp))
 
         chips.forEach { (value, label) ->
             val isSelected = currentValue == value

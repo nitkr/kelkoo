@@ -3,6 +3,7 @@ package app.kelkoo.music.ui.screens
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,7 +27,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
@@ -118,13 +119,17 @@ fun AccountScreen(
 
     val insets = LocalPlayerAwareWindowInsets.current.asPaddingValues()
 
+    // Shared left gutter with Home / Library (16.dp). Avoid nesting 12+4 and
+    // IconButton default min-touch padding — that combo caused the staircase.
+    val pagePad = 16.dp
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyVerticalGrid(
             columns = GridCells.Adaptive(minSize = minCell.coerceAtLeast(96.dp)),
             contentPadding = PaddingValues(
-                start = 12.dp,
-                end = 12.dp,
-                top = insets.calculateTopPadding() + 8.dp,
+                start = pagePad,
+                end = pagePad,
+                top = insets.calculateTopPadding() + 4.dp,
                 bottom = insets.calculateBottomPadding() + 16.dp,
             ),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -132,38 +137,55 @@ fun AccountScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             item(span = { GridItemSpan(maxLineSpan) }) {
-                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 4.dp)) {
-                    // Single H1 — no interior wordmark; Settings lives in global top bar only.
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    // Single H1 — no interior wordmark; Settings lives in global top bar + outlined CTA.
                     Text(
                         text = stringResource(R.string.account),
                         color = Color.White,
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp,
-                        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp),
+                        modifier = Modifier.padding(bottom = 6.dp),
                     )
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            .padding(bottom = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        IconButton(onClick = { navController.navigate("history") }) {
+                        // Compact actions share the same left edge as the H1 / avatar / CTAs.
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable { navController.navigate("history") },
+                            // CenterStart: glyph shares H1/avatar left edge; extra hit area to the right.
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
                             Icon(
                                 painter = painterResource(R.drawable.music_history),
                                 contentDescription = stringResource(R.string.history),
                                 tint = AuraGold,
+                                modifier = Modifier.size(24.dp),
                             )
                         }
-                        IconButton(onClick = { navController.navigate("listen_together") }) {
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clickable { navController.navigate("listen_together") },
+                            contentAlignment = Alignment.CenterStart,
+                        ) {
                             Icon(
                                 painter = painterResource(R.drawable.group_outlined),
                                 contentDescription = stringResource(R.string.together),
                                 tint = AuraGold,
+                                modifier = Modifier.size(24.dp),
                             )
                         }
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
                         Box(
                             modifier = Modifier
                                 .size(56.dp)
@@ -189,7 +211,12 @@ fun AccountScreen(
                             }
                         }
                         Spacer(Modifier.width(14.dp))
-                        Column {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .heightIn(min = 56.dp),
+                            verticalArrangement = Arrangement.Center,
+                        ) {
                             Text(
                                 text = if (isLoggedIn) displayName else stringResource(R.string.login),
                                 color = Color.White,
@@ -208,7 +235,7 @@ fun AccountScreen(
                         }
                     }
                     if (!isLoggedIn) {
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(12.dp))
                         AuraGlassPillButton(
                             label = stringResource(R.string.action_login),
                             onClick = { navController.navigate("login") },
@@ -223,12 +250,13 @@ fun AccountScreen(
                             compact = true,
                         )
                     }
-                    Spacer(Modifier.height(12.dp))
+                    Spacer(Modifier.height(8.dp))
                 }
             }
 
             if (isLoggedIn) {
                 item(span = { GridItemSpan(maxLineSpan) }) {
+                    // Cancel grid pagePad — ChipsRow already leads with 12.dp + system insets.
                     ChipsRow(
                         chips = listOf(
                             AccountContentType.PLAYLISTS to stringResource(R.string.filter_playlists),
@@ -237,6 +265,7 @@ fun AccountScreen(
                         ),
                         currentValue = selectedContentType,
                         onValueUpdate = { viewModel.setSelectedContentType(it) },
+                        modifier = Modifier.padding(horizontal = -pagePad),
                     )
                 }
 
