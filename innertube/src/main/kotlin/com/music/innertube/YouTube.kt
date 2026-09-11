@@ -27,6 +27,7 @@ import com.music.innertube.models.extractCountText
 import com.music.innertube.models.getContinuation
 import com.music.innertube.models.getItems
 import com.music.innertube.models.oddElements
+import com.music.innertube.models.splitBySeparator
 import com.music.innertube.models.response.AccountMenuResponse
 import com.music.innertube.models.response.BrowseResponse
 import com.music.innertube.models.response.CreatePlaylistResponse
@@ -994,6 +995,22 @@ object YouTube {
                         )
                     }
                 }
+
+                // Some chart tabs render as musicShelfRenderer (list) rather than carousel.
+                content.musicShelfRenderer?.let { renderer ->
+                    val title = renderer.title?.runs?.firstOrNull()?.text ?: return@let
+                    val items = renderer.contents?.getItems()?.mapNotNull { convertToChartItem(it) }
+                        .orEmpty()
+                    if (items.isNotEmpty()) {
+                        sections.add(
+                            ChartsPage.ChartSection(
+                                title = title,
+                                items = items,
+                                chartType = determineChartType(title),
+                            )
+                        )
+                    }
+                }
             }
 
         ChartsPage(
@@ -1012,47 +1029,66 @@ object YouTube {
 
     private fun convertToChartItem(renderer: MusicResponsiveListItemRenderer): YTItem? {
         return try {
-            when {
-                renderer.flexColumns.size >= 3 && renderer.playlistItemData?.videoId != null -> {
-                    val firstColumn = renderer.flexColumns.getOrNull(0)
-                        ?.musicResponsiveListItemFlexColumnRenderer
-                        ?.text ?: return null
-                
-                    val secondColumn = renderer.flexColumns.getOrNull(1)
-                        ?.musicResponsiveListItemFlexColumnRenderer
-                        ?.text ?: return null
+            // Charts carousels often ship 2 flex columns (title + artists) without a
+            // rank column — requiring size >= 3 dropped every SongItem and left Explore empty.
+            val videoId = renderer.playlistItemData?.videoId
+                ?: renderer.navigationEndpoint?.watchEndpoint?.videoId
+                ?: renderer.overlay?.musicItemThumbnailOverlayRenderer
+                    ?.content?.musicPlayButtonRenderer
+                    ?.playNavigationEndpoint?.watchEndpoint?.videoId
+                ?: renderer.flexColumns.firstOrNull()
+                    ?.musicResponsiveListItemFlexColumnRenderer
+                    ?.text?.runs?.firstOrNull()
+                    ?.navigationEndpoint?.watchEndpoint?.videoId
+                ?: return null
 
-                    val titleRun = firstColumn.runs?.firstOrNull() ?: return null
-                    val title = titleRun.text.takeIf { it.isNotBlank() } ?: return null
+            val title = renderer.flexColumns.firstOrNull()
+                ?.musicResponsiveListItemFlexColumnRenderer
+                ?.text?.runs?.firstOrNull()?.text
+                ?.takeIf { it.isNotBlank() }
+                ?: return null
 
-                    val artists = secondColumn.runs?.mapNotNull { run ->
-                        run.text.takeIf { it.isNotBlank() }?.let { name ->
-                            Artist(
-                                name = name,
-                                id = run.navigationEndpoint?.browseEndpoint?.browseId
-                            )
-                        }
-                    } ?: emptyList()
-
-                    val thirdColumn = renderer.flexColumns.getOrNull(2)
-                        ?.musicResponsiveListItemFlexColumnRenderer
-                        ?.text
-
-                    SongItem(
-                        id = renderer.playlistItemData.videoId,
-                        title = title,
-                        artists = artists,
-                        thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
-                        musicVideoType = renderer.musicVideoType,
-                        explicit = renderer.badges?.any { 
-                            it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE" 
-                        } == true,
-                        chartPosition = thirdColumn?.runs?.firstOrNull()?.text?.toIntOrNull(),
-                        chartChange = thirdColumn?.runs?.getOrNull(1)?.text
+            val secondaryRuns = renderer.flexColumns.getOrNull(1)
+                ?.musicResponsiveListItemFlexColumnRenderer
+                ?.text?.runs
+            val artists = secondaryRuns
+                ?.splitBySeparator()
+                ?.firstOrNull()
+                ?.oddElements()
+                ?.map { run ->
+                    Artist(
+                        name = run.text,
+                        id = run.navigationEndpoint?.browseEndpoint?.browseId,
                     )
                 }
-                else -> null
-            }
+                ?: secondaryRuns?.mapNotNull { run ->
+                    run.text.takeIf { it.isNotBlank() && it != "•" }?.let { name ->
+                        Artist(
+                            name = name,
+                            id = run.navigationEndpoint?.browseEndpoint?.browseId,
+                        )
+                    }
+                }
+                ?: emptyList()
+
+            val thirdColumn = renderer.flexColumns.getOrNull(2)
+                ?.musicResponsiveListItemFlexColumnRenderer
+                ?.text
+
+            SongItem(
+                id = videoId,
+                title = title,
+                artists = artists,
+                thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
+                musicVideoType = renderer.musicVideoType,
+                explicit = renderer.badges?.any {
+                    it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
+                } == true,
+                chartPosition = thirdColumn?.runs?.firstOrNull()?.text?.toIntOrNull(),
+                chartChange = thirdColumn?.runs?.getOrNull(1)?.text,
+                endpoint = renderer.overlay?.musicItemThumbnailOverlayRenderer?.content
+                    ?.musicPlayButtonRenderer?.playNavigationEndpoint?.watchEndpoint,
+            )
         } catch (e: Exception) {
             println("Error converting chart item: ${e.message}\n${Json.encodeToString(renderer)}")
             null
@@ -1063,13 +1099,16 @@ object YouTube {
         return try {
             when {
                 renderer.isSong -> {
-                    val subtitle = renderer.subtitle?.runs ?: return null
+                    val subtitle = renderer.subtitle?.runs.orEmpty()
                     SongItem(
                         id = renderer.navigationEndpoint.watchEndpoint?.videoId ?: return null,
                         title = renderer.title.runs?.firstOrNull()?.text ?: return null,
-                        artists = subtitle.mapNotNull {
-                            it.navigationEndpoint?.browseEndpoint?.browseId?.let { id ->
-                                Artist(name = it.text, id = id)
+                        artists = subtitle.mapNotNull { run ->
+                            run.text.takeIf { it.isNotBlank() && it != "•" }?.let { name ->
+                                Artist(
+                                    name = name,
+                                    id = run.navigationEndpoint?.browseEndpoint?.browseId,
+                                )
                             }
                         },
                         thumbnail = renderer.thumbnailRenderer.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
