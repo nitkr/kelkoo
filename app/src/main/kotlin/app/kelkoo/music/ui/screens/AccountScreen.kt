@@ -240,14 +240,14 @@ fun AccountScreen(
                             label = stringResource(R.string.action_login),
                             onClick = { navController.navigate("login") },
                             filled = true,
-                            compact = true,
+                            compact = false,
                         )
                         Spacer(Modifier.height(8.dp))
                         AuraGlassPillButton(
                             label = stringResource(R.string.settings),
                             onClick = { navController.navigate("settings/account") },
                             filled = false,
-                            compact = true,
+                            compact = false,
                         )
                     }
                     Spacer(Modifier.height(8.dp))
