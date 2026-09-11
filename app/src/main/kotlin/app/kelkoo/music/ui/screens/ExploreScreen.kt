@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,7 +34,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -75,6 +75,7 @@ import app.kelkoo.music.R
 import app.kelkoo.music.models.toMediaMetadata
 import app.kelkoo.music.playback.queues.YouTubeQueue
 import app.kelkoo.music.ui.aura.AuraGold
+import app.kelkoo.music.ui.aura.AuraTextLink
 import app.kelkoo.music.ui.aura.scrubMoodTitle
 import app.kelkoo.music.ui.component.LocalMenuState
 import app.kelkoo.music.ui.component.shimmer.ShimmerHost
@@ -85,7 +86,11 @@ import app.kelkoo.music.viewmodels.ChartsViewModel
 import app.kelkoo.music.viewmodels.ExploreViewModel
 import kotlinx.coroutines.delay
 
-private val ExplorePagePad = 18.dp
+// Match Home / Library / Account (16.dp). Keep title+content on one gutter.
+private val ExplorePagePad = 16.dp
+// bbhBartle is an ultra-wide display face: ink bbox can match sans, but stems
+// read ~2.dp inset vs search chrome / LazyRow tiles. Nudge titles optically flush.
+private val ExploreTitleOpticalNudge = (-2).dp
 private val ExploreShelfGap = 30.dp
 private val ChartRowHeight = 68.dp
 private val ChartRowGap = 8.dp
@@ -417,17 +422,24 @@ private fun ExploreShelfHeader(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        // Top: multi-line titles (e.g. New Releases) must not vertically center away from See all.
+        verticalAlignment = Alignment.Top,
     ) {
         Text(
             text = title,
             color = AuraGold,
             fontFamily = bbhBartle,
             fontSize = 19.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.weight(1f),
-            maxLines = 1,
+            // Family only ships Normal; Medium stays nearest-match without Bold fallback quirks.
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier
+                .weight(1f)
+                .offset(x = ExploreTitleOpticalNudge)
+                .padding(end = 8.dp),
+            // Allow wrap so "New Releases" is not eaten by See all + ultra-wide advances.
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis,
+            softWrap = true,
         )
         if (onSeeAll != null) {
             Text(
@@ -470,13 +482,12 @@ private fun ExploreEmptyShelf(
                 modifier = Modifier.padding(top = 4.dp),
             )
         }
-        TextButton(onClick = onRefresh) {
-            Text(
-                text = stringResource(R.string.refresh),
-                color = AuraGold,
-                fontSize = 14.sp,
-            )
-        }
+        // flushStart: strip TextButton min-touch / content inset so Refresh shares title gutter.
+        AuraTextLink(
+            label = stringResource(R.string.refresh),
+            onClick = onRefresh,
+            flushStart = true,
+        )
     }
 }
 
