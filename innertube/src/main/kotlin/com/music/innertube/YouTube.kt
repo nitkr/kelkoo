@@ -1079,7 +1079,8 @@ object YouTube {
                 id = videoId,
                 title = title,
                 artists = artists,
-                thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl() ?: return null,
+                // Missing art must not discard the SongItem (empty Charts on Explore).
+                thumbnail = renderer.thumbnail?.musicThumbnailRenderer?.getThumbnailUrl().orEmpty(),
                 musicVideoType = renderer.musicVideoType,
                 explicit = renderer.badges?.any {
                     it.musicInlineBadgeRenderer?.icon?.iconType == "MUSIC_EXPLICIT_BADGE"
